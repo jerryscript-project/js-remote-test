@@ -1,15 +1,15 @@
 [submodule "kconfig-frontends"]
-	path = kconfig-frontends
+	path = submodules/kconfig-frontends
 	url = https://github.com/jameswalmsley/kconfig-frontends.git
 [submodule "stlink"]
-	path = stlink
+	path = submodules/stlink
 	url = https://github.com/texane/stlink.git
 [submodule "apps"]
-	path = apps
+	path = submodules/apps
 	url = https://bitbucket.org/nuttx/apps.git
 [submodule "nuttx"]
-	path = nuttx
+	path = submodules/nuttx
 	url = https://bitbucket.org/nuttx/nuttx.git
 [submodule "iotjs"]
-	path = iotjs
+	path = submodules/iotjs
 	url = https://github.com/Samsung/iotjs.git
