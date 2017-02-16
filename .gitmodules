@@ -1,15 +1,18 @@
-[submodule "kconfig-frontends"]
-	path = submodules/kconfig-frontends
+[submodule "projects/web"]
+	path = projects/web
+	url = https://github.com/Samsung/iotjs-test-results.git
+[submodule "projects/kconfig-frontends"]
+	path = projects/kconfig-frontends
 	url = https://github.com/jameswalmsley/kconfig-frontends.git
-[submodule "stlink"]
-	path = submodules/stlink
+[submodule "projects/stlink"]
+	path = projects/stlink
 	url = https://github.com/texane/stlink.git
-[submodule "apps"]
-	path = submodules/apps
+[submodule "projects/apps"]
+	path = projects/apps
 	url = https://bitbucket.org/nuttx/apps.git
-[submodule "nuttx"]
-	path = submodules/nuttx
+[submodule "projects/nuttx"]
+	path = projects/nuttx
 	url = https://bitbucket.org/nuttx/nuttx.git
-[submodule "iotjs"]
-	path = submodules/iotjs
+[submodule "projects/iotjs"]
+	path = projects/iotjs
 	url = https://github.com/Samsung/iotjs.git
