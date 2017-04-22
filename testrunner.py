@@ -184,7 +184,7 @@ class TestRunner(object):
             # Fixme: filesystem tests require writable memory space.
             # Since these are in read-only space, skipping them locally.
             filesystem_tests = [
-                'fs_callbacks_called.js',
+                'test_fs_callbacks_called.js',
                 'test_fs_rename.js',
                 'test_fs_rename_sync.js',
                 'test_fs_writefile_unlink.js',

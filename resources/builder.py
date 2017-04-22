@@ -70,7 +70,7 @@ def build_nuttx():
     os.environ["R"] = "1"
 
     executor.run_cmd(paths.NUTTX_PATH, 'make', ['dirlinks'])
-    executor.run_cmd(paths.NUTTX_PATH, 'make', ['aps_preconfig'], True)
+    executor.run_cmd(paths.NUTTX_PATH, 'make', ['apps_preconfig'])
     executor.run_cmd(paths.NUTTX_PATH, 'make', ['-j1'])
 
 
@@ -81,6 +81,7 @@ def build_iotjs_for_nuttx():
     console.info("Build IoT.js")
 
     build_options = [
+        '--clean',
         '--buildtype=release',
         '--target-board=stm32f4dis',
         '--target-arch=arm',
@@ -99,10 +100,10 @@ def build_iotjs_for_rpi2():
     console.info("Build IoT.js to RPI2")
 
     build_options = [
+        '--clean',
         '--target-arch=arm',
         '--target-board=rpi2',
-        '--buildtype=release',
-        '--clean'
+        '--buildtype=release'
     ]
 
     iotjs = os.path.join(paths.IOTJS_BUILD_PATH, 'iotjs')

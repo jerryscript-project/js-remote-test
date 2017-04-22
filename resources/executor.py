@@ -21,26 +21,25 @@ from . import console
 from . import paths
 
 
-def run_cmd(workdir, cmd, args=[], allow_failure=False):
+def run_cmd(workdir, cmd, args=[]):
     '''
     Execute the given command.
     '''
     try:
         process = subprocess.Popen([cmd] + args, stdout=subprocess.PIPE,
                                    stderr=subprocess.STDOUT, cwd=workdir)
-
         output = process.communicate()[0]
-        exitcode = process.returncode
 
-        if exitcode and not allow_failure:
+        if process.returncode:
             raise Exception('The program returned with non zero exitcode.')
 
     except Exception as e:
-        filename = os.path.join(paths.PROJECT_ROOT, "failure.log")
+        # Create a log file that contains the output of the last command.
+        logfile = os.path.join(paths.PROJECT_ROOT, "failure.log")
 
-        with open(filename, 'w') as logfile_p:
-            logfile_p.write(output)
-            logfile_p.write('\n%s\n' % str(e))
+        with open(logfile, 'w') as logfile_p:
+            logfile_p.write(vars().get('output', ''))
+            logfile_p.write('\n[%s] %s\n' % (cmd, str(e)))
 
         console.fail('[Failed - %s] %s' % (cmd, str(e)))
 
