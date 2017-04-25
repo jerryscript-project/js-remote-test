@@ -32,39 +32,6 @@ from resources import paths
 from resources import utils
 
 
-class TestResult(object):
-    '''
-    A basic class to group the results of a test.
-    '''
-    def __init__(self, name):
-        self.name = name
-        self.result = None
-        self.output = None
-        self.reason = None
-
-
-class TestResultEncoder(json.JSONEncoder):
-    '''
-    An extended JSON encoder for TestResult class.
-    '''
-    def default(self, obj):
-        '''
-        Override JSON encoder method.
-        '''
-        if isinstance(obj, TestResult):
-            output = {'name': obj.name, 'result': obj.result}
-
-            if obj.output:
-                output['output'] = re.sub('\n\r', '<br>', obj.output)
-
-            if obj.reason:
-                output['reason'] = obj.reason
-
-            return output
-
-        return json.JSONEncoder.default(self, obj)
-
-
 class TestRunner(object):
     '''
     This class is responsible for running all the tests on stm32f4.
@@ -105,7 +72,7 @@ class TestRunner(object):
 
         # Write the index.json and the current testresult file.
         utils.write_file(indexfile, output_files)
-        utils.write_file(outputfile, output, serializer=TestResultEncoder)
+        utils.write_file(outputfile, output)
 
         # Do not share the results if it not public.
         if not self.public:
@@ -169,14 +136,14 @@ class TestRunner(object):
         Loop on all tests and process their results.
         '''
         for test in tests:
-            testresult = TestResult(test['name'])
+            testresult = { 'name': test['name'] }
 
             # 1. Skip tests
             if self.skip_test(test):
                 reporter.report_skip(test['name'], test.get('reason'))
 
-                testresult.result = 'skip'
-                testresult.reason = test.get('reason')
+                testresult['result'] = 'skip'
+                testresult['reason'] = test.get('reason')
                 self.results.append(testresult)
 
                 continue
@@ -194,8 +161,8 @@ class TestRunner(object):
             if test['name'] in filesystem_tests:
                 reporter.report_skip(test['name'], test.get('reason'))
 
-                testresult.result = 'skip'
-                testresult.reason = 'test is in read-only memory space'
+                testresult['result'] = 'skip'
+                testresult['reason'] = 'test is in read-only memory space'
                 self.results.append(testresult)
 
                 continue
@@ -207,7 +174,7 @@ class TestRunner(object):
             except net.TimeoutException:
                 reporter.report_timeout(test['name'])
 
-                testresult.result = 'timeout'
+                testresult['result'] = 'timeout'
                 self.results.append(testresult)
 
                 continue
@@ -215,12 +182,12 @@ class TestRunner(object):
             # 3. Process the result.
             if bool(int(exitcode)) == test.get('expected-failure', False):
                 reporter.report_pass(test['name'])
-                testresult.result = 'pass'
+                testresult['result'] = 'pass'
             else:
                 reporter.report_fail(test['name'])
-                testresult.result = 'fail'
+                testresult['result'] = 'fail'
 
-            testresult.output = output
+            testresult['output'] = output
             self.results.append(testresult)
 
     def run_test(self, testset, test):

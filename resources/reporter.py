@@ -57,7 +57,7 @@ def report_final(testresults):
     results['timeout'] = 0
 
     for test in testresults:
-        results[test.result] += 1
+        results[test['result']] += 1
 
     console.log()
     console.log('Finished with all tests:', console.TERMINAL_BLUE)
