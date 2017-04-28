@@ -27,14 +27,14 @@ def flash():
 
     flash_args = ['write', paths.NUTTX_PATH + '/nuttx.bin', '0x8000000']
 
-    executor.run_cmd(paths.STLINK_BUILD_PATH, 'st-flash', flash_args)
+    executor.run_cmd(paths.STLINK_BUILD_PATH, './st-flash', flash_args)
 
 
 def reset():
     '''
     Restart the stm32f4 device.
     '''
-    executor.run_cmd(paths.STLINK_BUILD_PATH, 'st-flash', ['reset'])
+    executor.run_cmd(paths.STLINK_BUILD_PATH, './st-flash', ['reset'])
 
     # Wait a moment to boot the device.
     time.sleep(5)
