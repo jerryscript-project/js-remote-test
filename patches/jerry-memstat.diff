@@ -1,0 +1,68 @@
+diff --git a/jerry-core/api/jerry.c b/jerry-core/api/jerry.c
+index 45ccdaa..87c3ebd 100644
+--- a/jerry-core/api/jerry.c
++++ b/jerry-core/api/jerry.c
+@@ -149,7 +149,7 @@ jerry_init (jerry_init_flag_t flags) /**< combination of Jerry flags */
+   }
+ 
+   /* Zero out all members. */
+-  memset (&JERRY_CONTEXT (JERRY_CONTEXT_FIRST_MEMBER), 0, sizeof (jerry_context_t));
++  // memset (&JERRY_CONTEXT (JERRY_CONTEXT_FIRST_MEMBER), 0, sizeof (jerry_context_t));
+ 
+   JERRY_CONTEXT (jerry_init_flags) = flags;
+ 
+diff --git a/jerry-core/jmem/jmem-heap.c b/jerry-core/jmem/jmem-heap.c
+index 45b62cb..f2b6a35 100644
+--- a/jerry-core/jmem/jmem-heap.c
++++ b/jerry-core/jmem/jmem-heap.c
+@@ -117,8 +117,8 @@ JERRY_STATIC_ASSERT (sizeof (jmem_heap_t) <= JMEM_HEAP_SIZE,
+ #endif
+ 
+ static void jmem_heap_stat_init (void);
+-static void jmem_heap_stat_alloc (size_t num);
+-static void jmem_heap_stat_free (size_t num);
++void jmem_heap_stat_alloc (size_t num);
++void jmem_heap_stat_free (size_t num);
+ static void jmem_heap_stat_skip (void);
+ static void jmem_heap_stat_nonskip (void);
+ static void jmem_heap_stat_alloc_iter (void);
+@@ -582,7 +582,7 @@ jmem_heap_stats_print (void)
+ {
+   jmem_heap_stats_t *heap_stats = &JERRY_CONTEXT (jmem_heap_stats);
+ 
+-  JERRY_DEBUG_MSG ("Heap stats:\n"
++  printf ("Heap stats:\n"
+                    "  Heap size = %zu bytes\n"
+                    "  Allocated = %zu bytes\n"
+                    "  Peak allocated = %zu bytes\n"
+@@ -633,7 +633,7 @@ jmem_heap_stat_init (void)
+ /**
+  * Account allocation
+  */
+-static void
++void
+ jmem_heap_stat_alloc (size_t size) /**< Size of allocated block */
+ {
+   const size_t aligned_size = (size + JMEM_ALIGNMENT - 1) / JMEM_ALIGNMENT * JMEM_ALIGNMENT;
+@@ -659,7 +659,7 @@ jmem_heap_stat_alloc (size_t size) /**< Size of allocated block */
+ /**
+  * Account freeing
+  */
+-static void
++void
+ jmem_heap_stat_free (size_t size) /**< Size of freed block */
+ {
+   const size_t aligned_size = (size + JMEM_ALIGNMENT - 1) / JMEM_ALIGNMENT * JMEM_ALIGNMENT;
+diff --git a/jerry-port/default/default-io.c b/jerry-port/default/default-io.c
+index 6cca973..dcde61c 100644
+--- a/jerry-port/default/default-io.c
++++ b/jerry-port/default/default-io.c
+@@ -78,7 +78,7 @@ jerry_port_log (jerry_log_level_t level, /**< log level */
+   {
+     va_list args;
+     va_start (args, format);
+-    vfprintf (stderr, format, args);
++    // vfprintf (format, args);
+     va_end (args);
+   }
+ } /* jerry_port_log */

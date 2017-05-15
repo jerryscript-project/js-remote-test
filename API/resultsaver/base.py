@@ -12,35 +12,16 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from __future__ import print_function
 
-
-TERMINAL_RED = "\033[1;31m"
-TERMINAL_BLUE = "\033[1;34m"
-TERMINAL_GREEN = "\033[1;32m"
-TERMINAL_EMPTY = "\033[0m"
-TERMINAL_YELLOW = "\033[1;33m"
-
-
-def log(msg='', color=TERMINAL_EMPTY):
+class ResultSaverBase(object):
     '''
-    Print a message with the given color.
+    Base class to define an interface for the result savers.
     '''
-    print("%s%s%s" % (color, msg, TERMINAL_EMPTY))
+    def __init__(self,testrunner):
+        self.testrunner = testrunner
 
-
-def info(msg):
-    '''
-    Print debug message to the screen with green color.
-    '''
-    print("%s%s%s" % (TERMINAL_GREEN, msg, TERMINAL_EMPTY))
-
-
-def fail(msg):
-    '''
-    Print a message with red color and exit.
-    '''
-    print()
-    print("%s%s%s" % (TERMINAL_RED, msg, TERMINAL_EMPTY))
-    print()
-    exit(1)
+    def save(self, is_publish):
+        '''
+        Save the testresults.
+        '''
+        raise NotImplementedError('Use the concrete subclasses.')

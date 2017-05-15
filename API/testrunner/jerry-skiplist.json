@@ -1,0 +1,23 @@
+{
+    "fake": {
+        "testsets": [],
+        "testfiles": []
+    },
+    "rpi2": {
+        "testsets": [],
+        "testfiles": [
+            { "name": "N.compact-profile-error.js", "reason": "compact profile is not enabled" }
+        ]
+    },
+    "stm32f4dis": {
+        "testsets": [],
+        "testfiles": [
+            { "name": "parser-oom.js", "reason": "requires exactly 512KB memory" },
+            { "name": "N.compact-profile-error.js", "reason": "compact profile is not enabled" },
+            { "name": "regression-test-issue-1555.js", "reason": "no enough memory for the test" },
+            { "name": "regression-test-issue-1765.js", "reason": "promise is not supported" },
+            { "name": "regression-test-issue-1763.js", "reason": "promise is not supported" },
+            { "name": "regression-test-issue-1881.js", "reason": "promise is not supported" }
+        ]
+    }
+}

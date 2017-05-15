@@ -15,7 +15,7 @@
 import os
 
 # Root directory for the project (dirname).
-ROOT_FOLDER = os.path.join(os.path.dirname(__file__), os.pardir)
+ROOT_FOLDER = os.path.join(os.path.dirname(__file__), '../..')
 
 #
 # ================================
@@ -38,6 +38,33 @@ CONFIG_PATH = os.path.join(PROJECT_ROOT, 'config')
 # Path to the submodule folder.
 PROJECTS_ROOT = os.path.join(PROJECT_ROOT, 'projects')
 
+#
+# ================================
+#
+
+# Path to the memstat pathes.
+PATCHES_PATH = os.path.join(PROJECT_ROOT, 'patches')
+
+#
+# ================================
+#
+
+OUTPUT_PATH = os.path.join(PROJECT_ROOT, 'results')
+
+#
+# ================================
+#
+
+# Path to the data folder within iotjs-test-results.
+IOTJS_WEB_DATA_PATH = os.path.join(PROJECTS_ROOT, 'iotjs-test-results/data')
+
+# Path to the data folder within jerryscript-test-results.
+JERRY_WEB_DATA_PATH = os.path.join(PROJECTS_ROOT, 'jerryscript-test-results/data')
+
+#
+# ================================
+#
+
 # Path to the iotjs folder.
 IOTJS_PATH = os.path.join(PROJECTS_ROOT, 'iotjs')
 
@@ -59,8 +86,28 @@ IOTJS_TEST_RUN_PASS_PATH = os.path.join(IOTJS_TEST_PATH, 'run_pass')
 # Path to the run_fail folder within test.
 IOTJS_TEST_RUN_FAIL_PATH = os.path.join(IOTJS_TEST_PATH, 'run_fail')
 
+# Path to the minimal build folder.
+IOTJS_MINIMAL_BUILD_PATH = os.path.join(IOTJS_PATH, 'features_disable/build')
+
+# Path to the bin folder of the minimal build.
+IOTJS_MINIMAL_BIN_PATH = os.path.join(IOTJS_MINIMAL_BUILD_PATH, 'arm-linux/release/bin/')
+
+# Path to the deps/libtuv folder.
+IOTJS_LIBTUV_PATH = os.path.join(IOTJS_PATH, 'deps/libtuv')
+
+# Path to the deps/jerry folder.
+IOTJS_JERRY_PATH = os.path.join(IOTJS_PATH, 'deps/jerry')
+
+#
+# ================================
+#
+
 # Path to the kconfig-frontends folder.
 KCONFIG_PATH = os.path.join(PROJECTS_ROOT, 'kconfig-frontends')
+
+#
+# ================================
+#
 
 # Path to the stlink folder.
 STLINK_PATH = os.path.join(PROJECTS_ROOT, 'stlink')
@@ -68,14 +115,9 @@ STLINK_PATH = os.path.join(PROJECTS_ROOT, 'stlink')
 # Path to the build folder within stlink.
 STLINK_BUILD_PATH = os.path.join(STLINK_PATH, 'build/Release/')
 
-# Path to the apps folder.
-APPS_PATH = os.path.join(PROJECTS_ROOT, 'apps')
-
-# Path to the nshlib folder within apps.
-NSHLIB_PATH = os.path.join(APPS_PATH, 'nshlib')
-
-# Path to the iotjs folder within apps.
-APPS_IOTJS_PATH = os.path.join(APPS_PATH, 'system/iotjs')
+#
+# ================================
+#
 
 # Path to the nuttx folder.
 NUTTX_PATH = os.path.join(PROJECTS_ROOT, 'nuttx')
@@ -83,31 +125,37 @@ NUTTX_PATH = os.path.join(PROJECTS_ROOT, 'nuttx')
 # Path to the tools folder within nuttx.
 NUTTX_TOOLS_PATH = os.path.join(NUTTX_PATH, 'tools')
 
+# NuttX include dir
+NUTTX_INCLUDE_PATH = os.path.join(NUTTX_PATH, 'include/nuttx')
+
+# Path to the apps folder.
+NUTTX_APPS_PATH = os.path.join(PROJECTS_ROOT, 'apps')
+
+# Path to the nshlib folder within apps.
+NUTTX_APPS_NSHLIB_PATH = os.path.join(NUTTX_APPS_PATH, 'nshlib')
+
+# Path to the iotjs folder within apps.
+NUTTX_APPS_SYSTEM_PATH = os.path.join(NUTTX_APPS_PATH, 'system')
+
+# Path to the interpreter.
+NUTTX_APPS_INTERPRETER_PATH = os.path.join(NUTTX_APPS_PATH, 'interpreters')
+
 #
 # ================================
 #
 
-OUTPUT_PATH = os.path.join(PROJECT_ROOT, 'results')
+# Path to the iotjs folder.
+JERRY_PATH = os.path.join(PROJECTS_ROOT, 'jerryscript')
 
-#
-# ================================
-#
+# Path to the apps folder within jerry.
+JERRY_APPS_PATH = os.path.join(JERRY_PATH, 'targets/nuttx-stm32f4/')
 
-# Path to the web folder.
-WEB_PATH = os.path.join(PROJECTS_ROOT, 'web')
+JERRY_TEST_JERRY_PATH = os.path.join(JERRY_PATH, 'tests/jerry')
 
-# Path to the data folder within web.
-WEB_DATA_PATH = os.path.join(WEB_PATH, 'data')
+JERRY_TEST_PATH = os.path.join(JERRY_PATH, 'tests')
 
-#
-# ================================
-#
+JERRY_BUILD_PATH = os.path.join(JERRY_PATH, 'build/bin')
 
-# Path to the device folder.
-DEVICE_DEV_PATH = '/dev'
+JERRY_MINIMAL_BUILD_PATH = os.path.join(JERRY_PATH, 'features_disable/build')
 
-# Path to the mounted mmcsd foler.
-DEVICE_MOUNTED_MMCSD_PATH = '/mount/sdcard'
-
-# Path to the mounted ROMFS test folder.
-DEVICE_TEST_PATH = '/test'
+JERRY_MINIMAL_BIN_PATH = os.path.join(JERRY_MINIMAL_BUILD_PATH, 'bin')

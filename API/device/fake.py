@@ -12,29 +12,30 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import time
-
-from . import console
-from . import executor
-from . import paths
+import base
 
 
-def flash():
+class Device(base.DeviceBase):
     '''
-    Flash NuttX to the stm32f4 device.
+    Fake device class. (Only for testing the testrunner.)
     '''
-    console.info('Flashing the device')
+    def __init__(self):
+        super(self.__class__, self).__init__('fake')
 
-    flash_args = ['write', paths.NUTTX_PATH + '/nuttx.bin', '0x8000000']
+    def install_dependencies(self):
+        '''
+        Install dependencies of the board.
+        '''
+        pass
 
-    executor.run_cmd(paths.STLINK_BUILD_PATH, './st-flash', flash_args)
+    def flash(self, os):
+        '''
+        Flash the given operating system to the board.
+        '''
+        pass
 
-
-def reset():
-    '''
-    Restart the stm32f4 device.
-    '''
-    executor.run_cmd(paths.STLINK_BUILD_PATH, './st-flash', ['reset'])
-
-    # Wait a moment to boot the device.
-    time.sleep(5)
+    def execute(self, cmd, args=[]):
+        '''
+        Run the given command on the board.
+        '''
+        return 0, '', 0

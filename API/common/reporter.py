@@ -45,7 +45,7 @@ def report_skip(test, reason):
 
 def report_start():
     console.log()
-    console.log('IoT.js remote testing has been started')
+    console.log('Remote testing has been started')
 
 
 def report_final(testresults):
