@@ -89,17 +89,18 @@ class Device(base.DeviceBase):
         '''
         Send command to the device and set a timeout.
         '''
-        signal.alarm(self.timeout)
-
         self.telnet.write('%s\n' % cmd)
-
-        signal.alarm(0)
 
     def read_data(self):
         '''
         Waiting for the prompt and removing that characters from the output.
         '''
+        signal.alarm(self.timeout)
+
         stdout = self.telnet.read_until('nsh> ')
+
+        signal.alarm(0)
+
         stdout = re.sub('\n\rnsh> ', '', stdout)
         stdout = re.sub('nsh> ', '', stdout)
 
