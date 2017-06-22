@@ -29,6 +29,12 @@ class OperatingSystem(base.OperatingSystemBase):
     def __init__(self, app):
         super(self.__class__, self).__init__('nuttx', app)
 
+        # Note: since not the latest master is used, we should apply
+        # some fixes for the NuttX.
+        patch = utils.join(paths.PATCHES_PATH, 'nuttx-7.19.diff')
+        utils.execute(paths.NUTTX_PATH, 'git', ['reset', '--hard'])
+        utils.execute(paths.NUTTX_PATH, 'git', ['apply', patch])
+
         self.copy_app_files(app)
         self.configure(app)
 
