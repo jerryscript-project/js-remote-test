@@ -49,15 +49,7 @@ ssh-keygen -t rsa
 ssh-copy-id pi@address
 ```
 
-On the Raspberry Pi target, the testing mechanism is a bit different like on microcontrollers. The base concept is the same, so everything happens remotely, but there are more tools and scripts that help to run tests on the device. These tools are provided in the `resource` folder. There is an `iotjs-freya.config` file, that should be updated with your glibc version:
-
-```
-cd resources
-GLIBC_VERSION=`ldd --version | awk '/ldd/{print $NF}'`
-sed -ie s/2\.23/$GLIBC_VERSION/g iotjs-freya.config
-```
-
-After that, you should move the contents of the `resource` folder to the Raspberry, and run the `init-pi.sh` to build the dependencies:
+On the Raspberry Pi target, the testing mechanism is a bit different like on microcontrollers. The base concept is the same, so everything happens remotely, but there are more tools and scripts that help to run tests on the device. These tools are provided in the `resource` folder that should be moved to the Raspberry. After that, run the `init-pi.sh` to build the dependencies:
 
 ```
 $ ssh pi@address
