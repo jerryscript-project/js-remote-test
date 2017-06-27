@@ -91,7 +91,7 @@ class Application(base.ApplicationBase):
 
         utils.execute(paths.JERRY_PATH, 'git', ['fetch'])
         utils.execute(paths.JERRY_PATH, 'git', ['checkout', branch])
-        utils.execute(paths.IOTJS_PATH, 'git', ['pull', 'origin', branch])
+        utils.execute(paths.JERRY_PATH, 'git', ['pull', 'origin', branch])
         utils.execute(paths.JERRY_PATH, 'git', ['checkout', commit])
 
     def build(self, buildtype):
