@@ -105,6 +105,46 @@ class ResultSaver(base.ResultSaverBase):
 
         utils.write_json_file(index_file, filenames)
 
+        # Write statistics information to JSON files.
+        binstat_file = utils.join(target_path, 'binstat.json')
+        memstat_file = utils.join(target_path, 'memstat.json')
+
+        binstats = []
+        memstats = []
+
+        for result_file in filenames:
+            with open(utils.join(target_path, result_file)) as data_file:
+                data = json.load(data_file)
+
+            # Create sizestat entry.
+            binstat = {
+                'date': data['date'],
+                'binary': int(data['bin']['total']),
+                'commit': data['submodules']['iotjs']['commit']
+            }
+
+            binstats.append(binstat)
+
+            # Summarize the memory consumption.
+            mem_total = 0
+
+            for test in data['tests']:
+                if 'memory' in test and test['memory'] != 'n/a':
+                    mem_total += int(test['memory'])
+
+            # Create memstat entry.
+            if mem_total:
+                memstat = {
+                    'date': data['date'],
+                    'memory': mem_total,
+                    'commit': data['submodules']['iotjs']['commit']
+                }
+
+                memstats.append(memstat)
+
+        utils.write_json_file(binstat_file, binstats[::-1])
+        utils.write_json_file(memstat_file, memstats[::-1])
+
         # Publish testresults to the web
         utils.execute(target_path, 'git', ['add', utils.join(target_path, result_file_name)])
         utils.execute(target_path, 'git', ['add', '-u'])
