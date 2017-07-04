@@ -26,6 +26,7 @@ class ResultSaver(base.ResultSaverBase):
     def __init__(self, testrunner):
         super(self.__class__, self).__init__(testrunner)
 
+    # Fixme: eliminate spaghetti code ...
     def save(self, is_publish):
         '''
         Save the testresults.
@@ -132,6 +133,18 @@ class ResultSaver(base.ResultSaverBase):
             stats.append(stat)
 
         utils.write_json_file(stat_file, stats[::-1])
+
+        if app_name is 'iotjs':
+            # Copy the appropriate icon to the status folder
+            status_icon = utils.join(paths.IOTJS_WEB_PATH, 'img', 'pass.svg')
+            status_file = utils.join(paths.IOTJS_WEB_PATH, 'status', '%s.svg' % dev_type)
+
+            for test in self.testrunner.get_result():
+                if test['result'] == 'fail':
+                    status_icon = utils.join(paths.IOTJS_WEB_PATH, 'img', 'fail.svg')
+                    break
+
+            utils.copy_file(status_icon, status_file)
 
         # Publish testresults to the web
         utils.execute(target_path, 'git', ['add', utils.join(target_path, result_file_name)])
