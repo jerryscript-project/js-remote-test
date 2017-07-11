@@ -102,13 +102,6 @@ def copy_files(src, dst):
         shutil.copy(src + file_name, dst)
 
 
-def copy_folder(src, dst):
-    '''
-    Copy a folder to the given place.
-    '''
-    shutil.copytree(src, dst)
-
-
 def move(src, dst):
     '''
     Move a file or directory to another location.
@@ -121,14 +114,6 @@ def make_archive(folder, fmt):
     Create an archive file (eg. zip or tar)
     '''
     return shutil.make_archive(folder, fmt, folder)
-
-
-def remove(folder):
-    '''
-    Remove the entire directory.
-    '''
-    if os.path.exists(folder):
-        shutil.rmtree(folder)
 
 
 def mkdir(directory):

@@ -29,29 +29,11 @@ class OperatingSystem(base.OperatingSystemBase):
         '''
         return 'dummy'
 
-    def get_system_path(self):
-        '''
-        Return the path to the system folder.
-        '''
-        return ''
-
-    def get_interpreter_path(self):
-        '''
-        Return the path to the interpreter folder.
-        '''
-        return ''
-
     def get_image(self):
         '''
         Return the path to the target application.
         '''
         return self.app.get_image()
-
-    def set_application(self, app):
-        '''
-        Set the application to the os.
-        '''
-        self.app = app
 
     def prebuild(self, buildtype='release'):
         '''

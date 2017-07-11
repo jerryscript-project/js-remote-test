@@ -71,9 +71,6 @@ JERRY_WEB_DATA_PATH = os.path.join(PROJECTS_ROOT, 'jerryscript-test-results/data
 # Path to the iotjs folder.
 IOTJS_PATH = os.path.join(PROJECTS_ROOT, 'iotjs')
 
-# Path to the tools folder within iotjs.
-IOTJS_TOOLS_PATH = os.path.join(IOTJS_PATH, 'tools')
-
 # Path to the apps folder within iotjs.
 IOTJS_APPS_PATH = os.path.join(IOTJS_PATH, 'config/nuttx/stm32f4dis/app/')
 
@@ -82,12 +79,6 @@ IOTJS_BUILD_PATH = os.path.join(IOTJS_PATH, 'build/arm-linux/release/bin')
 
 # Root directory of the test folder.
 IOTJS_TEST_PATH = os.path.join(IOTJS_PATH, 'test')
-
-# Path to the run_pass folder within test.
-IOTJS_TEST_RUN_PASS_PATH = os.path.join(IOTJS_TEST_PATH, 'run_pass')
-
-# Path to the run_fail folder within test.
-IOTJS_TEST_RUN_FAIL_PATH = os.path.join(IOTJS_TEST_PATH, 'run_fail')
 
 # Path to the minimal build folder.
 IOTJS_MINIMAL_BUILD_PATH = os.path.join(IOTJS_PATH, 'features_disable/build')
@@ -100,13 +91,6 @@ IOTJS_LIBTUV_PATH = os.path.join(IOTJS_PATH, 'deps/libtuv')
 
 # Path to the deps/jerry folder.
 IOTJS_JERRY_PATH = os.path.join(IOTJS_PATH, 'deps/jerry')
-
-#
-# ================================
-#
-
-# Path to the kconfig-frontends folder.
-KCONFIG_PATH = os.path.join(PROJECTS_ROOT, 'kconfig-frontends')
 
 #
 # ================================
@@ -127,9 +111,6 @@ NUTTX_PATH = os.path.join(PROJECTS_ROOT, 'nuttx')
 
 # Path to the tools folder within nuttx.
 NUTTX_TOOLS_PATH = os.path.join(NUTTX_PATH, 'tools')
-
-# NuttX include dir
-NUTTX_INCLUDE_PATH = os.path.join(NUTTX_PATH, 'include/nuttx')
 
 # Path to the apps folder.
 NUTTX_APPS_PATH = os.path.join(PROJECTS_ROOT, 'apps')
@@ -154,8 +135,6 @@ JERRY_PATH = os.path.join(PROJECTS_ROOT, 'jerryscript')
 JERRY_APPS_PATH = os.path.join(JERRY_PATH, 'targets/nuttx-stm32f4/')
 
 JERRY_TEST_JERRY_PATH = os.path.join(JERRY_PATH, 'tests/jerry')
-
-JERRY_TEST_PATH = os.path.join(JERRY_PATH, 'tests')
 
 JERRY_BUILD_PATH = os.path.join(JERRY_PATH, 'build/bin')
 

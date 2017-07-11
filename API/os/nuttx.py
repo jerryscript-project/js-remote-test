@@ -44,18 +44,6 @@ class OperatingSystem(base.OperatingSystemBase):
         '''
         return paths.NUTTX_PATH
 
-    def get_system_path(self):
-        '''
-        Return the path to the system folder.
-        '''
-        return paths.NUTTX_APPS_SYSTEM_PATH
-
-    def get_interpreter_path(self):
-        '''
-        Return the path to the interpreter folder.
-        '''
-        return paths.NUTTX_APPS_INTERPRETER_PATH
-
     def get_image(self):
         '''
         Return the path to the operating system.

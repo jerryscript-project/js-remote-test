@@ -35,12 +35,6 @@ class ApplicationBase(object):
         '''
         return self.cmd
 
-    def get_os_name(self):
-        '''
-        Return the operating system building for.
-        '''
-        return self.os_name
-
     def get_device(self):
         '''
         Return the device.

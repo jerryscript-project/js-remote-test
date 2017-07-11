@@ -21,12 +21,6 @@ class OperatingSystemBase(object):
         self.name = name
         self.app = app
 
-    def set_app(self, app):
-        '''
-        Set the target application for the operating system.
-        '''
-        self.app = app
-
     def get_app(self):
         '''
         Get the target application
@@ -38,18 +32,6 @@ class OperatingSystemBase(object):
         Return the name of the operating system.
         '''
         return self.name
-
-    def get_system_path(self):
-        '''
-        Return the path to the system folder.
-        '''
-        raise NotImplementedError('Use the concrete subclasses.')
-
-    def get_interpreter_path(self):
-        '''
-        Return the path to the interpreter folder.
-        '''
-        raise NotImplementedError('Use the concrete subclasses.')
 
     def get_image(self):
         '''
