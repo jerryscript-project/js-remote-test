@@ -89,14 +89,22 @@ class ResultSaver(base.ResultSaverBase):
             return
 
         # Copy the testresult to the web project.
+        #
+        # Fixme: eliminate the following condition and use dictionaries
+        #        to store the target specific paths.
+        #
+        #  e.g.: TARGET_WEB_PATH[app_name], TARGET_WEB_DATA_PATH[app_name]
+        #
         if app_name is 'iotjs':
-            target_path = utils.join(paths.IOTJS_WEB_DATA_PATH, device_dir)
-            index_file = utils.join(target_path, 'index.json')
-            utils.copy_file(result_file_path, target_path)
+            target_web_path = paths.IOTJS_WEB_PATH
+            target_web_data_path = utils.join(paths.IOTJS_WEB_DATA_PATH, device_dir)
         else:
-            target_path = utils.join(paths.JERRY_WEB_DATA_PATH, device_dir)
-            index_file = utils.join(target_path, 'index.json')
-            utils.copy_file(result_file_path, target_path)
+            target_web_path = paths.JERRY_WEB_PATH
+            target_web_data_path = utils.join(paths.JERRY_WEB_DATA_PATH, device_dir)
+
+        utils.copy_file(result_file_path, target_web_data_path)
+
+        index_file = utils.join(target_web_data_path, 'index.json')
 
         with open(index_file, 'r') as filename_p:
             data = filename_p.read()
@@ -108,11 +116,11 @@ class ResultSaver(base.ResultSaverBase):
 
         # Write binary size and memory consumption
         # information to a JSON file.
-        stat_file = utils.join(target_path, 'stat.json')
+        stat_file = utils.join(target_web_data_path, 'stat.json')
         stats = []
 
         for result_file in filenames:
-            with open(utils.join(target_path, result_file)) as data_file:
+            with open(utils.join(target_web_data_path, result_file)) as data_file:
                 data = json.load(data_file)
 
             # Summarize the memory consumption.
@@ -134,20 +142,19 @@ class ResultSaver(base.ResultSaverBase):
 
         utils.write_json_file(stat_file, stats[::-1])
 
-        if app_name is 'iotjs':
-            # Copy the appropriate icon to the status folder
-            status_icon = utils.join(paths.IOTJS_WEB_PATH, 'img', 'pass.svg')
-            status_file = utils.join(paths.IOTJS_WEB_PATH, 'status', '%s.svg' % dev_type)
+        # Copy the appropriate icon to the status folder
+        status_icon = utils.join(target_web_path, 'img', 'pass.svg')
+        status_file = utils.join(target_web_path, 'status', '%s.svg' % dev_type)
 
-            for test in self.testrunner.get_result():
-                if test['result'] == 'fail':
-                    status_icon = utils.join(paths.IOTJS_WEB_PATH, 'img', 'fail.svg')
-                    break
+        for test in self.testrunner.get_result():
+            if test['result'] == 'fail':
+                status_icon = utils.join(target_web_path, 'img', 'fail.svg')
+                break
 
-            utils.copy_file(status_icon, status_file)
+        utils.copy_file(status_icon, status_file)
 
         # Publish testresults to the web
-        utils.execute(target_path, 'git', ['add', utils.join(target_path, result_file_name)])
-        utils.execute(target_path, 'git', ['add', '-u'])
-        utils.execute(target_path, 'git', ['commit', '--amend', '--no-edit'])
-        utils.execute(target_path, 'git', ['push', '-f'])
+        utils.execute(target_web_path, 'git', ['add', utils.join(target_web_data_path, result_file_name)])
+        utils.execute(target_web_path, 'git', ['add', '-u'])
+        utils.execute(target_web_path, 'git', ['commit', '--amend', '--no-edit'])
+        utils.execute(target_web_path, 'git', ['push', '-f'])
