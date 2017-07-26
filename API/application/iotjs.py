@@ -22,8 +22,8 @@ class Application(base.ApplicationBase):
     '''
     IoT.js application.
     '''
-    def __init__(self, os_name, device):
-        super(self.__class__, self).__init__('iotjs', 'iotjs', os_name, device)
+    def __init__(self, options):
+        super(self.__class__, self).__init__('iotjs', 'iotjs', options)
 
     def get_image(self):
         '''
@@ -82,7 +82,7 @@ class Application(base.ApplicationBase):
 
         return utils.join(paths.IOTJS_PATH, 'nsh_romfsimg.h')
 
-    def update_repository(self, branch, commit):
+    def update_repository(self):
         '''
         Update the repository to the given branch and commit.
         '''
@@ -92,17 +92,14 @@ class Application(base.ApplicationBase):
         utils.execute(paths.IOTJS_PATH, 'git', ['reset', '--hard'])
 
         utils.execute(paths.IOTJS_PATH, 'git', ['fetch'])
-        utils.execute(paths.IOTJS_PATH, 'git', ['checkout', branch])
-        utils.execute(paths.IOTJS_PATH, 'git', ['pull', 'origin', branch])
-        utils.execute(paths.IOTJS_PATH, 'git', ['checkout', commit])
+        utils.execute(paths.IOTJS_PATH, 'git', ['checkout', self.branch])
+        utils.execute(paths.IOTJS_PATH, 'git', ['pull', 'origin', self.branch])
+        utils.execute(paths.IOTJS_PATH, 'git', ['checkout', self.commit])
 
     def apply_patches(self):
         '''
         Apply memstat patches to measure the memory consumption of IoT.js
         '''
-        if self.device.get_type() is not 'stm32f4dis':
-            return
-
         iotjs_memstat_patch = utils.join(paths.PATCHES_PATH, 'iotjs-memstat.diff')
         utils.execute(paths.IOTJS_PATH, 'git', ['apply', iotjs_memstat_patch])
 
@@ -118,7 +115,7 @@ class Application(base.ApplicationBase):
         '''
         Build IoT.js for the target device/OS and for Raspberry Pi 2.
         '''
-        devtype = self.device.get_type()
+        self.update_repository()
 
         # Note: We should build IoT.js for Raspberry Pi 2, since the
         # binary size information (showed on the test-result webpages)
@@ -141,7 +138,7 @@ class Application(base.ApplicationBase):
             '--buildtype=%s' % buildtype,
         ]
 
-        if devtype == 'stm32f4dis' and self.os_name == 'nuttx':
+        if self.device == 'stm32f4dis' and self.os == 'nuttx':
             build_flags.append('--target-board=stm32f4dis')
             build_flags.append('--target-os=nuttx')
             build_flags.append('--jerry-heaplimit=78')
@@ -154,7 +151,7 @@ class Application(base.ApplicationBase):
 
             utils.execute(paths.IOTJS_PATH, 'tools/build.py', build_flags)
 
-        elif devtype == 'rpi2':
+        elif self.device == 'rpi2':
             build_flags.append('--target-board=rpi2')
             build_flags.append('--jerry-cmake-param=-DFEATURE_VALGRIND_FREYA=ON')
             build_flags.append('--compile-flag=-g')

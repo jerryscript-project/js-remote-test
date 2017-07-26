@@ -21,9 +21,9 @@ import API.resultsaver
 import API.testrunner
 
 
-def parse_arguments():
+def parse_options():
     '''
-    Parse the given arguments.
+    Parse the given options.
     '''
     parser = argparse.ArgumentParser('Remote testrunner for microcontrollers')
 
@@ -42,9 +42,6 @@ def parse_arguments():
     parser.add_argument('--device', choices=['stm32f4dis', 'rpi2'], default='stm32f4dis',
                         help='indicate the device for testing (default: %(default)s)')
 
-    parser.add_argument('--address', metavar='address',
-                        help='address of the target device (ip or ip:port)')
-
     parser.add_argument('--os', choices=['nuttx', 'linux'], default='nuttx',
                         help='the target oprating system (default: %(default)s)')
 
@@ -54,11 +51,24 @@ def parse_arguments():
     parser.add_argument('--timeout', metavar='sec', type=int, default=180,
                         help='timeout for tests (default: %(default)s sec)')
 
-    parser.add_argument('--username', metavar='nick', default='pi',
-                        help='User name to login to the board.')
+    parser.add_argument('--remote-path', metavar='path',
+                        help='remote test folder on the device')
 
-    parser.add_argument('--remote-path', metavar='path', default='/',
-                        help='The root path of the remote testing on the device.')
+    ssh_group = parser.add_argument_group("SSH communication")
+
+    ssh_group.add_argument('--username', metavar='nick',
+                           help='username of the target device')
+
+    ssh_group.add_argument('--address', metavar='address',
+                           help='address of the target device (ip or ip:port)')
+
+    serial_group = parser.add_argument_group("Serial communication")
+
+    serial_group.add_argument('--port', metavar='device',
+                              help='serial port name (e.g. /dev/ttyACM0 or /dev/ttyUSB0)')
+
+    serial_group.add_argument('--baud', metavar='baud', type=int, default=115200,
+                              help='baud rate (default: %(default)s)')
 
     return parser.parse_args()
 
@@ -67,22 +77,16 @@ def main():
     '''
     Main function of the remote testrunner.
     '''
-    arguments = parse_arguments()
+    options = parse_options()
 
-    device = API.device.create(arguments.device)
-    device.set_root_path(arguments.remote_path)
-    device.set_username(arguments.username)
-    device.set_address(arguments.address)
-    device.set_timeout(arguments.timeout)
+    device = API.device.create(options)
+    app = API.application.create(options)
 
-    app = API.application.create(arguments.app, arguments.os, device)
-    app.update_repository(arguments.branch, arguments.commit)
-
-    os = API.os.create(arguments.os, device, app)
-
+    os = API.os.create(options.os, app)
     os.prebuild()
-    app.build(arguments.buildtype)
-    os.build(arguments.buildtype, 'all')
+
+    app.build(options.buildtype)
+    os.build(options.buildtype, 'all')
 
     device.flash(os)
 
@@ -90,7 +94,7 @@ def main():
     testrunner.run()
 
     resultsaver = API.resultsaver.create("default", testrunner)
-    resultsaver.save(arguments.public)
+    resultsaver.save(options.public)
 
 
 if __name__ == '__main__':

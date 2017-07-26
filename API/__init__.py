@@ -13,7 +13,6 @@
 # limitations under the License.
 
 import application
-import common
 import device
 import os
 import testrunner

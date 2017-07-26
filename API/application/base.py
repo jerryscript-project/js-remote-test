@@ -17,11 +17,13 @@ class ApplicationBase(object):
     '''
     Base class to define an interface for the devices.
     '''
-    def __init__(self, name, cmd, os_name, device):
-        self.device = device
+    def __init__(self, name, cmd, options):
         self.name = name
         self.cmd = cmd
-        self.os_name = os_name
+        self.os = options.os
+        self.device = options.device
+        self.branch = options.branch
+        self.commit = options.commit
 
     def get_name(self):
         '''
@@ -80,12 +82,6 @@ class ApplicationBase(object):
     def get_romfs_file(self):
         '''
         Return the path of the generated ROMFS image.
-        '''
-        raise NotImplementedError('Use the concrete subclasses.')
-
-    def update_repository(self, branch, commit):
-        '''
-        Update the repository to the given branch and commit.
         '''
         raise NotImplementedError('Use the concrete subclasses.')
 

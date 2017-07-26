@@ -22,8 +22,8 @@ class Application(base.ApplicationBase):
     '''
     JerryScript application.
     '''
-    def __init__(self, os_name, device):
-        super(self.__class__, self).__init__('jerryscript', 'jerry', os_name, device)
+    def __init__(self, options):
+        super(self.__class__, self).__init__('jerryscript', 'jerry', options)
 
     def get_image(self):
         '''
@@ -82,7 +82,7 @@ class Application(base.ApplicationBase):
 
         return utils.join(paths.JERRY_PATH, 'nsh_romfsimg.h')
 
-    def update_repository(self, branch, commit):
+    def update_repository(self):
         '''
         Update the repository to the given branch and commit.
         '''
@@ -90,15 +90,15 @@ class Application(base.ApplicationBase):
         utils.execute(paths.JERRY_PATH, 'git', ['reset', '--hard'])
 
         utils.execute(paths.JERRY_PATH, 'git', ['fetch'])
-        utils.execute(paths.JERRY_PATH, 'git', ['checkout', branch])
-        utils.execute(paths.JERRY_PATH, 'git', ['pull', 'origin', branch])
-        utils.execute(paths.JERRY_PATH, 'git', ['checkout', commit])
+        utils.execute(paths.JERRY_PATH, 'git', ['checkout', self.branch])
+        utils.execute(paths.JERRY_PATH, 'git', ['pull', 'origin', self.branch])
+        utils.execute(paths.JERRY_PATH, 'git', ['checkout', self.commit])
 
     def build(self, buildtype):
         '''
         Build IoT.js for the target device/OS and for Raspberry Pi 2.
         '''
-        devtype = self.device.get_type()
+        self.update_repository()
 
         # Note: We should build JerryScript for Raspberry Pi 2, since the
         # binary size information (showed on the test-result webpages)
@@ -112,7 +112,7 @@ class Application(base.ApplicationBase):
         utils.execute(paths.JERRY_PATH, 'tools/build.py', minimal_build_flags)
 
         # The following builds are target specific with memory usage features.
-        if devtype == 'rpi2':
+        if self.device == 'rpi2':
             build_flags = [
                 '--clean',
                 '--toolchain=cmake/toolchain_linux_armv7l.cmake',

@@ -68,16 +68,6 @@ class OperatingSystem(base.OperatingSystemBase):
         # Override the default config file with a prepared one.
         utils.copy_file(app.get_config_file(), utils.join(paths.NUTTX_PATH, '.config'))
 
-        # Modify the internet settings.
-        config = ConfigParser.ConfigParser()
-        config.read(utils.join(paths.CONFIG_PATH, 'ethernet.config'))
-
-        ip_addr = binascii.hexlify(socket.inet_aton(config.get('Ethernet', 'IP_ADDR')))
-        netmask = binascii.hexlify(socket.inet_aton(config.get('Ethernet', 'NETMASK')))
-
-        utils.execute(paths.NUTTX_PATH, 'sed', ['-ie', 's/YOUR_STATIC_IP/0x%s/g' % ip_addr, '.config'])
-        utils.execute(paths.NUTTX_PATH, 'sed', ['-ie', 's/YOUR_NETMASK/0x%s/g' % netmask, '.config'])
-
     def prebuild(self, buildtype='release'):
         '''
         Pre-build the operating system (for the generated headers).

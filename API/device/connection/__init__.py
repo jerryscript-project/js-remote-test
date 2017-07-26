@@ -12,20 +12,5 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import rpi2
-import stm32f4dis
-
-
-DEVICES = {
-    'rpi2': rpi2.Device,
-    'stm32f4dis': stm32f4dis.Device
-}
-
-
-def create(options):
-    '''
-    Create a device to the given type.
-    '''
-    device_class = DEVICES[options.device]
-
-    return device_class(options)
+import serialcom
+import sshcom

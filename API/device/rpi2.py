@@ -14,26 +14,21 @@
 
 import base
 
+import connection
 import json
-import paramiko
+import time
 
-from ..common import console
-from ..common import paths
-from ..common import utils
+from ..common import (console, paths, utils)
 
 
 class Device(base.DeviceBase):
     '''
     Device class for the stm32f4-discovery board.
     '''
-    def __init__(self):
-        super(self.__class__, self).__init__('rpi2')
+    def __init__(self, options):
+        super(self.__class__, self).__init__('rpi2', remote_path=options.remote_path)
 
-        # Create SSH connection to the device.
-        self.client = paramiko.client.SSHClient()
-        self.client.load_system_host_keys()
-
-        self.connected = False
+        self.ssh = connection.sshcom.Connection(options)
 
     def install_dependencies(self):
         '''
@@ -45,40 +40,35 @@ class Device(base.DeviceBase):
         '''
         Send the application and the testsuite to the device with SFTP.
         '''
-        if not self.connected:
-            # Note: add your SSH key to the Raspberry Pi 2 known host file
-            # to avoid getting password.
-            self.client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-            self.client.connect(self.address, username=self.username)
-
         app = os.get_app()
 
-        local_app = app.get_image()
-        local_testsuite = utils.make_archive(app.get_test_dir(), 'tar')
+        lpath_app = app.get_image()
+        lpath_testsuite = utils.make_archive(app.get_test_dir(), 'tar')
 
-        remote_app = utils.join(self.root_path, app.get_cmd())
-        remote_testsuite = utils.join(self.root_path, 'test.tar')
+        rpath_app = utils.join(self.remote_path, app.get_cmd())
+        rpath_testsuite = utils.join(self.remote_path, 'test.tar')
+
+        self.ssh.open()
 
         # Clean up in the remote folder.
-        self.client.exec_command('rm -f %s' % remote_app)
-        self.client.exec_command('rm -f %s' % remote_testsuite)
-        self.client.exec_command('rm -rf %s' % self.get_test_path())
+        self.ssh.exec_command('rm -f ' + rpath_app)
+        self.ssh.exec_command('rm -f ' + rpath_testsuite)
+        self.ssh.exec_command('rm -rf ' + self.get_test_path())
 
-        # Get an SFTP session to send the application and the test files to the device.
-        sftp = self.client.open_sftp()
+        # Send the application and the testsuite.
+        self.ssh.send_file(lpath_app, rpath_app)
+        self.ssh.send_file(lpath_testsuite, rpath_testsuite)
 
-        try:
-            sftp.put(local_app, remote_app)
-            sftp.put(local_testsuite, remote_testsuite)
-        except Exception as e:
-            console.fail('[Failed - sftp] %s' % str(e))
+        # Let the iotjs to be runnable and extract the tests.
+        self.ssh.exec_command('chmod 770 ' + rpath_app)
+        self.ssh.exec_command('mkdir ' + self.get_test_path())
+        self.ssh.exec_command('tar -xmf ' + rpath_testsuite + ' -C ' + self.get_test_path())
 
-        sftp.close()
-
-        # Prepare for the testing.
-        self.client.exec_command('chmod 770 %s' % remote_app)
-        self.client.exec_command('mkdir %s' % self.get_test_path())
-        self.client.exec_command('tar -xf %s -C %s' % (remote_testsuite, self.get_test_path()))
+    def reset(self):
+        '''
+        Since the SSH library stops the process in case of timeout, don't need any reset.
+        '''
+        pass
 
     def execute(self, cmd, args=[]):
         '''
@@ -86,15 +76,15 @@ class Device(base.DeviceBase):
         '''
         command_template = 'python {root}/tester.py --cwd {cwd} --cmd {app} --testfile {file}'
 
-        command = command_template.format(root=self.root_path,
+        command = command_template.format(root=self.remote_path,
                                           cwd=self.get_test_path(),
-                                          app=utils.join(self.root_path, cmd),
+                                          app=utils.join(self.remote_path, cmd),
                                           file=''.join(args))
 
-        stdin, stdout, stderr = self.client.exec_command(command)
+        stdout = self.ssh.exec_command(command)
 
         # Since the stdout is a JSON text, parse it.
-        result = json.loads(stdout.readline())
+        result = json.loads(stdout)
 
         # Make HTML friendly stdout.
         stdout = result['output'].rstrip('\n').replace('\n', '<br>')

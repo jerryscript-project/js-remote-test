@@ -14,33 +14,22 @@
 
 import base
 
+import connection
 import re
 import signal
-import telnetlib
 import time
 
-from ..common import utils
-from ..common import paths
-from ..common import console
-
-
-def alarm_handler(signum, frame):
-    '''
-    Throw exception when alarm happens.
-    '''
-    raise utils.TimeoutException
+from ..common import (console, paths, utils)
 
 
 class Device(base.DeviceBase):
     '''
     Device class for the stm32f4-discovery board.
     '''
-    def __init__(self):
-        super(self.__class__, self).__init__('stm32f4dis')
+    def __init__(self, options):
+        super(self.__class__, self).__init__('stm32f4dis', remote_path='/')
 
-        self.telnet = telnetlib.Telnet()
-
-        signal.signal(signal.SIGALRM, alarm_handler)
+        self.serial = connection.serialcom.Connection(options, prompt='nsh> ')
 
     def install_dependencies(self):
         '''
@@ -68,43 +57,26 @@ class Device(base.DeviceBase):
         # Wait a moment to boot the device.
         time.sleep(5)
 
-    def logout(self):
-        '''
-        Close connection.
-        '''
-        self.telnet.close()
-
     def login(self):
         '''
         Create connection.
         '''
         try:
-            self.telnet.open(self.address)
-            self.telnet.read_until('nsh> ')
+            self.serial.open()
+
+            # Press enters to start the serial communication and
+            # go to the test folder because some tests require resources.
+            self.serial.exec_command('\n\n')
+            self.serial.exec_command('cd test')
 
         except Exception as e:
             console.fail(str(e))
 
-    def send_command(self, cmd):
+    def logout(self):
         '''
-        Send command to the device and set a timeout.
+        Close connection.
         '''
-        self.telnet.write('%s\n' % cmd)
-
-    def read_data(self):
-        '''
-        Waiting for the prompt and removing that characters from the output.
-        '''
-        signal.alarm(self.timeout)
-
-        stdout = self.telnet.read_until('nsh> ')
-
-        signal.alarm(0)
-
-        stdout = re.sub('\n\rnsh> ', '', stdout)
-        stdout = re.sub('nsh> ', '', stdout)
-
-        return stdout
+        self.serial.close()
 
     def execute(self, cmd, args=[]):
         '''
@@ -113,13 +85,8 @@ class Device(base.DeviceBase):
         self.reset()
         self.login()
 
-        # Some IoT.js tests require to run tests from the test folder.
-        self.send_command('cd test')
-        self.read_data()
-
         # Send testrunner command to the device and process its result.
-        self.send_command('%s %s' % (cmd, ' '.join(args).encode('utf8')))
-        stdout = self.read_data()
+        stdout = self.serial.exec_command('%s %s' % (cmd, ' '.join(args).encode('utf8')))
 
         if stdout.rfind('Heap stat') != -1:
             stdout, heap = stdout.rsplit("Heap stats",1)
@@ -134,12 +101,11 @@ class Device(base.DeviceBase):
             memory = 'n/a'
 
         # Process the exitcode of the last command.
-        self.send_command('echo $?')
-        exitcode = self.read_data()
+        exitcode = self.serial.exec_command('echo $?')
 
         self.logout()
 
         # Make HTML friendly stdout.
-        stdout = stdout.rstrip('\n\r').replace('\n\r', '<br>')
+        stdout = stdout.replace('\n', '<br>')
 
         return exitcode, stdout, memory

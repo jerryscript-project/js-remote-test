@@ -22,7 +22,7 @@ OPERATING_SYSTEMS = {
 }
 
 
-def create(os, device, app):
+def create(os, app):
     '''
     Create the given operating system.
     '''
