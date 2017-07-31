@@ -14,6 +14,7 @@
 
 import base
 import json
+import pyrebase
 
 from ..common import paths
 from ..common import utils
@@ -97,50 +98,8 @@ class ResultSaver(base.ResultSaverBase):
         #
         if app_name is 'iotjs':
             target_web_path = paths.IOTJS_WEB_PATH
-            target_web_data_path = utils.join(paths.IOTJS_WEB_DATA_PATH, device_dir)
         else:
             target_web_path = paths.JERRY_WEB_PATH
-            target_web_data_path = utils.join(paths.JERRY_WEB_DATA_PATH, device_dir)
-
-        utils.copy_file(result_file_path, target_web_data_path)
-
-        index_file = utils.join(target_web_data_path, 'index.json')
-
-        with open(index_file, 'r') as filename_p:
-            data = filename_p.read()
-
-            filenames = json.loads(data)
-            filenames.insert(0, result_file_name)
-
-        utils.write_json_file(index_file, filenames)
-
-        # Write binary size and memory consumption
-        # information to a JSON file.
-        stat_file = utils.join(target_web_data_path, 'stat.json')
-        stats = []
-
-        for result_file in filenames:
-            with open(utils.join(target_web_data_path, result_file)) as data_file:
-                data = json.load(data_file)
-
-            # Summarize the memory consumption.
-            mem_total = 0
-
-            for test in data['tests']:
-                if 'memory' in test and test['memory'] != 'n/a':
-                    mem_total += int(test['memory'])
-
-            # Create stat entry.
-            stat = {
-                'date': data['date'],
-                'binary': int(data['bin']['total']),
-                'memory': mem_total,
-                'commit': data['submodules'][app_name]['commit']
-            }
-
-            stats.append(stat)
-
-        utils.write_json_file(stat_file, stats[::-1])
 
         # Copy the appropriate icon to the status folder
         status_icon = utils.join(target_web_path, 'img', 'pass.svg')
@@ -153,8 +112,35 @@ class ResultSaver(base.ResultSaverBase):
 
         utils.copy_file(status_icon, status_file)
 
-        # Publish testresults to the web
-        utils.execute(target_web_path, 'git', ['add', utils.join(target_web_data_path, result_file_name)])
-        utils.execute(target_web_path, 'git', ['add', '-u'])
-        utils.execute(target_web_path, 'git', ['commit', '--amend', '--no-edit'])
-        utils.execute(target_web_path, 'git', ['push', '-f'])
+        # TODO: Publish icons to the web
+        #utils.execute(target_web_path, 'git', ['add', '-u'])
+        #utils.execute(target_web_path, 'git', ['commit', '-m', 'Update the status badget.'])
+        #utils.execute(target_web_path, 'git', ['push'])
+
+        # Publish results to firebase
+
+        # Service account credential will allow our server to authenticate
+        # with Firebase as an admin and disregard any security rules.
+        # Keep it confidential and never store it in a public repository.
+        serviceAccountKey = utils.join(paths.PROJECT_ROOT, 'serviceAccountKey.json')
+
+        if not utils.exists(serviceAccountKey):
+            return
+
+        config = {
+          "apiKey": "AIzaSyDMgyPr0V49Rdf5ODAU9nLY02ZGEUNoxiM",
+          "authDomain": "remote-testrunner.firebaseapp.com",
+          "databaseURL": "https://remote-testrunner.firebaseio.com",
+          "storageBucket": "remote-testrunner.appspot.com",
+          "serviceAccount": serviceAccountKey
+        }
+
+        firebase = pyrebase.initialize_app(config)
+
+        db = firebase.database()
+
+        with open(result_file_path) as result_file:
+            data = json.load(result_file)
+
+        db_path = app_name + '/' + device_dir
+        db.child(db_path).push(data)
