@@ -14,7 +14,9 @@
 
 import base
 import json
-import pyrebase
+import firebase_admin
+from firebase_admin import credentials
+from firebase_admin import db
 
 from ..common import paths
 from ..common import utils
@@ -127,20 +129,19 @@ class ResultSaver(base.ResultSaverBase):
         if not utils.exists(serviceAccountKey):
             return
 
-        config = {
-          "apiKey": "AIzaSyDMgyPr0V49Rdf5ODAU9nLY02ZGEUNoxiM",
-          "authDomain": "remote-testrunner.firebaseapp.com",
-          "databaseURL": "https://remote-testrunner.firebaseio.com",
-          "storageBucket": "remote-testrunner.appspot.com",
-          "serviceAccount": serviceAccountKey
-        }
+        # Fetch the service account key JSON file contents
+        cred = credentials.Certificate(serviceAccountKey)
 
-        firebase = pyrebase.initialize_app(config)
+        # Initialize the app with a service account, granting admin privileges
+        firebase_admin.initialize_app(cred, {
+            'databaseURL': "https://iottest-51815.firebaseio.com",
+            'databaseAuthVariableOverride': {
+                'uid': 'testrunner-service'
+            }
+        })
 
-        db = firebase.database()
+        ref = db.reference(app_name + '/' + device_dir)
 
         with open(result_file_path) as result_file:
             data = json.load(result_file)
-
-        db_path = app_name + '/' + device_dir
-        db.child(db_path).push(data)
+            ref.push(data)
