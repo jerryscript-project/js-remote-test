@@ -134,7 +134,7 @@ class ResultSaver(base.ResultSaverBase):
 
         # Initialize the app with a service account, granting admin privileges
         firebase_admin.initialize_app(cred, {
-            'databaseURL': "https://iottest-51815.firebaseio.com",
+            'databaseURL': "https://remote-testrunner.firebaseio.com",
             'databaseAuthVariableOverride': {
                 'uid': 'testrunner-service'
             }
