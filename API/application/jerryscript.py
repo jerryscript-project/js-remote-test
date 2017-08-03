@@ -100,9 +100,6 @@ class Application(base.ApplicationBase):
         '''
         devtype = self.device.get_type()
 
-        if devtype == 'fake':
-            return
-
         # Note: We should build JerryScript for Raspberry Pi 2, since the
         # binary size information (showed on the test-result webpages)
         # is based on this target. 

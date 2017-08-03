@@ -26,7 +26,7 @@ def create(os, device, app):
     '''
     Create the given operating system.
     '''
-    if device.get_type() in ['rpi2', 'fake']:
+    if device.get_type() in ['rpi2']:
         os_class = OPERATING_SYSTEMS['dummy']
     else:
         os_class = OPERATING_SYSTEMS[os]

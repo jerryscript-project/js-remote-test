@@ -39,7 +39,7 @@ def parse_arguments():
     parser.add_argument('--commit', metavar='hash', default='HEAD',
                         help='an existing hash within a branch (default: %(default)s)')
 
-    parser.add_argument('--device', choices=['stm32f4dis', 'fake', 'rpi2'], default='stm32f4dis',
+    parser.add_argument('--device', choices=['stm32f4dis', 'rpi2'], default='stm32f4dis',
                         help='indicate the device for testing (default: %(default)s)')
 
     parser.add_argument('--address', metavar='address',

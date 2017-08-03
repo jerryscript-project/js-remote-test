@@ -89,9 +89,7 @@ $ python driver.py
   Defines the application commit that should be tested.
 
 --device
-  Defines the target device {stm32f4dis, rpi2, fake}. The fake device is
-  a dummy device that can be useful when developing the test system and
-  no real device available.
+  Defines the target device {stm32f4dis, rpi2}.
 
 --public
   Publish the test results to the web projects.

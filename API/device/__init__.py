@@ -12,13 +12,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import fake
 import rpi2
 import stm32f4dis
 
 
 DEVICES = {
-    'fake': fake.Device,
     'rpi2': rpi2.Device,
     'stm32f4dis': stm32f4dis.Device
 }
