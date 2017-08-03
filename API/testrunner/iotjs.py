@@ -45,10 +45,6 @@ class TestRunner(base.TestRunnerBase):
         skip_list = test.get('skip', [])
 
         for i in ['all', self.os.get_name(), 'stable']:
-            # Fixme: a temporary hack to the linux skip list. Remove this.
-            if 'linux' in skip_list and self.os.get_name() == 'dummy':
-                return True
-
             if i in skip_list:
                 return True
 

@@ -21,13 +21,13 @@ class OperatingSystem(base.OperatingSystemBase):
     Dummy operating system for devices who does not require OS.
     '''
     def __init__(self, app):
-        super(self.__class__, self).__init__('dummy', app)
+        super(self.__class__, self).__init__('linux', app)
 
     def get_home_dir(self):
         '''
         Return the path to the operating system.
         '''
-        return 'dummy'
+        return 'linux'
 
     def get_image(self):
         '''

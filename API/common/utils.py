@@ -179,7 +179,7 @@ def relpath(path, start):
     return os.path.relpath(path, start)
 
 
-def last_commit_info(cwd):
+def last_commit_info(git_repo_path):
     '''
     Get last commit information about the submodules.
     '''
@@ -190,10 +190,11 @@ def last_commit_info(cwd):
         'date': None
     }
 
-    if cwd == 'dummy':
+    # Linux repository isn't exist.
+    if git_repo_path == 'linux':
         return info
 
-    output, status_code = execute(cwd, 'git', ['log', '-1'], quiet=True)
+    output, status_code = execute(git_repo_path, 'git', ['log', '-1'], quiet=True)
 
     for line in output.splitlines():
         if line.startswith('commit'):

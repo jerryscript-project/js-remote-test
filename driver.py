@@ -45,7 +45,7 @@ def parse_arguments():
     parser.add_argument('--address', metavar='address',
                         help='address of the target device (ip or ip:port)')
 
-    parser.add_argument('--os', choices=['nuttx'], default='nuttx',
+    parser.add_argument('--os', choices=['nuttx', 'linux'], default='nuttx',
                         help='the target oprating system (default: %(default)s)')
 
     parser.add_argument('--public', action='store_true', default=False,

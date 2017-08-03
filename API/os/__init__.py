@@ -12,12 +12,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import dummy
+import linux
 import nuttx
 
 
 OPERATING_SYSTEMS = {
-    'dummy': dummy.OperatingSystem,
+    'linux': linux.OperatingSystem,
     'nuttx': nuttx.OperatingSystem
 }
 
@@ -26,9 +26,6 @@ def create(os, device, app):
     '''
     Create the given operating system.
     '''
-    if device.get_type() in ['rpi2']:
-        os_class = OPERATING_SYSTEMS['dummy']
-    else:
-        os_class = OPERATING_SYSTEMS[os]
+    os_class = OPERATING_SYSTEMS[os]
 
     return os_class(app)
