@@ -12,16 +12,17 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import json
 
 class ApplicationBase(object):
     '''
     Base class to define an interface for the devices.
     '''
-    def __init__(self, name, cmd, options):
+    def __init__(self, name, cmd, options, device):
         self.name = name
         self.cmd = cmd
         self.os = options.os
-        self.device = options.device
+        self.device = device
         self.branch = options.branch
         self.commit = options.commit
 
@@ -90,3 +91,16 @@ class ApplicationBase(object):
         Build the application.
         '''
         raise NotImplementedError('Use the concrete subclasses.')
+
+    def read_testsets(self):
+        '''
+        Read all the tests to execute them.
+        '''
+        raise NotImplementedError('Use the concrete subclasses.')
+
+    def get_skiplist(self, skip_file):
+        '''
+        Read skip file.
+        '''
+        with open(skip_file, 'r') as skip_file_p:
+            return json.load(skip_file_p)

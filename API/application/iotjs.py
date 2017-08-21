@@ -13,6 +13,8 @@
 # limitations under the License.
 
 import base
+import json
+import os
 
 from ..common import utils
 from ..common import paths
@@ -22,8 +24,8 @@ class Application(base.ApplicationBase):
     '''
     IoT.js application.
     '''
-    def __init__(self, options):
-        super(self.__class__, self).__init__('iotjs', 'iotjs', options)
+    def __init__(self, options, device):
+        super(self.__class__, self).__init__('iotjs', 'iotjs', options, device)
 
     def get_image(self):
         '''
@@ -138,7 +140,7 @@ class Application(base.ApplicationBase):
             '--buildtype=%s' % buildtype,
         ]
 
-        if self.device == 'stm32f4dis' and self.os == 'nuttx':
+        if self.device.get_type() == 'stm32f4dis' and self.os == 'nuttx':
             build_flags.append('--target-board=stm32f4dis')
             build_flags.append('--target-os=nuttx')
             build_flags.append('--jerry-heaplimit=78')
@@ -151,10 +153,84 @@ class Application(base.ApplicationBase):
 
             utils.execute(paths.IOTJS_PATH, 'tools/build.py', build_flags)
 
-        elif self.device == 'rpi2':
+        elif self.device.get_type() == 'rpi2':
             build_flags.append('--target-board=rpi2')
             build_flags.append('--jerry-cmake-param=-DFEATURE_VALGRIND_FREYA=ON')
             build_flags.append('--compile-flag=-g')
             build_flags.append('--jerry-compile-flag=-g')
 
             utils.execute(paths.IOTJS_PATH, 'tools/build.py', build_flags)
+
+    def __in_dictlist(self, key, value, dictlist):
+        for this in dictlist:
+            if this[key] == value:
+                return this
+        return {}
+
+    def __add_test_to_skip(self, test, reason):
+        skip_os = test['skip'] if 'skip' in test else []
+
+        if not ('all' and self.os) in skip_os:
+            test['reason'] = reason
+            skip_os.append(self.os)
+            test['skip'] = skip_os
+
+    def skip_test(self, test):
+        '''
+        Determine if a test should be skipped.
+        '''
+        skip_list = test.get('skip', [])
+
+        for i in ['all', self.os, 'stable']:
+            if i in skip_list:
+                return True
+
+        return False
+
+    def read_testsets(self):
+        '''
+        Read all the tests
+        '''
+
+        # Read testsets
+        testsets_file = os.path.join(paths.IOTJS_TEST_PATH, 'testsets.json')
+        testsets = {}
+
+        with open(testsets_file, 'r') as testsets_p:
+            testsets = json.load(testsets_p)
+
+        # Read skip file
+        skip_file = os.path.join(paths.PROJECT_ROOT, 'API/testrunner/iotjs-skiplist.json')
+        skip_list = self.get_skiplist(skip_file)
+        dev_type = self.device.get_type()
+        skip_tests = skip_list[dev_type]['testfiles']
+        skip_testsets = skip_list[dev_type]['testsets']
+
+        # Update testset
+        for testset in testsets:
+            skip_testset = self.__in_dictlist('name', testset, skip_testsets)
+
+            if skip_testset:
+                for test in testsets[testset]:
+                    self.__add_test_to_skip(test, skip_testset['reason'])
+
+            else:
+                for skip_test in skip_tests:
+                    target_test = self.__in_dictlist('name', skip_test['name'], testsets[testset])
+
+                    if target_test:
+                        self.__add_test_to_skip(target_test, skip_test['reason'])
+
+        return testsets
+
+    def run_test_on_device(self, testset, test):
+        '''
+        Send commands via telnet to run the current test on the device.
+        '''
+
+        testfile = utils.join(self.device.get_test_path(), testset, test['name'])
+
+        if self.device.get_type() is 'stm32f4dis':
+            return self.device.execute(self.get_cmd(), ['--memstat', testfile])
+
+        return self.device.execute(self.get_cmd(), [testfile])

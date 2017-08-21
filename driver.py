@@ -80,7 +80,7 @@ def main():
     options = parse_options()
 
     device = API.device.create(options)
-    app = API.application.create(options)
+    app = API.application.create(options, device)
 
     os = API.os.create(options.os, app)
     os.prebuild()
@@ -90,7 +90,7 @@ def main():
 
     device.flash(os)
 
-    testrunner = API.testrunner.create(os, app, device)
+    testrunner = API.testrunner.TestRunner(os, app, device)
     testrunner.run()
 
     resultsaver = API.resultsaver.create("default", testrunner)

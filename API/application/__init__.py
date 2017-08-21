@@ -22,10 +22,10 @@ APPLICATIONS = {
 }
 
 
-def create(options):
+def create(options, device):
     '''
     Create the target application.
     '''
     app_class = APPLICATIONS[options.app]
 
-    return app_class(options)
+    return app_class(options, device)

@@ -1,0 +1,18 @@
+{
+    "rpi2": {
+        "testsets": [],
+        "testfiles": []
+    },
+    "stm32f4dis": {
+        "testsets": [],
+        "testfiles": [
+            { "name": "test_fs_callbacks_called.js", "reason":  "Filesystem tests require writable memory space." },
+            { "name": "test_fs_rename.js", "reason":  "Filesystem tests require writable memory space." },
+            { "name": "test_fs_rename_sync.js", "reason":  "Filesystem tests require writable memory space." },
+            { "name": "test_fs_writefile.js", "reason":  "Filesystem tests require writable memory space." },
+            { "name": "test_fs_writefile_sync.js", "reason":  "Filesystem tests require writable memory space." },
+            { "name": "test_fs_writefile_unlink.js", "reason":  "Filesystem tests require writable memory space." },
+            { "name": "test_fs_writefile_unlink_sync.js", "reason":  "Filesystem tests require writable memory space." }
+        ]
+    }
+}

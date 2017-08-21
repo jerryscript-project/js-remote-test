@@ -13,6 +13,8 @@
 # limitations under the License.
 
 import base
+import json
+import os
 
 from ..common import utils
 from ..common import paths
@@ -22,8 +24,8 @@ class Application(base.ApplicationBase):
     '''
     JerryScript application.
     '''
-    def __init__(self, options):
-        super(self.__class__, self).__init__('jerryscript', 'jerry', options)
+    def __init__(self, options, device):
+        super(self.__class__, self).__init__('jerryscript', 'jerry', options, device)
 
     def get_image(self):
         '''
@@ -112,7 +114,7 @@ class Application(base.ApplicationBase):
         utils.execute(paths.JERRY_PATH, 'tools/build.py', minimal_build_flags)
 
         # The following builds are target specific with memory usage features.
-        if self.device == 'rpi2':
+        if self.device.get_type() == 'rpi2':
             build_flags = [
                 '--clean',
                 '--toolchain=cmake/toolchain_linux_armv7l.cmake',
@@ -121,3 +123,63 @@ class Application(base.ApplicationBase):
             ]
 
             utils.execute(paths.JERRY_PATH, 'tools/build.py', build_flags)
+
+    def skip_test(self, test):
+        '''
+        Determine if a test should be skipped.
+        '''
+        return test.get('skip', False)
+
+    def read_testsets(self):
+        '''
+        Read all the tests by walkin on the test path.
+        '''
+
+        # # Read skip file
+        skip_file = os.path.join(paths.PROJECT_ROOT, 'API/testrunner/jerry-skiplist.json')
+        skip_list = self.get_skiplist(skip_file)
+        dev_type = self.device.get_type()
+        skip_tests = skip_list[dev_type]['testfiles']
+        skip_testsets = skip_list[dev_type]['testsets']
+
+        testsets = {}
+
+        for root, dirs, files in os.walk(paths.JERRY_TEST_JERRY_PATH):
+            testset = utils.relpath(root, paths.JERRY_TEST_JERRY_PATH)
+
+            if not testset in testsets:
+                testsets[testset] = []
+
+            for file in files:
+                test = { 'name': file }
+
+                # Indicate expected-failure for fail tests.
+                if 'fail' in testset:
+                    test['expected-failure'] = True
+
+                # Skip test if neccessary.
+                for skip_test in skip_tests:
+                    if file == skip_test['name']:
+                        test['skip'] = True
+                        test['reason'] = skip_test['reason']
+
+                # Skip the current test if its testset is skipped.
+                for skip_testset in skip_testsets:
+                    if testset == skip_testset['name']:
+                        test['skip'] = True
+                        test['reason'] = skip_testset['reason']
+
+                testsets[testset].append(test)
+
+        return testsets
+
+    def run_test_on_device(self, testset, test):
+        '''
+        Send commands via telnet to run the current test on the device.
+        '''
+        testfile = utils.join(self.device.get_test_path(), testset, test['name'])
+
+        if self.device.get_type() is 'stm32f4dis':
+            return self.device.execute(self.get_cmd(), [testfile, '--mem-stats', '--log-level 2'])
+
+        return self.device.execute(self.get_cmd(), [testfile])
