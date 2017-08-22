@@ -16,35 +16,93 @@ from ..common import paths
 from ..common import reporter
 from ..common import utils
 
+import firebase_admin
+from firebase_admin import credentials
+from firebase_admin import db
+
 class TestRunner(object):
     '''
     Base class for the concrete target testrunners.
     '''
-    def __init__(self, os, app, device):
+    def __init__(self, os):
         self.os = os
-        self.app = app
-        self.device = device
         self.results = []
 
-    def get_result(self):
+    def __save(self, is_publish):
         '''
-        Get the test results.
+        Save the testresults.
         '''
-        return self.results
 
-    def get_os(self):
-        '''
-        Return the os
-        '''
-        return self.os
+        app = self.os.get_app()
 
-    def get_device(self):
-        '''
-        Return the device
-        '''
-        return self.device
+        # Create submodule information.
+        submodules = {
+            app.get_name() : utils.last_commit_info(app.get_home_dir()),
+            self.os.get_name() : utils.last_commit_info(self.os.get_home_dir())
+        }
 
-    def run(self):
+        if self.os.get_name() is 'nuttx':
+            submodules['apps'] = utils.last_commit_info(paths.NUTTX_APPS_PATH)
+
+        # Create the result.
+        result = {
+            'bin' : app.get_section_sizes(),
+            'date' : utils.get_standardized_date(),
+            'tests' : self.results,
+            'submodules' : submodules
+        }
+
+        device = app.get_device()
+        device_type = device.get_type()
+        device_dir = "stm32" if device_type == "stm32f4dis" else device_type
+
+        # Save the results into a JSON file.
+
+        result_dir = utils.join(paths.OUTPUT_PATH, app.get_name(), device_dir)
+
+        if not utils.exists(result_dir):
+            utils.mkdir(result_dir)
+
+        result_file_name = result['date'] + '.json'
+        result_file_name = result_file_name.replace(':', '.')
+        result_file_path = utils.join(result_dir, result_file_name)
+
+        utils.write_json_file(result_file_path, result)
+
+        # Do not share the results if it not public.
+        if not is_publish:
+            return
+
+        # TODO: update the appropriate icon to the status folder
+
+        # Publish results to firebase
+
+        # Service account credential will allow our server to authenticate
+        # with Firebase as an admin and disregard any security rules.
+        # Keep it confidential and never store it in a public repository.
+        serviceAccountKey = utils.join(paths.PROJECT_ROOT, 'serviceAccountKey.json')
+
+        if not utils.exists(serviceAccountKey):
+            return
+
+        # Fetch the service account key JSON file contents
+        cred = firebase_admin.credentials.Certificate(serviceAccountKey)
+
+        # Initialize the app with a service account, granting admin privileges
+        firebase_admin.initialize_app(cred, {
+            'databaseURL': "https://remote-testrunner.firebaseio.com",
+            'databaseAuthVariableOverride': {
+                'uid': 'testrunner-service'
+            }
+        })
+
+        ref = firebase_admin.db.reference(app.get_name() + '/' + device_dir)
+
+        with open(result_file_path) as result_file:
+            data = json.load(result_file)
+            ref.push(data)
+
+    def run(self, is_publish):
         '''
         Main method to run IoT.js tests.
         '''
@@ -53,7 +111,9 @@ class TestRunner(object):
         # Clear results before execution.
         self.results = []
 
-        for testset, tests in self.app.read_testsets().items():
+        app = self.os.get_app()
+
+        for testset, tests in app.read_testsets().items():
             reporter.report_testset(testset)
 
             # Loop on all tests and process their results.
@@ -61,7 +121,7 @@ class TestRunner(object):
                 testresult = { 'name': test['name'] }
 
                 # 1. Skip tests
-                if self.app.skip_test(test):
+                if app.skip_test(test):
                     reporter.report_skip(test['name'], test.get('reason'))
 
                     testresult['result'] = 'skip'
@@ -72,7 +132,7 @@ class TestRunner(object):
 
                 # 2. execute the test and handle timeout.
                 try:
-                    exitcode, stdout, memory = self.app.run_test_on_device(testset, test)
+                    exitcode, stdout, memory = app.run_test_on_device(testset, test)
 
                 except utils.TimeoutException:
                     reporter.report_timeout(test['name'])
@@ -96,3 +156,6 @@ class TestRunner(object):
                 self.results.append(testresult)
 
         reporter.report_final(self.results)
+
+        # save results
+        self.__save(is_publish)

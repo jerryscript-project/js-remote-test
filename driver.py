@@ -17,7 +17,6 @@ import argparse
 import API.application
 import API.device
 import API.os
-import API.resultsaver
 import API.testrunner
 
 
@@ -90,12 +89,8 @@ def main():
 
     device.flash(os)
 
-    testrunner = API.testrunner.TestRunner(os, app, device)
-    testrunner.run()
-
-    resultsaver = API.resultsaver.create("default", testrunner)
-    resultsaver.save(options.public)
-
+    testrunner = API.testrunner.TestRunner(os)
+    testrunner.run(options.public)
 
 if __name__ == '__main__':
     main()

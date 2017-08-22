@@ -16,4 +16,3 @@ import application
 import device
 import os
 import testrunner
-import resultsaver
