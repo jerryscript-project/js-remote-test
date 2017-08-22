@@ -17,7 +17,7 @@ In the first step, all the dependencies should be installed:
 # Install missing packages
 $ bash install-deps.sh
 
-# Clone github projects
+# Download subprojects
 $ bash init.sh
 ```
 <br />

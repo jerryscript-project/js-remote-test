@@ -1,14 +1,19 @@
 #! /bin/bash
 
-if [ -d "projects" ]; then
-  rm -rf "projects"
+PROJECTS_DIR="projects"
+
+if [ -d $PROJECTS_DIR ]; then
+  echo "The \"$PROJECTS_DIR\" folder already exists, please remove it first!"
+  exit 1
+else
+  mkdir $PROJECTS_DIR
 fi
 
-git clone https://github.com/jameswalmsley/kconfig-frontends.git "projects/kconfig-frontends"
-git clone https://github.com/texane/stlink.git "projects/stlink"
-git clone https://github.com/Samsung/iotjs.git "projects/iotjs"
-git clone https://github.com/jerryscript-project/jerryscript.git "projects/jerryscript"
-git clone -b "nuttx-7.19" https://bitbucket.org/nuttx/apps.git "projects/apps"
-git clone -b "nuttx-7.19" https://bitbucket.org/nuttx/nuttx.git "projects/nuttx"
-git clone -b "gh-pages" https://github.com/Samsung/iotjs-test-results.git "projects/iotjs-test-results"
-git clone -b "gh-pages" https://github.com/jerryscript-project/jerryscript-test-results.git "projects/jerryscript-test-results"
+git -C $PROJECTS_DIR clone https://github.com/jameswalmsley/kconfig-frontends.git
+git -C $PROJECTS_DIR clone https://github.com/texane/stlink.git
+git -C $PROJECTS_DIR clone https://github.com/Samsung/iotjs.git
+git -C $PROJECTS_DIR clone https://github.com/jerryscript-project/jerryscript.git
+git -C $PROJECTS_DIR clone -b "nuttx-7.19" https://bitbucket.org/nuttx/apps.git
+git -C $PROJECTS_DIR clone -b "nuttx-7.19" https://bitbucket.org/nuttx/nuttx.git
+git -C $PROJECTS_DIR clone -b "gh-pages" https://github.com/Samsung/iotjs-test-results.git
+git -C $PROJECTS_DIR clone -b "gh-pages" https://github.com/jerryscript-project/jerryscript-test-results.git
