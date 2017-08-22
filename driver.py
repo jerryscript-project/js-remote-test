@@ -84,7 +84,7 @@ def main():
     os = API.os.create(options.os, app)
     os.prebuild()
 
-    app.build(options.buildtype)
+    app.build()
     os.build(options.buildtype, 'all')
 
     device.flash(os)

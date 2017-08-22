@@ -31,7 +31,7 @@ class Application(base.ApplicationBase):
         '''
         Return the path to the binary.
         '''
-        return utils.join(paths.IOTJS_BUILD_PATH, 'iotjs')
+        return utils.join(paths.IOTJS_BUILD_PATH, 'iotjs') % self.buildtype
 
     def get_home_dir(self):
         '''
@@ -43,7 +43,7 @@ class Application(base.ApplicationBase):
         '''
         Returns the sizes of the main sections.
         '''
-        iotjs_bin = utils.join(paths.IOTJS_MINIMAL_BIN_PATH, 'iotjs')
+        iotjs_bin = utils.join(paths.IOTJS_MINIMAL_BIN_PATH, 'iotjs') % self.buildtype
         utils.execute(paths.IOTJS_PATH, 'arm-linux-gnueabi-strip', [iotjs_bin])
         sections, exitcode = utils.execute(paths.IOTJS_PATH, 'arm-linux-gnueabi-size', ['-A', iotjs_bin], quiet=True)
 
@@ -113,7 +113,7 @@ class Application(base.ApplicationBase):
         utils.execute(paths.IOTJS_JERRY_PATH, 'git', ['apply', jerry_memstat_patch])
         utils.execute(paths.IOTJS_JERRY_PATH, 'git', ['add', '-u'])
 
-    def build(self, buildtype):
+    def build(self):
         '''
         Build IoT.js for the target device/OS and for Raspberry Pi 2.
         '''
@@ -124,7 +124,7 @@ class Application(base.ApplicationBase):
         # is based on this target.
         minimal_build_flags = [
             '--clean',
-            '--buildtype=release',
+            '--buildtype=%s' % self.buildtype,
             '--target-arch=arm',
             '--no-parallel-build',
             '--target-board=rpi2',
@@ -137,7 +137,7 @@ class Application(base.ApplicationBase):
         build_flags = [
             '--clean',
             '--target-arch=arm',
-            '--buildtype=%s' % buildtype,
+            '--buildtype=%s' % self.buildtype,
         ]
 
         if self.device.get_type() == 'stm32f4dis' and self.os == 'nuttx':

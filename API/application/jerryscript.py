@@ -96,7 +96,7 @@ class Application(base.ApplicationBase):
         utils.execute(paths.JERRY_PATH, 'git', ['pull', 'origin', self.branch])
         utils.execute(paths.JERRY_PATH, 'git', ['checkout', self.commit])
 
-    def build(self, buildtype):
+    def build(self):
         '''
         Build IoT.js for the target device/OS and for Raspberry Pi 2.
         '''

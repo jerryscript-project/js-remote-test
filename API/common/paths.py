@@ -78,7 +78,7 @@ IOTJS_PATH = os.path.join(PROJECTS_ROOT, 'iotjs')
 IOTJS_APPS_PATH = os.path.join(IOTJS_PATH, 'config/nuttx/stm32f4dis/app/')
 
 # Path to the build folder within iotjs.
-IOTJS_BUILD_PATH = os.path.join(IOTJS_PATH, 'build/arm-linux/release/bin')
+IOTJS_BUILD_PATH = os.path.join(IOTJS_PATH, 'build/arm-linux/%s/bin')
 
 # Root directory of the test folder.
 IOTJS_TEST_PATH = os.path.join(IOTJS_PATH, 'test')
@@ -87,7 +87,7 @@ IOTJS_TEST_PATH = os.path.join(IOTJS_PATH, 'test')
 IOTJS_MINIMAL_BUILD_PATH = os.path.join(IOTJS_PATH, 'features_disable/build')
 
 # Path to the bin folder of the minimal build.
-IOTJS_MINIMAL_BIN_PATH = os.path.join(IOTJS_MINIMAL_BUILD_PATH, 'arm-linux/release/bin/')
+IOTJS_MINIMAL_BIN_PATH = os.path.join(IOTJS_MINIMAL_BUILD_PATH, 'arm-linux/%s/bin/')
 
 # Path to the deps/libtuv folder.
 IOTJS_LIBTUV_PATH = os.path.join(IOTJS_PATH, 'deps/libtuv')

@@ -25,6 +25,7 @@ class ApplicationBase(object):
         self.device = device
         self.branch = options.branch
         self.commit = options.commit
+        self.buildtype = options.buildtype
 
     def get_name(self):
         '''
@@ -86,7 +87,7 @@ class ApplicationBase(object):
         '''
         raise NotImplementedError('Use the concrete subclasses.')
 
-    def build(self, buildtype):
+    def build(self):
         '''
         Build the application.
         '''
