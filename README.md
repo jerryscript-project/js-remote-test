@@ -22,9 +22,21 @@ $ bash init.sh
 ```
 <br />
 
-#### Set up STM32F4-Discovery board to test
+### Set up STM32F4-Discovery board to test
 
 In case of the stm32f4-discovery devices the communication happens over the serial port. That is why a `miniusb` (flashing) and a `microusb` (serial communication) cables are needed. There are prepared NuttX configuration files in the `config` folder that contain all the settings that is required.
+
+#### Flash the device without root permission
+
+In order to flash the binary onto the board without the system requires root permission, copy the `49-stlinkv2.rules` to `/etc/udev/rules.d/`.
+
+```
+$ sudo cp projects/stlink/etc/udev/rules.d/49-stlinkv2.rules /etc/udev/rules.d/
+```
+
+(Source: https://github.com/texane/stlink/blob/master/doc/compiling.md#permissions-with-udev)
+
+#### Read/write serial without root permission
 
 Since the board is restarted at every test, the serial device id could change (from `/dev/ttyACM0` to `/dev/ttyACM1`) during testing. To eliminate this side effect, a permanent serial id should be created for the device:
 
@@ -38,9 +50,10 @@ SUBSYSTEM=="tty", ATTRS{idVendor}=="<your vendor id>", ATTRS{idProduct}=="<your 
 ```
 
 Now you can refer to the device as `/dev/STM32F4`.
+
 <br />
 
-#### Set up Rapsberry Pi 2 to test
+### Set up Raspberry Pi 2 to test
 
 Raspberry devices should have a UNIX based operating system, like Raspbian Jessie. Since the communication happens over `SSH`, an ssh server should be installed on the device:
 
@@ -48,7 +61,7 @@ Raspberry devices should have a UNIX based operating system, like Raspbian Jessi
 pi@raspberrypi $ sudo apt-get install openssh-server
 ```
 
-After that, Rapsberry devices can handle ssh connections. In order to avoid the authentication every time, you should create an ssh key (on your desktop) and share the public key with the device:
+After that, Raspberry devices can handle ssh connections. In order to avoid the authentication every time, you should create an ssh key (on your desktop) and share the public key with the device:
 
 ```
 user@desktop $ ssh-keygen -t rsa
@@ -75,7 +88,7 @@ pi@address ~ $ bash init-pi.sh
 ```
 <br />
 
-#### Start testrunner
+### Start testrunner
 
 On the host side, it is enough to run the `driver.py` file.
 
@@ -83,7 +96,7 @@ On the host side, it is enough to run the `driver.py` file.
 $ python driver.py
 ```
 
-#### Testrunner parameters:
+### Testrunner parameters:
 
 ```
 --app
@@ -133,7 +146,7 @@ Serial communication:
   Defines the baud rate (default: 115200)
 ```
 
-#### Examples to run tests
+### Examples to run tests
 
 ```
 $ python driver.py --device stm32f4dis --os nuttx --app iotjs --port /dev/ttyACM0 --baud 115200
