@@ -30,6 +30,14 @@ Since the board is restarted at every test, the serial device id could change (f
 
 http://hintshop.ludvig.co.nz/show/persistent-names-usb-serial-devices/
 
+You need to complete the previously created udev rule with `MODE="0666"` to allow the member of others (like us) to read/write the serial device without root permission, because it is required normally.
+
+So your udev ruleset should look like this:
+```
+SUBSYSTEM=="tty", ATTRS{idVendor}=="<your vendor id>", ATTRS{idProduct}=="<your product id>", MODE="0666", SYMLINK+="STM32F4"
+```
+
+Now you can refer to the device as `/dev/STM32F4`.
 <br />
 
 #### Set up Rapsberry Pi 2 to test
