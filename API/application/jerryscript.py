@@ -172,14 +172,3 @@ class Application(base.ApplicationBase):
                 testsets[testset].append(test)
 
         return testsets
-
-    def run_test_on_device(self, testset, test):
-        '''
-        Send commands via telnet to run the current test on the device.
-        '''
-        testfile = utils.join(self.device.get_test_path(), testset, test['name'])
-
-        if self.device.get_type() is 'stm32f4dis':
-            return self.device.execute(self.get_cmd(), [testfile, '--mem-stats', '--log-level 2'])
-
-        return self.device.execute(self.get_cmd(), [testfile])

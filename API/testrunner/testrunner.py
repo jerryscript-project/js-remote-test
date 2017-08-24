@@ -104,6 +104,21 @@ class TestRunner(object):
             data = json.load(result_file)
             ref.push(data)
 
+    def __run_test_on_device(self, app, testset, test):
+        '''
+        Execute the current test on the device.
+        '''
+        device = app.get_device()
+        testfile = utils.join(device.get_test_path(), testset, test['name'])
+
+        if device.get_type() is 'stm32f4dis':
+            if app.get_name() is "jerryscript":
+                return device.execute(app.get_cmd(), [testfile, '--mem-stats', '--log-level 2'])
+            elif app.get_name() is "iotjs":
+                return device.execute(app.get_cmd(), ['--memstat', testfile])
+
+        return device.execute(app.get_cmd(), [testfile])
+
     def run(self, is_publish):
         '''
         Main method to run IoT.js tests.
@@ -134,7 +149,7 @@ class TestRunner(object):
 
                 # 2. execute the test and handle timeout.
                 try:
-                    exitcode, stdout, memory = app.run_test_on_device(testset, test)
+                    exitcode, stdout, memory = self.__run_test_on_device(app, testset, test)
 
                 except utils.TimeoutException:
                     reporter.report_timeout(test['name'])
