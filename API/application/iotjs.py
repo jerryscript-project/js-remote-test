@@ -134,10 +134,15 @@ class Application(base.ApplicationBase):
         utils.execute(paths.IOTJS_PATH, 'tools/build.py', minimal_build_flags)
 
         # The following builds are target specific with memory usage features.
+
+        # Enable further modules
+        include_modules = ['spi', 'uart']
+
         build_flags = [
             '--clean',
             '--target-arch=arm',
             '--buildtype=%s' % self.buildtype,
+            '--iotjs-include-module=%s' % ','.join(include_modules),
         ]
 
         if self.device.get_type() == 'stm32f4dis' and self.os == 'nuttx':
