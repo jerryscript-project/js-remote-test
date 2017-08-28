@@ -14,11 +14,13 @@
 
 import rpi2
 import stm32f4dis
+import artik053
 
 
 DEVICES = {
     'rpi2': rpi2.Device,
-    'stm32f4dis': stm32f4dis.Device
+    'stm32f4dis': stm32f4dis.Device,
+    'artik053': artik053.Device
 }
 
 

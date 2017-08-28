@@ -14,5 +14,9 @@
             { "name": "test_fs_writefile_unlink.js", "reason":  "Filesystem tests require writable memory space." },
             { "name": "test_fs_writefile_unlink_sync.js", "reason":  "Filesystem tests require writable memory space." }
         ]
+    },
+    "artik053": {
+        "testsets": [],
+        "testfiles": []
     }
 }

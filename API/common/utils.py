@@ -19,6 +19,7 @@ import shutil
 import subprocess
 import time
 import re
+import platform
 
 
 class TimeoutException(Exception):
@@ -45,7 +46,6 @@ def execute(cwd, cmd, args=[], quiet=False):
 
         output = process.communicate()[0]
         exitcode = process.returncode
-
         if exitcode:
             raise Exception('Not null exit value')
 
@@ -219,3 +219,15 @@ def get_standardized_date():
     Get the current date in standardized format.
     '''
     return time.strftime('%Y-%m-%dT%H:%M:%SZ')
+
+def get_system():
+    '''
+    Get the underlying platform name.
+    '''
+    return platform.system()
+
+def get_architecture():
+    '''
+    Get the architecture on platform.
+    '''
+    return platform.architecture()[0][:2]

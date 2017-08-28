@@ -38,10 +38,10 @@ def parse_options():
     parser.add_argument('--commit', metavar='hash', default='HEAD',
                         help='an existing hash within a branch (default: %(default)s)')
 
-    parser.add_argument('--device', choices=['stm32f4dis', 'rpi2'], default='stm32f4dis',
+    parser.add_argument('--device', choices=['stm32f4dis', 'rpi2', 'artik053'], default='stm32f4dis',
                         help='indicate the device for testing (default: %(default)s)')
 
-    parser.add_argument('--os', choices=['nuttx', 'linux'], default='nuttx',
+    parser.add_argument('--os', choices=['nuttx', 'linux', 'tizenrt'], default='nuttx',
                         help='the target oprating system (default: %(default)s)')
 
     parser.add_argument('--public', action='store_true', default=False,

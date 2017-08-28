@@ -155,7 +155,6 @@ class TestRunner(object):
                     reporter.report_timeout(test['name'])
                     testresult['result'] = 'timeout'
                     self.results.append(testresult)
-
                     continue
 
                 # 3. Process the result.

@@ -31,3 +31,4 @@ git -C $PROJECTS_DIR clone -b "nuttx-7.19" https://bitbucket.org/nuttx/apps.git
 git -C $PROJECTS_DIR clone -b "nuttx-7.19" https://bitbucket.org/nuttx/nuttx.git
 git -C $PROJECTS_DIR clone -b "gh-pages" https://github.com/Samsung/iotjs-test-results.git
 git -C $PROJECTS_DIR clone -b "gh-pages" https://github.com/jerryscript-project/jerryscript-test-results.git
+git -C $PROJECTS_DIR clone https://github.com/Samsung/TizenRT.git

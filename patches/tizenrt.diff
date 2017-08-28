@@ -1,0 +1,69 @@
+diff --git a/apps/system/init/init.c b/apps/system/init/init.c
+index cc4c540..c545503 100644
+--- a/apps/system/init/init.c
++++ b/apps/system/init/init.c
+@@ -130,6 +130,10 @@ int preapp_start(int argc, char *argv[])
+ 	}
+ #endif
+ 
++#ifdef CONFIG_FS_ROMFS
++	mount("/dev/smart4rom9", "/rom", "romfs", 0, NULL);
++#endif
++
+ #if defined(CONFIG_LIB_USRWORK) || defined(CONFIG_TASH)
+ error_out:
+ 	return pid;
+diff --git a/apps/system/iotjs/iotjs_main.c b/apps/system/iotjs/iotjs_main.c
+index 3fad50f..3fee489 100644
+--- a/apps/system/iotjs/iotjs_main.c
++++ b/apps/system/iotjs/iotjs_main.c
+@@ -100,7 +100,7 @@ pthread_addr_t iotjs_thread(void *thread_arg) {
+   tuv_cleanup();
+ 
+   sleep(1);
+-  printf("iotjs thread end\n");
++  printf("RESULT: %d\n", ret);
+   return NULL;
+ }
+ 
+diff --git a/build/configs/artik053/artik053_download.sh b/build/configs/artik053/artik053_download.sh
+index 711d131..7f8eee0 100755
+--- a/build/configs/artik053/artik053_download.sh
++++ b/build/configs/artik053/artik053_download.sh
+@@ -72,6 +72,7 @@ main()
+ 				flash_write sssfw ../../bin/sssfw.bin; 		\
+ 				flash_write wlanfw ../../bin/wlanfw.bin;	\
+ 				flash_write os ../../../../output/bin/tinyara_head.bin;	\
++				flash_write rom ../../../../output/bin/rom.img;	\
+ 			exit'
+ 			popd
+ 			;;
+diff --git a/build/configs/artik053/tools/openocd/artik053.cfg b/build/configs/artik053/tools/openocd/artik053.cfg
+index ebba174..6871716 100644
+--- a/build/configs/artik053/tools/openocd/artik053.cfg
++++ b/build/configs/artik053/tools/openocd/artik053.cfg
+@@ -253,3 +253,10 @@ proc flash_erase_part { partition } {
+ }
+ add_usage_text flash_erase_part "{partition|all}"
+ add_help_text flash_erase_part "Erase a partition. If specified 'all', all r/w partitions are erased."
++
++proc reset {} {
++	prepare_target
++	flash_enable_write
++	catch {mwb 0x80090400 0x1}
++	exit 0
++}
+diff --git a/build/configs/artik053/tools/openocd/partition_map.cfg b/build/configs/artik053/tools/openocd/partition_map.cfg
+index 10455a4..8f66487 100644
+--- a/build/configs/artik053/tools/openocd/partition_map.cfg
++++ b/build/configs/artik053/tools/openocd/partition_map.cfg
+@@ -11,7 +11,8 @@ set partition_list {
+ 	os	{ "OS"			0x040C8000	0x00258000	0 }
+ 	factory	{ "Factory Reset"	0x04320000	0x00180000	0 }
+ 	ota	{ "OTA download"	0x044A0000	0x00180000	0 }
+-	user	{ "USER R/W"		0x04620000	0x0015E000	0 }
++	user	{ "USER R/W"		0x04620000	0x000FA000	0 }
++	rom	{ "ROM FS"		0x0471A000	0x00064000	0 }
+ 	nvram	{ "WiFi NVRAM"		0x0477E000	0x00002000	1 }
+ 	sssrw	{ "SSS R/W Key"		0x04780000	0x00080000	1 }
+ }

@@ -9,6 +9,7 @@ The following table shows the supported devices and applications:
 |                :---:                   |  :---:    |    :---:    |
 | STM32F4-Discovery                      | &#128504; |  &#128504;  |
 | Raspberry Pi 2                         | &#128504; |  &#128504;  |
+| Artik053                               | &#128504; | - |
 <br />
 
 In the first step, all the dependencies should be installed:
@@ -88,6 +89,12 @@ pi@address ~ $ bash init-pi.sh
 ```
 <br />
 
+### Set up Artik053 board to test
+
+In case of the artik053 devices, the communication happens over the serial port. You only need a `microusb` cable in order to test. To handle the device without root permission, please follow the `STM32F4-Discovery` [flash](#flash-the-device-without-root-permission) and [read/write](#readwrite-serial-without-root-permission) sections.
+
+<br />
+
 ### Start testrunner
 
 On the host side, it is enough to run the `driver.py` file.
@@ -112,10 +119,10 @@ $ python driver.py
   Defines the application commit that should be tested.
 
 --device
-  Defines the target device {stm32f4dis, rpi2}.
+  Defines the target device {stm32f4dis, rpi2, artik053}.
 
 --os
-  Defines the operating system for the device {nuttx, linux}.
+  Defines the operating system for the device {nuttx, linux, tizenrt}.
 
 --public
   Publish the test results to the web projects.
@@ -153,6 +160,7 @@ $ python driver.py --device stm32f4dis --os nuttx --app iotjs --port /dev/ttyACM
 $ python driver.py --device stm32f4dis --os nuttx --app jerryscript --port /dev/ttyACM0 --baud 115200
 $ python driver.py --device rpi2 --os linux --app iotjs --address a.b.c.d --username pi --remote-path /home/pi/testrunner
 $ python driver.py --device rpi2 --os linux --app jerryscript --address a.b.c.d --username pi --remote-path /home/pi/testrunner
+$ python driver.py --device artik053 --os tizenrt --app iotjs --port /dev/ttyUSB1 --baud 115200
 ```
 
 All the results are written into JSON files that are found in a `results` folder. Name of the output files are datetime with the following format:

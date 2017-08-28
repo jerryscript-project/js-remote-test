@@ -14,11 +14,13 @@
 
 import linux
 import nuttx
+import tizenrt
 
 
 OPERATING_SYSTEMS = {
     'linux': linux.OperatingSystem,
-    'nuttx': nuttx.OperatingSystem
+    'nuttx': nuttx.OperatingSystem,
+    'tizenrt': tizenrt.OperatingSystem
 }
 
 

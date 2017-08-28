@@ -31,6 +31,12 @@ class Connection(object):
         # Defines the end of the stdout.
         self.prompt = prompt
 
+    def get_prompt(self):
+        '''
+        Get the prompt.
+        '''
+        return self.prompt
+
     def open(self):
         '''
         Open the serial port.
@@ -58,6 +64,12 @@ class Connection(object):
         '''
         return self.serial.write(data)
 
+    def readline(self):
+        '''
+        Read line from the serial port.
+        '''
+        return self.serial.readline()
+
     def exec_command(self, cmd):
         '''
         Send command over the serial port.
@@ -76,6 +88,23 @@ class Connection(object):
         #
         # we should process the output for the stdout.
         return '\n'.join(receive.split('\r\n')[1:-1])
+    
+    def read_until(self, *args):
+        '''
+        Read data until it contains args.
+        '''
+        line = bytearray()
+        while True:
+            c = self.serial.read(1)
+            if c:
+                line += c
+                for stdout in args:
+                    if line[-len(stdout):] == stdout:
+                        return stdout, bytes(line)                       
+            else:
+                raise utils.TimeoutException
+
+        return False, False
 
     def send_file(self, lpath, rpath):
         '''

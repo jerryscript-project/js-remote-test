@@ -95,6 +95,18 @@ IOTJS_LIBTUV_PATH = os.path.join(IOTJS_PATH, 'deps/libtuv')
 # Path to the deps/jerry folder.
 IOTJS_JERRY_PATH = os.path.join(IOTJS_PATH, 'deps/jerry')
 
+# Path to the config folder within iotjs.
+IOTJS_CONFIG_PATH = os.path.join(IOTJS_PATH, 'config')
+
+# Path to the tizenrt apps folder within iotjs.
+IOTJS_TIZENRT_APPS_PATH = os.path.join(IOTJS_CONFIG_PATH, 'tizenrt/artik05x/app/')
+
+# Path to the tizenrt config folder within iotjs.
+IOTJS_TIZENRT_CONFIGS_PATH = os.path.join(IOTJS_CONFIG_PATH, 'tizenrt/artik05x/configs/')
+
+# Path to the lib folder of the tizenrt build.
+IOTJS_TIZENRT_BUILD_PATH = os.path.join(IOTJS_PATH, 'build/arm-tizenrt/%s/lib')
+
 #
 # ================================
 #
@@ -126,6 +138,40 @@ NUTTX_APPS_SYSTEM_PATH = os.path.join(NUTTX_APPS_PATH, 'system')
 
 # Path to the interpreter.
 NUTTX_APPS_INTERPRETER_PATH = os.path.join(NUTTX_APPS_PATH, 'interpreters')
+
+#
+# ================================
+#
+
+# Path to the tizenrt folder.
+TIZENRT_PATH = os.path.join(PROJECTS_ROOT, 'TizenRT')
+
+# Path to the apps folder.
+TIZENRT_APPS_PATH = os.path.join(TIZENRT_PATH, 'apps')
+
+# Path to the os folder.
+TIZENRT_OS_PATH = os.path.join(TIZENRT_PATH, 'os')
+
+# Path to the system app folder.
+TIZENRT_APP_SYSTEM_PATH = os.path.join(TIZENRT_APPS_PATH, 'system')
+
+# Path to the build folder.
+TIZENRT_BUILD_PATH = os.path.join(TIZENRT_PATH, 'build')
+
+# Path to the tools folder within nuttx.
+TIZENRT_TOOLS_PATH = os.path.join(TIZENRT_OS_PATH, 'tools')
+
+# Path to the tizenrt configs folder.
+TIZENRT_CONFIGS_PATH = os.path.join(TIZENRT_BUILD_PATH, 'configs')
+
+# Path to the openocd folder.
+TIZENRT_OPENOCD_PATH = os.path.join(TIZENRT_CONFIGS_PATH, 'artik053/tools/openocd')
+
+# Path to the build output folder.
+TIZENRT_BUILD_OUTPUT_PATH = os.path.join(TIZENRT_BUILD_PATH, 'output')
+
+# Path to the bin folder.
+TIZENRT_BIN_PATH = os.path.join(TIZENRT_BUILD_OUTPUT_PATH, 'bin')
 
 #
 # ================================

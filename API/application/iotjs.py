@@ -69,6 +69,16 @@ class Application(base.ApplicationBase):
         Return the path to the application test files.
         '''
         return paths.IOTJS_TEST_PATH
+    
+    def get_config_dir(self):
+        '''
+        Return the path to the config files.
+        '''
+        device_name = self.device.get_type()
+        if device_name == 'artik053':
+            device_name = 'artik05x'
+
+        return utils.join(paths.IOTJS_CONFIG_PATH, self.os, device_name)
 
     def get_config_file(self):
         '''
@@ -156,15 +166,19 @@ class Application(base.ApplicationBase):
             # Enable memstat for IoT.js (libtuv, jerryscript, iotjs)
             self.apply_patches()
 
-            utils.execute(paths.IOTJS_PATH, 'tools/build.py', build_flags)
-
         elif self.device.get_type() == 'rpi2':
             build_flags.append('--target-board=rpi2')
             build_flags.append('--jerry-cmake-param=-DFEATURE_VALGRIND_FREYA=ON')
             build_flags.append('--compile-flag=-g')
             build_flags.append('--jerry-compile-flag=-g')
+            
+        elif self.device.get_type() == 'artik053' and self.os == 'tizenrt':
+            build_flags.append('--target-board=artik05x')
+            build_flags.append('--target-arch=arm')
+            build_flags.append('--target-os=tizenrt')
+            build_flags.append('--sysroot=%s' % paths.TIZENRT_OS_PATH)
 
-            utils.execute(paths.IOTJS_PATH, 'tools/build.py', build_flags)
+        utils.execute(paths.IOTJS_PATH, 'tools/build.py', build_flags)
 
     def __in_dictlist(self, key, value, dictlist):
         for this in dictlist:
