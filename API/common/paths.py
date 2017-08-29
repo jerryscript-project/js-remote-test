@@ -56,16 +56,10 @@ OUTPUT_PATH = os.path.join(PROJECT_ROOT, 'results')
 #
 
 # Path to the iotjs-test-results folder.
-IOTJS_WEB_PATH = os.path.join(PROJECTS_ROOT, 'iotjs-test-results')
-
-# Path to the data folder within iotjs-test-results.
-IOTJS_WEB_DATA_PATH = os.path.join(IOTJS_WEB_PATH, 'data')
+IOTJS_TEST_RESULTS_WEB_PATH = os.path.join(PROJECTS_ROOT, 'iotjs-test-results')
 
 # Path to the jerryscript-test-results folder.
-JERRY_WEB_PATH = os.path.join(PROJECTS_ROOT, 'jerryscript-test-results')
-
-# Path to the data folder within jerryscript-test-results.
-JERRY_WEB_DATA_PATH = os.path.join(JERRY_WEB_PATH, 'data')
+JERRY_TEST_RESULTS_WEB_PATH = os.path.join(PROJECTS_ROOT, 'jerryscript-test-results')
 
 #
 # ================================

@@ -22,6 +22,13 @@ from firebase_admin import db
 
 import json
 
+
+TEST_RESULTS_WEB_PATH = {
+    "jerryscript" : paths.JERRY_TEST_RESULTS_WEB_PATH,
+    "iotjs" : paths.IOTJS_TEST_RESULTS_WEB_PATH
+}
+
+
 class TestRunner(object):
     '''
     Base class for the concrete target testrunners.
@@ -29,6 +36,40 @@ class TestRunner(object):
     def __init__(self, os):
         self.os = os
         self.results = []
+
+    def __update_status_icon(self):
+        '''
+        Update the status icon.
+        '''
+        app = self.os.get_app()
+
+        results_web_path = TEST_RESULTS_WEB_PATH[app.get_name()]
+        if not utils.exists(results_web_path):
+            return
+
+        status = 'passing'
+        for test in self.results:
+            if test['result'] == 'fail':
+                status = 'failing'
+                break
+
+        device = app.get_device()
+        current_status_icon = utils.join(results_web_path, 'status', '%s.svg' % device.get_type())
+
+        if utils.exists(current_status_icon):
+            return
+
+        with open(current_status_icon) as file:
+            if status in file.read():
+                return
+
+        image = 'pass.svg' if status is 'passing' else 'fail.svg'
+        copied_status_icon = utils.join(results_web_path, 'img', image)
+        utils.copy_file(copied_status_icon, current_status_icon)
+
+        utils.execute(results_web_path, 'git', ['add', current_status_icon])
+        utils.execute(results_web_path, 'git', ['commit', '-m', 'Update the status badge.'])
+        utils.execute(results_web_path, 'git', ['push'])
 
     def __save(self, is_publish):
         '''
@@ -75,8 +116,6 @@ class TestRunner(object):
         if not is_publish:
             return
 
-        # TODO: update the appropriate icon to the status folder
-
         # Publish results to firebase
 
         # Service account credential will allow our server to authenticate
@@ -103,6 +142,9 @@ class TestRunner(object):
         with open(result_file_path) as result_file:
             data = json.load(result_file)
             ref.push(data)
+
+            # Update the status icon after upload was successful.
+            self.__update_status_icon()
 
     def __run_test_on_device(self, app, testset, test):
         '''
