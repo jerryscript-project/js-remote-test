@@ -88,7 +88,7 @@ class Connection(object):
         #
         # we should process the output for the stdout.
         return '\n'.join(receive.split('\r\n')[1:-1])
-    
+
     def read_until(self, *args):
         '''
         Read data until it contains args.
@@ -100,7 +100,7 @@ class Connection(object):
                 line += c
                 for stdout in args:
                     if line[-len(stdout):] == stdout:
-                        return stdout, bytes(line)                       
+                        return stdout, bytes(line)
             else:
                 raise utils.TimeoutException
 

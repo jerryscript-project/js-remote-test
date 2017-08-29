@@ -16,8 +16,7 @@ import base
 import json
 import os
 
-from ..common import utils
-from ..common import paths
+from API.common import (console, paths, utils)
 
 
 class Application(base.ApplicationBase):
@@ -69,7 +68,7 @@ class Application(base.ApplicationBase):
         Return the path to the application test files.
         '''
         return paths.IOTJS_TEST_PATH
-    
+
     def get_config_dir(self):
         '''
         Return the path to the config files.
@@ -129,35 +128,34 @@ class Application(base.ApplicationBase):
         '''
         self.update_repository()
 
+        common_build_flags = [
+            '--clean',
+            '--buildtype=%s' % self.buildtype,
+            '--target-arch=arm',
+        ]
+
         # Note: We should build IoT.js for Raspberry Pi 2, since the
         # binary size information (showed on the test-result webpages)
         # is based on this target.
-        minimal_build_flags = [
-            '--clean',
-            '--buildtype=%s' % self.buildtype,
-            '--target-arch=arm',
-            '--no-parallel-build',
-            '--target-board=rpi2',
-            '--builddir=%s' % paths.IOTJS_MINIMAL_BUILD_PATH
-        ]
+        minimal_build_flags = list(common_build_flags)
+        minimal_build_flags.append('--target-board=rpi2')
+        minimal_build_flags.append('--builddir=%s' % paths.IOTJS_MINIMAL_BUILD_PATH)
 
+        # Run the buildscript with minimal build flags for binary information.
         utils.execute(paths.IOTJS_PATH, 'tools/build.py', minimal_build_flags)
 
-        # The following builds are target specific with memory usage features.
-
-        # Enable further modules
+        # Enable further modules.
         include_modules = ['spi', 'uart']
 
-        build_flags = [
-            '--clean',
-            '--target-arch=arm',
-            '--buildtype=%s' % self.buildtype,
-            '--iotjs-include-module=%s' % ','.join(include_modules),
-        ]
+        # The following builds are target specific with memory usage features.
+        build_flags = list(common_build_flags)
+        build_flags.append('--iotjs-include-module=%s' % ','.join(include_modules))
+
+        # Specify target os.
+        build_flags.append('--target-os=%s' % self.os)
 
         if self.device.get_type() == 'stm32f4dis' and self.os == 'nuttx':
-            build_flags.append('--target-board=stm32f4dis')
-            build_flags.append('--target-os=nuttx')
+            build_flags.append('--target-board=%s' % self.device.get_type())
             build_flags.append('--jerry-heaplimit=78')
             build_flags.append('--jerry-memstat')
             build_flags.append('--no-parallel-build')
@@ -166,18 +164,22 @@ class Application(base.ApplicationBase):
             # Enable memstat for IoT.js (libtuv, jerryscript, iotjs)
             self.apply_patches()
 
-        elif self.device.get_type() == 'rpi2':
-            build_flags.append('--target-board=rpi2')
+        elif self.device.get_type() == 'rpi2' and self.os == 'linux':
+            build_flags.append('--target-board=%s' % self.device.get_type())
             build_flags.append('--jerry-cmake-param=-DFEATURE_VALGRIND_FREYA=ON')
             build_flags.append('--compile-flag=-g')
             build_flags.append('--jerry-compile-flag=-g')
-            
+
         elif self.device.get_type() == 'artik053' and self.os == 'tizenrt':
             build_flags.append('--target-board=artik05x')
-            build_flags.append('--target-arch=arm')
-            build_flags.append('--target-os=tizenrt')
             build_flags.append('--sysroot=%s' % paths.TIZENRT_OS_PATH)
 
+        else:
+            console.fail('Non-minimal IoT.js build failed, unsupported '
+                         'device-os (%s-%s) combination!' %
+                         (self.device.get_type(), self.os))
+
+        # Run the buildscript.
         utils.execute(paths.IOTJS_PATH, 'tools/build.py', build_flags)
 
     def __in_dictlist(self, key, value, dictlist):
