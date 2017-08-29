@@ -9,7 +9,7 @@ The following table shows the supported devices and applications:
 |                :---:                   |  :---:    |    :---:    |
 | STM32F4-Discovery                      | &#128504; |  &#128504;  |
 | Raspberry Pi 2                         | &#128504; |  &#128504;  |
-| Artik053                               | &#128504; | - |
+| Artik053                               | &#128504; |  &#128504;  |
 <br />
 
 In the first step, all the dependencies should be installed:
@@ -161,6 +161,7 @@ $ python driver.py --device stm32f4dis --os nuttx --app jerryscript --port /dev/
 $ python driver.py --device rpi2 --os linux --app iotjs --address a.b.c.d --username pi --remote-path /home/pi/testrunner
 $ python driver.py --device rpi2 --os linux --app jerryscript --address a.b.c.d --username pi --remote-path /home/pi/testrunner
 $ python driver.py --device artik053 --os tizenrt --app iotjs --port /dev/ttyUSB1 --baud 115200
+$ python driver.py --device artik053 --os tizenrt --app jerryscript --port /dev/ttyUSB1 --baud 115200
 ```
 
 All the results are written into JSON files that are found in a `results` folder. Name of the output files are datetime with the following format:

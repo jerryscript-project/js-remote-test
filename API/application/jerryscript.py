@@ -70,6 +70,13 @@ class Application(base.ApplicationBase):
         '''
         return paths.JERRY_TEST_JERRY_PATH
 
+    def get_config_dir(self):
+        '''
+        Return the path to the config files.
+        '''
+        return utils.join(paths.JERRY_TARGETS_PATH,
+            '%s-%s' % (self.os, self.device.get_type()))
+
     def get_config_file(self):
         '''
         Return the path to OS configuration file.
@@ -123,6 +130,14 @@ class Application(base.ApplicationBase):
             ]
 
             utils.execute(paths.JERRY_PATH, 'tools/build.py', build_flags)
+
+        elif self.device.get_type() == 'artik053' and self.os == 'tizenrt':
+            build_flags = [
+                '-f',
+                'targets/tizenrt-artik053/Makefile.tizenrt',
+                'LIBTARGET_DIR=' + paths.TIZENRT_BUILD_LIBRARIES_PATH
+            ]
+            utils.execute(paths.JERRY_PATH, 'make', build_flags)
 
     def skip_test(self, test):
         '''

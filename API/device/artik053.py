@@ -41,7 +41,7 @@ class Device(base.DeviceBase):
         '''
         Return the test path on the device.
         '''
-        return '/rom/test'
+        return '/rom'
 
     def flash(self, os):
         '''
@@ -69,7 +69,7 @@ class Device(base.DeviceBase):
             # Press enters to start the serial communication and
             # go to the test folder because some tests require resources.
             self.serial.exec_command('\n\n')
-            self.serial.exec_command('cd /rom/test')
+            self.serial.exec_command('cd /rom')
 
         except Exception as e:
             console.fail(str(e))

@@ -170,6 +170,9 @@ TIZENRT_OPENOCD_PATH = os.path.join(TIZENRT_CONFIGS_PATH, 'artik053/tools/openoc
 # Path to the build output folder.
 TIZENRT_BUILD_OUTPUT_PATH = os.path.join(TIZENRT_BUILD_PATH, 'output')
 
+# Path to the build libraries folder.
+TIZENRT_BUILD_LIBRARIES_PATH = os.path.join(TIZENRT_BUILD_OUTPUT_PATH, 'libraries')
+
 # Path to the bin folder.
 TIZENRT_BIN_PATH = os.path.join(TIZENRT_BUILD_OUTPUT_PATH, 'bin')
 
@@ -182,6 +185,9 @@ JERRY_PATH = os.path.join(PROJECTS_ROOT, 'jerryscript')
 
 # Path to the apps folder within jerry.
 JERRY_APPS_PATH = os.path.join(JERRY_PATH, 'targets/nuttx-stm32f4/')
+
+# Path to the targets folder within jerry.
+JERRY_TARGETS_PATH = os.path.join(JERRY_PATH, 'targets')
 
 JERRY_TEST_JERRY_PATH = os.path.join(JERRY_PATH, 'tests/jerry')
 

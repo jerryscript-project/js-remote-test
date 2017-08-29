@@ -15,5 +15,9 @@
             { "name": "regression-test-issue-1763.js", "reason": "promise is not supported" },
             { "name": "regression-test-issue-1881.js", "reason": "promise is not supported" }
         ]
+    },
+    "artik053": {
+        "testsets": [],
+        "testfiles": []
     }
 }

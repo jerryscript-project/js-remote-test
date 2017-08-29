@@ -27,7 +27,7 @@ class OperatingSystem(base.OperatingSystemBase):
 
         self.update_repository()
         self.copy_app_files(app)
-        self.apply_patches()
+        self.apply_patches(app)
         self.configure(app)
         self.copy_test_files(app)
 
@@ -51,11 +51,11 @@ class OperatingSystem(base.OperatingSystemBase):
         utils.execute(paths.TIZENRT_PATH, 'git', ['reset', '--hard'])
         utils.execute(paths.TIZENRT_PATH, 'git', ['pull'])
 
-    def apply_patches(self):
+    def apply_patches(self, app):
         '''
         Apply patch file.
         '''
-        patch = utils.join(paths.PATCHES_PATH, 'tizenrt.diff')
+        patch = utils.join(paths.PATCHES_PATH, 'tizenrt-%s.diff' % app.get_name())
         utils.execute(paths.TIZENRT_PATH, 'git', ['apply', patch])
 
     def configure(self, app):
@@ -75,11 +75,18 @@ class OperatingSystem(base.OperatingSystemBase):
         '''
         Copy application files into the NuttX apps.
         '''
-        app_path = utils.join(app.get_config_dir(), 'app/')
+        # TODO: Unify the app folder path.
+        app_name = app.get_name()
+        if app_name == 'jerryscript':
+            app_path = utils.join(app.get_config_dir(), 'apps/jerryscript/')
+            app_config_path = utils.join(app.get_config_dir(), 'configs/jerryscript/')
+        elif app_name == 'iotjs':
+            app_path = utils.join(app.get_config_dir(), 'app/')
+            app_config_path = utils.join(app.get_config_dir(), 'configs/')
+
         tizenrt_app_path = utils.join(paths.TIZENRT_APP_SYSTEM_PATH, app.get_name())
         utils.copy_files(app_path, tizenrt_app_path)
 
-        app_config_path = utils.join(app.get_config_dir(), 'configs/')
         rt_config_path = utils.join(paths.TIZENRT_CONFIGS_PATH,
             app.get_device().get_type(), app.get_name())
         utils.copy_files(app_config_path, rt_config_path)
@@ -91,7 +98,6 @@ class OperatingSystem(base.OperatingSystemBase):
         res_path = utils.join(paths.TIZENRT_BUILD_OUTPUT_PATH, 'res')
         if utils.exists(res_path):
             utils.execute(paths.TIZENRT_BUILD_OUTPUT_PATH, 'rm', ['-rf', 'res'])
-        utils.execute(paths.TIZENRT_BUILD_OUTPUT_PATH, 'mkdir', ['res'])
 
         utils.execute(paths.ROOT_FOLDER, 'cp', [app.get_test_dir(), res_path, '-r'])
 
@@ -106,11 +112,12 @@ class OperatingSystem(base.OperatingSystemBase):
         '''
         Build the operating system.
         '''
-        lib_path = ''
         app_name = self.app.get_name()
         if app_name == 'iotjs':
             lib_path = 'IOTJS_LIB_DIR=' + paths.IOTJS_TIZENRT_BUILD_PATH % buildtype
+            utils.execute(paths.TIZENRT_OS_PATH, 'make', [lib_path])
+        elif app_name == 'jerryscript':
+            utils.execute(paths.TIZENRT_OS_PATH, 'make')
 
-        utils.execute(paths.TIZENRT_OS_PATH, 'make', [lib_path])
         utils.execute(paths.TIZENRT_OS_PATH, 'genromfs', ['-f', '../build/output/bin/rom.img',
             '-d', '../build/output/res/', '-V', "NuttXBootVol"])
