@@ -12,15 +12,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from ..common import paths
-from ..common import reporter
-from ..common import utils
+import json
 
 import firebase_admin
-from firebase_admin import credentials
-from firebase_admin import db
 
-import json
+from API.common import paths, reporter, utils
+
 
 
 TEST_RESULTS_WEB_PATH = {

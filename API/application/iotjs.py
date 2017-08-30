@@ -16,7 +16,7 @@ import base
 import json
 import os
 
-from API.common import (console, paths, utils)
+from API.common import console, paths, utils
 
 
 class Application(base.ApplicationBase):

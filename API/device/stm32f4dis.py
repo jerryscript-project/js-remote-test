@@ -13,13 +13,12 @@
 # limitations under the License.
 
 import base
-
 import connection
 import re
 import signal
 import time
 
-from ..common import (console, paths, utils)
+from API.common import console, paths, utils
 
 
 class Device(base.DeviceBase):

@@ -18,8 +18,7 @@ import ConfigParser
 import os
 import socket
 
-from ..common import utils
-from ..common import paths
+from API.common import paths, utils
 
 
 class OperatingSystem(base.OperatingSystemBase):
