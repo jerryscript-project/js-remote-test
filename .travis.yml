@@ -1,0 +1,11 @@
+language: python
+
+os: linux
+
+install: true
+
+script: "tools/precommit.py $OPTS"
+
+env:
+  matrix:
+    - OPTS="--test=signed-off"
