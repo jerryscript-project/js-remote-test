@@ -14,7 +14,6 @@
 
 import base
 import json
-import os
 
 from API.common import console, paths, utils
 
@@ -214,14 +213,14 @@ class Application(base.ApplicationBase):
         '''
 
         # Read testsets
-        testsets_file = os.path.join(paths.IOTJS_TEST_PATH, 'testsets.json')
+        testsets_file = utils.join(paths.IOTJS_TEST_PATH, 'testsets.json')
         testsets = {}
 
         with open(testsets_file, 'r') as testsets_p:
             testsets = json.load(testsets_p)
 
         # Read skip file
-        skip_file = os.path.join(paths.PROJECT_ROOT, 'API/testrunner/iotjs-skiplist.json')
+        skip_file = utils.join(paths.PROJECT_ROOT, 'API/testrunner/iotjs-skiplist.json')
         skip_list = self.get_skiplist(skip_file)
         dev_type = self.device.get_type()
         skip_tests = skip_list[dev_type]['testfiles']

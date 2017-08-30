@@ -12,9 +12,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import artik053
 import rpi2
 import stm32f4dis
-import artik053
 
 
 DEVICES = {

@@ -150,7 +150,7 @@ class Application(base.ApplicationBase):
         '''
 
         # # Read skip file
-        skip_file = os.path.join(paths.PROJECT_ROOT, 'API/testrunner/jerry-skiplist.json')
+        skip_file = utils.join(paths.PROJECT_ROOT, 'API/testrunner/jerry-skiplist.json')
         skip_list = self.get_skiplist(skip_file)
         dev_type = self.device.get_type()
         skip_tests = skip_list[dev_type]['testfiles']

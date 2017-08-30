@@ -13,7 +13,6 @@
 # limitations under the License.
 
 import base
-import os
 
 
 class OperatingSystem(base.OperatingSystemBase):

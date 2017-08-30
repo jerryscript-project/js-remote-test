@@ -15,11 +15,11 @@
 import console
 import json
 import os
+import platform
+import re
 import shutil
 import subprocess
 import time
-import re
-import platform
 
 
 class TimeoutException(Exception):

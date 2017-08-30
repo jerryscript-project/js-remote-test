@@ -13,10 +13,6 @@
 # limitations under the License.
 
 import base
-import binascii
-import ConfigParser
-import os
-import socket
 
 from API.common import paths, utils
 

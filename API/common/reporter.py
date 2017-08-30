@@ -14,7 +14,7 @@
 
 from __future__ import print_function
 
-from . import console
+import console
 
 
 def report_testset(testset):

@@ -15,7 +15,6 @@
 import base
 import connection
 import json
-import time
 
 from API.common import console, paths, utils
 

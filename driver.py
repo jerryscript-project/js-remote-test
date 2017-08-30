@@ -14,10 +14,7 @@
 
 import argparse
 
-import API.application
-import API.device
-import API.os
-import API.testrunner
+import API
 
 
 def parse_options():
