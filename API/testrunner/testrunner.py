@@ -14,10 +14,9 @@
 
 import json
 
-import firebase_admin
+from firebase_admin import credentials, db, initialize_app
 
 from API.common import paths, reporter, utils
-
 
 
 TEST_RESULTS_WEB_PATH = {
@@ -124,17 +123,17 @@ class TestRunner(object):
             return
 
         # Fetch the service account key JSON file contents
-        cred = firebase_admin.credentials.Certificate(serviceAccountKey)
+        cred = credentials.Certificate(serviceAccountKey)
 
         # Initialize the app with a service account, granting admin privileges
-        firebase_admin.initialize_app(cred, {
+        initialize_app(cred, {
             'databaseURL': "https://remote-testrunner.firebaseio.com",
             'databaseAuthVariableOverride': {
                 'uid': 'testrunner-service'
             }
         })
 
-        ref = firebase_admin.db.reference(app.get_name() + '/' + device_dir)
+        ref = db.reference(app.get_name() + '/' + device_dir)
 
         with open(result_file_path) as result_file:
             data = json.load(result_file)
