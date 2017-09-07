@@ -43,6 +43,7 @@ class TestRunner(object):
         if not utils.exists(results_web_path):
             return
 
+        utils.execute(results_web_path, 'git', ['pull', 'origin', 'gh-pages'])
         status = 'passing'
         for test in self.results:
             if test['result'] == 'fail':
@@ -52,7 +53,7 @@ class TestRunner(object):
         device = app.get_device()
         current_status_icon = utils.join(results_web_path, 'status', '%s.svg' % device.get_type())
 
-        if utils.exists(current_status_icon):
+        if not utils.exists(current_status_icon):
             return
 
         with open(current_status_icon) as file:
