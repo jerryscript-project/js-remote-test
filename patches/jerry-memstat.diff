@@ -53,16 +53,3 @@ index 45b62cb..f2b6a35 100644
  jmem_heap_stat_free (size_t size) /**< Size of freed block */
  {
    const size_t aligned_size = (size + JMEM_ALIGNMENT - 1) / JMEM_ALIGNMENT * JMEM_ALIGNMENT;
-diff --git a/jerry-port/default/default-io.c b/jerry-port/default/default-io.c
-index 6cca973..dcde61c 100644
---- a/jerry-port/default/default-io.c
-+++ b/jerry-port/default/default-io.c
-@@ -78,7 +78,7 @@ jerry_port_log (jerry_log_level_t level, /**< log level */
-   {
-     va_list args;
-     va_start (args, format);
--    vfprintf (stderr, format, args);
-+    // vfprintf (format, args);
-     va_end (args);
-   }
- } /* jerry_port_log */
