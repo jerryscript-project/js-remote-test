@@ -51,8 +51,7 @@ class Device(base.DeviceBase):
         '''
         Reset the board.
         '''
-        utils.execute(paths.TIZENRT_OPENOCD_PATH, './%s/openocd' % self.platform,
-            ['-f', 'artik053.cfg', '-c', 'reset'], quiet=True)
+        utils.execute(paths.TIZENRT_OS_PATH, 'make', ['download', 'reset'], quiet=True)
 
         # Wait a moment to boot the device.
         time.sleep(2)
@@ -94,7 +93,7 @@ class Device(base.DeviceBase):
         exitcode = 1
         if message == self.serial.get_prompt():
             # Find the test result from stdout.
-            match = re.search('RESULT: (\d+)', stdout)
+            match = re.search('IoT.js Result: (\d+)', stdout)
             if match:
                 exitcode = match.group(1)
             else:

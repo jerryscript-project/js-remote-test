@@ -74,31 +74,27 @@ class OperatingSystem(base.OperatingSystemBase):
         '''
         Copy application files into the NuttX apps.
         '''
-        # TODO: Unify the app folder path.
         app_name = app.get_name()
         if app_name == 'jerryscript':
             app_path = utils.join(app.get_config_dir(), 'apps/jerryscript/')
             app_config_path = utils.join(app.get_config_dir(), 'configs/jerryscript/')
-        elif app_name == 'iotjs':
-            app_path = utils.join(app.get_config_dir(), 'app/')
-            app_config_path = utils.join(app.get_config_dir(), 'configs/')
 
-        tizenrt_app_path = utils.join(paths.TIZENRT_APP_SYSTEM_PATH, app.get_name())
-        utils.copy_files(app_path, tizenrt_app_path)
+            tizenrt_app_path = utils.join(paths.TIZENRT_APP_SYSTEM_PATH, app.get_name())
+            utils.copy_files(app_path, tizenrt_app_path)
 
-        rt_config_path = utils.join(paths.TIZENRT_CONFIGS_PATH,
-            app.get_device().get_type(), app.get_name())
-        utils.copy_files(app_config_path, rt_config_path)
+            rt_config_path = utils.join(paths.TIZENRT_CONFIGS_PATH,
+                app.get_device().get_type(), app.get_name())
+            utils.copy_files(app_config_path, rt_config_path)
 
     def copy_test_files(self, app):
         '''
         Copy sample files into the NuttX apps.
         '''
-        res_path = utils.join(paths.TIZENRT_BUILD_OUTPUT_PATH, 'res')
-        if utils.exists(res_path):
-            utils.execute(paths.TIZENRT_BUILD_OUTPUT_PATH, 'rm', ['-rf', 'res'])
+        if utils.exists(paths.TIZENRT_ROMFS_CONTENTS_PATH):
+            utils.execute(paths.TIZENRT_FS_PATH, 'rm', ['-rf', 'contents'])
 
-        utils.execute(paths.ROOT_FOLDER, 'cp', [app.get_test_dir(), res_path, '-r'])
+        utils.execute(paths.ROOT_FOLDER, 'cp', 
+                      [app.get_test_dir(), paths.TIZENRT_ROMFS_CONTENTS_PATH, '-r'])
 
     def apply_app_patches(self, app):
         '''
@@ -113,10 +109,8 @@ class OperatingSystem(base.OperatingSystemBase):
         '''
         app_name = self.app.get_name()
         if app_name == 'iotjs':
-            lib_path = 'IOTJS_LIB_DIR=' + paths.IOTJS_TIZENRT_BUILD_PATH % buildtype
-            utils.execute(paths.TIZENRT_OS_PATH, 'make', [lib_path])
+            # TODO: Support release build
+            iotjs_root_path = 'IOTJS_ROOT_DIR=' + paths.IOTJS_PATH
+            utils.execute(paths.TIZENRT_OS_PATH, 'make', [iotjs_root_path])
         elif app_name == 'jerryscript':
             utils.execute(paths.TIZENRT_OS_PATH, 'make')
-
-        utils.execute(paths.TIZENRT_OS_PATH, 'genromfs', ['-f', '../build/output/bin/rom.img',
-            '-d', '../build/output/res/', '-V', "NuttXBootVol"])

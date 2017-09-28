@@ -92,15 +92,6 @@ IOTJS_JERRY_PATH = os.path.join(IOTJS_PATH, 'deps/jerry')
 # Path to the config folder within iotjs.
 IOTJS_CONFIG_PATH = os.path.join(IOTJS_PATH, 'config')
 
-# Path to the tizenrt apps folder within iotjs.
-IOTJS_TIZENRT_APPS_PATH = os.path.join(IOTJS_CONFIG_PATH, 'tizenrt/artik05x/app/')
-
-# Path to the tizenrt config folder within iotjs.
-IOTJS_TIZENRT_CONFIGS_PATH = os.path.join(IOTJS_CONFIG_PATH, 'tizenrt/artik05x/configs/')
-
-# Path to the lib folder of the tizenrt build.
-IOTJS_TIZENRT_BUILD_PATH = os.path.join(IOTJS_PATH, 'build/arm-tizenrt/%s/lib')
-
 #
 # ================================
 #
@@ -161,14 +152,11 @@ TIZENRT_CONFIGS_PATH = os.path.join(TIZENRT_BUILD_PATH, 'configs')
 # Path to the openocd folder.
 TIZENRT_OPENOCD_PATH = os.path.join(TIZENRT_CONFIGS_PATH, 'artik053/tools/openocd')
 
-# Path to the build output folder.
-TIZENRT_BUILD_OUTPUT_PATH = os.path.join(TIZENRT_BUILD_PATH, 'output')
+# Path to the fs folder.
+TIZENRT_FS_PATH = os.path.join(TIZENRT_PATH, 'tools/fs')
 
-# Path to the build libraries folder.
-TIZENRT_BUILD_LIBRARIES_PATH = os.path.join(TIZENRT_BUILD_OUTPUT_PATH, 'libraries')
-
-# Path to the bin folder.
-TIZENRT_BIN_PATH = os.path.join(TIZENRT_BUILD_OUTPUT_PATH, 'bin')
+# Path to the romfs contents folder.
+TIZENRT_ROMFS_CONTENTS_PATH = os.path.join(TIZENRT_FS_PATH, 'contents')
 
 #
 # ================================
