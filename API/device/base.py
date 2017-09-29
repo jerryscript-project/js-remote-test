@@ -14,7 +14,6 @@
 
 from API.common import utils
 
-
 class DeviceBase(object):
     '''
     Base class to define an interface for the devices.
@@ -22,8 +21,14 @@ class DeviceBase(object):
     def __init__(self, device_type, remote_path):
         self.devtype = device_type
         self.remote_path = remote_path
-
         self.install_dependencies()
+        self.os = self.init_os();
+
+    def get_os(self):
+        '''
+        Return the os.
+        '''
+        return self.os
 
     def get_type(self):
         '''
@@ -37,13 +42,20 @@ class DeviceBase(object):
         '''
         return utils.join(self.remote_path, 'test')
 
+    def init_os(self):
+        '''
+        Initialize the used OS.
+        '''
+        raise NotImplementedError('Use the concrete subclasses.')
+
+
     def install_dependencies(self):
         '''
         Install dependencies of the board.
         '''
         raise NotImplementedError('Use the concrete subclasses.')
 
-    def flash(self, os):
+    def flash(self, app):
         '''
         Flash the given operating system to the board.
         '''

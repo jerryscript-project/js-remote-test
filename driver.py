@@ -38,9 +38,6 @@ def parse_options():
     parser.add_argument('--device', choices=['stm32f4dis', 'rpi2', 'artik053'], default='stm32f4dis',
                         help='indicate the device for testing (default: %(default)s)')
 
-    parser.add_argument('--os', choices=['nuttx', 'linux', 'tizenrt'], default='nuttx',
-                        help='the target oprating system (default: %(default)s)')
-
     parser.add_argument('--public', action='store_true', default=False,
                         help='pusblish results to the web (default: %(default)s)')
 
@@ -76,18 +73,14 @@ def main():
     options = parse_options()
 
     device = API.device.create(options)
-    app = API.application.create(options, device)
+    app = API.application.create(options)
 
-    os = API.os.create(options.os, app)
-    os.prebuild()
+    app.build(device)
 
-    app.build()
-    os.build(options.buildtype, 'all')
+    device.flash(app)
 
-    device.flash(os)
-
-    testrunner = API.testrunner.TestRunner(os)
-    testrunner.run(options.public)
+    testrunner = API.testrunner.TestRunner()
+    testrunner.run(app, device, options.public)
 
 if __name__ == '__main__':
     main()

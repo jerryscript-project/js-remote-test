@@ -14,6 +14,7 @@
 
 import base
 import connection
+import os
 import json
 
 from API.common import console, paths, utils
@@ -28,18 +29,22 @@ class Device(base.DeviceBase):
 
         self.ssh = connection.sshcom.Connection(options)
 
+    def init_os(self):
+        '''
+        Initialize the used OS.
+        '''
+        return os.linux.OperatingSystem()
+
     def install_dependencies(self):
         '''
         Install dependencies of the board.
         '''
         pass
 
-    def flash(self, os):
+    def flash(self, app):
         '''
         Send the application and the testsuite to the device with SFTP.
         '''
-        app = os.get_app()
-
         lpath_app = app.get_image()
         lpath_testsuite = utils.make_archive(app.get_test_dir(), 'tar')
 

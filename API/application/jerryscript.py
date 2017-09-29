@@ -23,8 +23,8 @@ class Application(base.ApplicationBase):
     '''
     JerryScript application.
     '''
-    def __init__(self, options, device):
-        super(self.__class__, self).__init__('jerryscript', 'jerry', options, device)
+    def __init__(self, options):
+        super(self.__class__, self).__init__('jerryscript', 'jerry', options)
 
     def get_image(self):
         '''
@@ -69,13 +69,6 @@ class Application(base.ApplicationBase):
         '''
         return paths.JERRY_TEST_JERRY_PATH
 
-    def get_config_dir(self):
-        '''
-        Return the path to the config files.
-        '''
-        return utils.join(paths.JERRY_TARGETS_PATH,
-            '%s-%s' % (self.os, self.device.get_type()))
-
     def get_config_file(self):
         '''
         Return the path to OS configuration file.
@@ -102,10 +95,15 @@ class Application(base.ApplicationBase):
         utils.execute(paths.JERRY_PATH, 'git', ['pull', 'origin', self.branch])
         utils.execute(paths.JERRY_PATH, 'git', ['checkout', self.commit])
 
-    def build(self):
+    def build(self, device):
         '''
         Build IoT.js for the target device/OS and for Raspberry Pi 2.
         '''
+
+        # prebuild the OS
+        os = device.get_os()
+        os.prebuild(self)
+
         self.update_repository()
 
         # Note: We should build JerryScript for Raspberry Pi 2, since the
@@ -120,7 +118,7 @@ class Application(base.ApplicationBase):
         utils.execute(paths.JERRY_PATH, 'tools/build.py', minimal_build_flags)
 
         # The following builds are target specific with memory usage features.
-        if self.device.get_type() == 'rpi2':
+        if device.get_type() == 'rpi2':
             build_flags = [
                 '--clean',
                 '--toolchain=cmake/toolchain_linux_armv7l.cmake',
@@ -130,7 +128,7 @@ class Application(base.ApplicationBase):
 
             utils.execute(paths.JERRY_PATH, 'tools/build.py', build_flags)
 
-        elif self.device.get_type() == 'artik053' and self.os == 'tizenrt':
+        elif device.get_type() == 'artik053':
             build_flags = [
                 '-f',
                 'targets/tizenrt-artik053/Makefile.tizenrt',
@@ -138,13 +136,15 @@ class Application(base.ApplicationBase):
             ]
             utils.execute(paths.JERRY_PATH, 'make', build_flags)
 
-    def skip_test(self, test):
+        os.build(self, self.buildtype, 'all')
+
+    def skip_test(self, test, os_name):
         '''
         Determine if a test should be skipped.
         '''
         return test.get('skip', False)
 
-    def read_testsets(self):
+    def read_testsets(self, device):
         '''
         Read all the tests by walkin on the test path.
         '''
@@ -152,9 +152,8 @@ class Application(base.ApplicationBase):
         # # Read skip file
         skip_file = utils.join(paths.PROJECT_ROOT, 'API/testrunner/jerry-skiplist.json')
         skip_list = self.get_skiplist(skip_file)
-        dev_type = self.device.get_type()
-        skip_tests = skip_list[dev_type]['testfiles']
-        skip_testsets = skip_list[dev_type]['testsets']
+        skip_tests = skip_list[device.get_type()]['testfiles']
+        skip_testsets = skip_list[device.get_type()]['testsets']
 
         testsets = {}
 

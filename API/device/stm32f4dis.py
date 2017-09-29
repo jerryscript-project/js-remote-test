@@ -14,6 +14,7 @@
 
 import base
 import connection
+import os
 import re
 import time
 
@@ -29,6 +30,12 @@ class Device(base.DeviceBase):
 
         self.serial = connection.serialcom.Connection(options, prompt='nsh> ')
 
+    def init_os(self):
+        '''
+        Initialize the used OS.
+        '''
+        return os.nuttx.OperatingSystem()
+
     def install_dependencies(self):
         '''
         Install dependencies of the board.
@@ -38,10 +45,11 @@ class Device(base.DeviceBase):
 
         utils.execute(paths.STLINK_PATH, 'make', ['release'])
 
-    def flash(self, os):
+    def flash(self, app):
         '''
         Flash the given operating system to the board.
         '''
+        os = self.get_os()
         options = ['write', os.get_image(), '0x8000000']
 
         utils.execute(paths.STLINK_BUILD_PATH, './st-flash', options)

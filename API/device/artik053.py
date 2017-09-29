@@ -14,6 +14,7 @@
 
 import base
 import connection
+import os
 import re
 import time
 
@@ -29,6 +30,12 @@ class Device(base.DeviceBase):
         self.serial = connection.serialcom.Connection(options, 'TASH>>')
         self.platform = utils.get_system().lower() + utils.get_architecture()
 
+    def init_os(self):
+        '''
+        Initialize the used OS.
+        '''
+        return os.tizenrt.OperatingSystem()
+
     def install_dependencies(self):
         '''
         Install dependencies of the board.
@@ -41,7 +48,7 @@ class Device(base.DeviceBase):
         '''
         return '/rom'
 
-    def flash(self, os):
+    def flash(self, app):
         '''
         Flash the given operating system to the board.
         '''

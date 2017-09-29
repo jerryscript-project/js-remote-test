@@ -29,17 +29,14 @@ class TestRunner(object):
     '''
     Base class for the concrete target testrunners.
     '''
-    def __init__(self, os):
-        self.os = os
+    def __init__(self):
         self.results = []
 
-    def __update_status_icon(self):
+    def __update_status_icon(self, app_name, device_type):
         '''
         Update the status icon.
         '''
-        app = self.os.get_app()
-
-        results_web_path = TEST_RESULTS_WEB_PATH[app.get_name()]
+        results_web_path = TEST_RESULTS_WEB_PATH[app_name]
         if not utils.exists(results_web_path):
             return
 
@@ -50,8 +47,7 @@ class TestRunner(object):
                 status = 'failing'
                 break
 
-        device = app.get_device()
-        current_status_icon = utils.join(results_web_path, 'status', '%s.svg' % device.get_type())
+        current_status_icon = utils.join(results_web_path, 'status', '%s.svg' % device_type)
 
         if not utils.exists(current_status_icon):
             return
@@ -68,20 +64,21 @@ class TestRunner(object):
         utils.execute(results_web_path, 'git', ['commit', '-m', 'Update the status badge.'])
         utils.execute(results_web_path, 'git', ['push'])
 
-    def __save(self, is_publish):
+    def __save(self, app, device, is_publish):
         '''
         Save the testresults.
         '''
 
-        app = self.os.get_app()
+        os = device.get_os()
+        device_type = device.get_type()
 
         # Create submodule information.
         submodules = {
             app.get_name() : utils.last_commit_info(app.get_home_dir()),
-            self.os.get_name() : utils.last_commit_info(self.os.get_home_dir())
+            os.get_name() : utils.last_commit_info(os.get_home_dir())
         }
 
-        if self.os.get_name() is 'nuttx':
+        if os.get_name() is 'nuttx':
             submodules['apps'] = utils.last_commit_info(paths.NUTTX_APPS_PATH)
 
         # Create the result.
@@ -92,8 +89,6 @@ class TestRunner(object):
             'submodules' : submodules
         }
 
-        device = app.get_device()
-        device_type = device.get_type()
         device_dir = "stm32" if device_type == "stm32f4dis" else device_type
 
         # Save the results into a JSON file.
@@ -141,13 +136,12 @@ class TestRunner(object):
             ref.push(data)
 
             # Update the status icon after upload was successful.
-            self.__update_status_icon()
+            self.__update_status_icon(app.get_name(), device.get_type())
 
-    def __run_test_on_device(self, app, testset, test):
+    def __run_test_on_device(self, app, device, testset, test):
         '''
         Execute the current test on the device.
         '''
-        device = app.get_device()
         testfile = utils.join(device.get_test_path(), testset, test['name'])
 
         if device.get_type() is 'stm32f4dis':
@@ -158,7 +152,7 @@ class TestRunner(object):
 
         return device.execute(app.get_cmd(), [testfile])
 
-    def run(self, is_publish):
+    def run(self, app, device, is_publish):
         '''
         Main method to run IoT.js tests.
         '''
@@ -167,9 +161,9 @@ class TestRunner(object):
         # Clear results before execution.
         self.results = []
 
-        app = self.os.get_app()
+        os = device.get_os()
 
-        for testset, tests in app.read_testsets().items():
+        for testset, tests in app.read_testsets(device).items():
             reporter.report_testset(testset)
 
             # Loop on all tests and process their results.
@@ -177,7 +171,7 @@ class TestRunner(object):
                 testresult = { 'name': test['name'] }
 
                 # 1. Skip tests
-                if app.skip_test(test):
+                if app.skip_test(test, os.get_name()):
                     reporter.report_skip(test['name'], test.get('reason'))
 
                     testresult['result'] = 'skip'
@@ -188,7 +182,7 @@ class TestRunner(object):
 
                 # 2. execute the test and handle timeout.
                 try:
-                    exitcode, stdout, memory = self.__run_test_on_device(app, testset, test)
+                    exitcode, stdout, memory = self.__run_test_on_device(app, device, testset, test)
 
                 except utils.TimeoutException:
                     reporter.report_timeout(test['name'])
@@ -213,4 +207,4 @@ class TestRunner(object):
         reporter.report_final(self.results)
 
         # save results
-        self.__save(is_publish)
+        self.__save(app, device, is_publish)

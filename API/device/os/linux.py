@@ -19,8 +19,8 @@ class OperatingSystem(base.OperatingSystemBase):
     '''
     Dummy operating system for devices who does not require OS.
     '''
-    def __init__(self, app):
-        super(self.__class__, self).__init__('linux', app)
+    def __init__(self):
+        super(self.__class__, self).__init__('linux')
 
     def get_home_dir(self):
         '''
@@ -34,13 +34,13 @@ class OperatingSystem(base.OperatingSystemBase):
         '''
         return self.app.get_image()
 
-    def prebuild(self, buildtype='release'):
+    def prebuild(self, app, buildtype='release'):
         '''
         Configure NuttX to netnsh and create the first build.
         '''
         pass
 
-    def build(self, buildtype, maketarget):
+    def build(self, app, buildtype, maketarget):
         '''
         Build the operating system.
         '''

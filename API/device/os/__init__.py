@@ -15,19 +15,3 @@
 import linux
 import nuttx
 import tizenrt
-
-
-OPERATING_SYSTEMS = {
-    'linux': linux.OperatingSystem,
-    'nuttx': nuttx.OperatingSystem,
-    'tizenrt': tizenrt.OperatingSystem
-}
-
-
-def create(os, app):
-    '''
-    Create the given operating system.
-    '''
-    os_class = OPERATING_SYSTEMS[os]
-
-    return os_class(app)

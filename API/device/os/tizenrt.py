@@ -21,14 +21,8 @@ class OperatingSystem(base.OperatingSystemBase):
     '''
     TizenRT real-time operating system class.
     '''
-    def __init__(self, app):
-        super(self.__class__, self).__init__('tizenrt', app)
-
-        self.update_repository()
-        self.copy_app_files(app)
-        self.apply_patches(app)
-        self.configure(app)
-        self.copy_test_files(app)
+    def __init__(self):
+        super(self.__class__, self).__init__('tizenrt')
 
     def get_home_dir(self):
         '''
@@ -61,10 +55,18 @@ class OperatingSystem(base.OperatingSystemBase):
         '''
         Configuring TizenRT.
         '''
-        configure_name = utils.join(app.get_device().get_type(), app.get_name())
+
+        # FIXME: now it supports artik053 device only
+        configure_name = utils.join('artik053', app.get_name())
         utils.execute(paths.TIZENRT_TOOLS_PATH, './configure.sh', [configure_name])
 
-    def prebuild(self, buildtype='release'):
+    def prebuild(self, app, buildtype='release'):
+        self.update_repository()
+        self.copy_app_files(app)
+        self.apply_patches(app)
+        self.configure(app)
+        self.copy_test_files(app)
+
         '''
         Configure NuttX to netnsh and create the first build.
         '''
@@ -76,14 +78,17 @@ class OperatingSystem(base.OperatingSystemBase):
         '''
         app_name = app.get_name()
         if app_name == 'jerryscript':
-            app_path = utils.join(app.get_config_dir(), 'apps/jerryscript/')
-            app_config_path = utils.join(app.get_config_dir(), 'configs/jerryscript/')
+            # FIXME: now it supports artik053 device only
+            app_config_dir = utils.join(paths.JERRY_TARGETS_PATH,
+                                    '%s-%s' % (self.get_name(), 'artik053'))
 
-            tizenrt_app_path = utils.join(paths.TIZENRT_APP_SYSTEM_PATH, app.get_name())
+            app_path = utils.join(app_config_dir, 'apps/jerryscript/')
+            app_config_path = utils.join(app_config_dir, 'configs/jerryscript/')
+
+            tizenrt_app_path = utils.join(paths.TIZENRT_APP_SYSTEM_PATH, app_name)
             utils.copy_files(app_path, tizenrt_app_path)
 
-            rt_config_path = utils.join(paths.TIZENRT_CONFIGS_PATH,
-                app.get_device().get_type(), app.get_name())
+            rt_config_path = utils.join(paths.TIZENRT_CONFIGS_PATH, 'artik053', app_name)
             utils.copy_files(app_config_path, rt_config_path)
 
     def copy_test_files(self, app):
@@ -93,7 +98,7 @@ class OperatingSystem(base.OperatingSystemBase):
         if utils.exists(paths.TIZENRT_ROMFS_CONTENTS_PATH):
             utils.execute(paths.TIZENRT_FS_PATH, 'rm', ['-rf', 'contents'])
 
-        utils.execute(paths.ROOT_FOLDER, 'cp', 
+        utils.execute(paths.ROOT_FOLDER, 'cp',
                       [app.get_test_dir(), paths.TIZENRT_ROMFS_CONTENTS_PATH, '-r'])
 
     def apply_app_patches(self, app):
@@ -103,11 +108,11 @@ class OperatingSystem(base.OperatingSystemBase):
         app_patch = utils.join(paths.PATCHES_PATH, '%s-tizenrt.diff' % app.get_name())
         utils.execute(paths.IOTJS_PATH, 'git', ['apply', app_patch])
 
-    def build(self, buildtype, maketarget):
+    def build(self, app, buildtype, maketarget):
         '''
         Build the operating system.
         '''
-        app_name = self.app.get_name()
+        app_name = app.get_name()
         if app_name == 'iotjs':
             # TODO: Support release build
             iotjs_root_path = 'IOTJS_ROOT_DIR=' + paths.IOTJS_PATH

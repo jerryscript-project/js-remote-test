@@ -18,11 +18,9 @@ class ApplicationBase(object):
     '''
     Base class to define an interface for the devices.
     '''
-    def __init__(self, name, cmd, options, device):
+    def __init__(self, name, cmd, options):
         self.name = name
         self.cmd = cmd
-        self.os = options.os
-        self.device = device
         self.branch = options.branch
         self.commit = options.commit
         self.buildtype = options.buildtype
@@ -38,12 +36,6 @@ class ApplicationBase(object):
         Return the command to run the application.
         '''
         return self.cmd
-
-    def get_device(self):
-        '''
-        Return the device.
-        '''
-        return self.device
 
     def get_section_sizes(self):
         '''
@@ -93,7 +85,7 @@ class ApplicationBase(object):
         '''
         raise NotImplementedError('Use the concrete subclasses.')
 
-    def read_testsets(self):
+    def read_testsets(self, device):
         '''
         Read all the tests to execute them.
         '''
@@ -105,3 +97,9 @@ class ApplicationBase(object):
         '''
         with open(skip_file, 'r') as skip_file_p:
             return json.load(skip_file_p)
+
+    def skip_test(self, test, os_name):
+        '''
+        Skip test.
+        '''
+        raise NotImplementedError('Use the concrete subclasses.')

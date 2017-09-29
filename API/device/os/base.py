@@ -17,15 +17,8 @@ class OperatingSystemBase(object):
     '''
     Base class to define an interface for the operating systems.
     '''
-    def __init__(self, name, app):
+    def __init__(self, name):
         self.name = name
-        self.app = app
-
-    def get_app(self):
-        '''
-        Get the target application
-        '''
-        return self.app
 
     def get_name(self):
         '''
@@ -45,13 +38,13 @@ class OperatingSystemBase(object):
         '''
         raise NotImplementedError('Use the concrete subclasses.')
 
-    def prebuild(self, buildtype='release'):
+    def prebuild(self, app, device=None, buildtype='release'):
         '''
         Pre-build the operating system (for the generated headers).
         '''
         raise NotImplementedError('Use the concrete subclasses.')
 
-    def build(self, buildtype, maketarget):
+    def build(self, app, buildtype, maketarget):
         '''
         Build the operating system.
         '''

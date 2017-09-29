@@ -121,9 +121,6 @@ $ python driver.py
 --device
   Defines the target device {stm32f4dis, rpi2, artik053}.
 
---os
-  Defines the operating system for the device {nuttx, linux, tizenrt}.
-
 --public
   Publish the test results to the web projects.
   https://samsung.github.io/iotjs-test-results/
@@ -156,12 +153,12 @@ Serial communication:
 ### Examples to run tests
 
 ```
-$ python driver.py --device stm32f4dis --os nuttx --app iotjs --port /dev/ttyACM0 --baud 115200
-$ python driver.py --device stm32f4dis --os nuttx --app jerryscript --port /dev/ttyACM0 --baud 115200
-$ python driver.py --device rpi2 --os linux --app iotjs --address a.b.c.d --username pi --remote-path /home/pi/testrunner
-$ python driver.py --device rpi2 --os linux --app jerryscript --address a.b.c.d --username pi --remote-path /home/pi/testrunner
-$ python driver.py --device artik053 --os tizenrt --app iotjs --port /dev/ttyUSB1 --baud 115200
-$ python driver.py --device artik053 --os tizenrt --app jerryscript --port /dev/ttyUSB1 --baud 115200
+$ python driver.py --device stm32f4dis --app iotjs --port /dev/ttyACM0 --baud 115200
+$ python driver.py --device stm32f4dis --app jerryscript --port /dev/ttyACM0 --baud 115200
+$ python driver.py --device rpi2 --app iotjs --address a.b.c.d --username pi --remote-path /home/pi/testrunner
+$ python driver.py --device rpi2 --app jerryscript --address a.b.c.d --username pi --remote-path /home/pi/testrunner
+$ python driver.py --device artik053 --app iotjs --port /dev/ttyUSB1 --baud 115200
+$ python driver.py --device artik053 --app jerryscript --port /dev/ttyUSB1 --baud 115200
 ```
 
 All the results are written into JSON files that are found in a `results` folder. Name of the output files are datetime with the following format:

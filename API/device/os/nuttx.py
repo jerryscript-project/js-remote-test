@@ -21,17 +21,15 @@ class OperatingSystem(base.OperatingSystemBase):
     '''
     NuttX real-time operating system class.
     '''
-    def __init__(self, app):
-        super(self.__class__, self).__init__('nuttx', app)
+    def __init__(self):
+        super(self.__class__, self).__init__('nuttx')
 
+    def apply_pacthes(self):
         # Note: since not the latest master is used, we should apply
         # some fixes for the NuttX.
         patch = utils.join(paths.PATCHES_PATH, 'nuttx-7.19.diff')
         utils.execute(paths.NUTTX_PATH, 'git', ['reset', '--hard'])
         utils.execute(paths.NUTTX_PATH, 'git', ['apply', patch])
-
-        self.copy_app_files(app)
-        self.configure(app)
 
     def get_home_dir(self):
         '''
@@ -63,14 +61,17 @@ class OperatingSystem(base.OperatingSystemBase):
         # Override the default config file with a prepared one.
         utils.copy_file(app.get_config_file(), utils.join(paths.NUTTX_PATH, '.config'))
 
-    def prebuild(self, buildtype='release'):
+    def prebuild(self, app, buildtype='release'):
+        self.apply_pacthes()
+        self.copy_app_files(app)
+        self.configure(app)
         '''
         Pre-build the operating system (for the generated headers).
         '''
-        self.build(buildtype, 'clean')
-        self.build(buildtype, 'context')
+        self.build(app, buildtype, 'clean')
+        self.build(app, buildtype, 'context')
 
-    def build(self, buildtype, maketarget):
+    def build(self, app, buildtype, maketarget):
         '''
         Build the operating system.
         '''
