@@ -26,14 +26,8 @@ def parse_options():
     parser.add_argument('--app', choices=['iotjs', 'jerryscript'], default='iotjs',
                         help='the target application (default: %(default)s)')
 
-    parser.add_argument('--branch', metavar='name', default='master',
-                        help='an existing branch name for the app (default: %(default)s)')
-
     parser.add_argument('--buildtype', choices=['release', 'debug'], default='release',
                         help='buildtype for the os and the app (default: %(default)s)')
-
-    parser.add_argument('--commit', metavar='hash', default='HEAD',
-                        help='an existing hash within a branch (default: %(default)s)')
 
     parser.add_argument('--device', choices=['stm32f4dis', 'rpi2', 'artik053'], default='stm32f4dis',
                         help='indicate the device for testing (default: %(default)s)')
@@ -44,24 +38,24 @@ def parse_options():
     parser.add_argument('--timeout', metavar='sec', type=int, default=180,
                         help='timeout for tests (default: %(default)s sec)')
 
-    parser.add_argument('--remote-path', metavar='path',
+    group = parser.add_argument_group("SSH communication")
+
+    group.add_argument('--username', metavar='nick',
+                       help='username of the target device')
+
+    group.add_argument('--address', metavar='address',
+                        help='address of the target device (ip or ip:port)')
+
+    group.add_argument('--remote-path', metavar='path',
                         help='remote test folder on the device')
 
-    ssh_group = parser.add_argument_group("SSH communication")
+    group = parser.add_argument_group("Serial communication")
 
-    ssh_group.add_argument('--username', metavar='nick',
-                           help='username of the target device')
+    group.add_argument('--port', metavar='device',
+                       help='serial port name (e.g. /dev/ttyACM0 or /dev/ttyUSB0)')
 
-    ssh_group.add_argument('--address', metavar='address',
-                           help='address of the target device (ip or ip:port)')
-
-    serial_group = parser.add_argument_group("Serial communication")
-
-    serial_group.add_argument('--port', metavar='device',
-                              help='serial port name (e.g. /dev/ttyACM0 or /dev/ttyUSB0)')
-
-    serial_group.add_argument('--baud', metavar='baud', type=int, default=115200,
-                              help='baud rate (default: %(default)s)')
+    group.add_argument('--baud', metavar='baud', type=int, default=115200,
+                       help='baud rate (default: %(default)s)')
 
     return parser.parse_args()
 

@@ -21,8 +21,6 @@ class ApplicationBase(object):
     def __init__(self, name, cmd, options):
         self.name = name
         self.cmd = cmd
-        self.branch = options.branch
-        self.commit = options.commit
         self.buildtype = options.buildtype
 
     def get_name(self):

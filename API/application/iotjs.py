@@ -31,30 +31,17 @@ class Application(base.ApplicationBase):
         '''
         return utils.join(paths.IOTJS_BUILD_PATH, 'iotjs') % self.buildtype
 
+    def get_minimal_image(self):
+        '''
+        Return the path to the disable-features build.
+        '''
+        return utils.join(paths.IOTJS_MINIMAL_BIN_PATH, 'iotjs') % self.buildtype
+
     def get_home_dir(self):
         '''
         Return the path to the application files.
         '''
         return paths.IOTJS_APPS_PATH
-
-    def get_section_sizes(self):
-        '''
-        Returns the sizes of the main sections.
-        '''
-        iotjs_bin = utils.join(paths.IOTJS_MINIMAL_BIN_PATH, 'iotjs') % self.buildtype
-        utils.execute(paths.IOTJS_PATH, 'arm-linux-gnueabi-strip', [iotjs_bin])
-        sections, exitcode = utils.execute(paths.IOTJS_PATH, 'arm-linux-gnueabi-size', ['-A', iotjs_bin], quiet=True)
-
-        sizes = {}
-
-        for line in sections.splitlines():
-            for key in ['text', 'data', 'rodata', 'bss']:
-                if '.%s' % key in line:
-                    sizes[key] = line.split()[1]
-
-        sizes['total'] = utils.size(iotjs_bin)
-
-        return sizes
 
     def get_install_dir(self):
         '''
@@ -82,33 +69,19 @@ class Application(base.ApplicationBase):
 
         return utils.join(paths.IOTJS_PATH, 'nsh_romfsimg.h')
 
-    def update_repository(self):
-        '''
-        Update the repository to the given branch and commit.
-        '''
-        utils.execute(paths.IOTJS_PATH, 'rm', ['-rf', 'deps'])
-
-        utils.execute(paths.IOTJS_PATH, 'git', ['clean', '-dxf'])
-        utils.execute(paths.IOTJS_PATH, 'git', ['reset', '--hard'])
-
-        utils.execute(paths.IOTJS_PATH, 'git', ['fetch'])
-        utils.execute(paths.IOTJS_PATH, 'git', ['checkout', self.branch])
-        utils.execute(paths.IOTJS_PATH, 'git', ['pull', 'origin', self.branch])
-        utils.execute(paths.IOTJS_PATH, 'git', ['checkout', self.commit])
-
-    def apply_patches(self):
+    def apply_patches(self, revert=False):
         '''
         Apply memstat patches to measure the memory consumption of IoT.js
         '''
         iotjs_memstat_patch = utils.join(paths.PATCHES_PATH, 'iotjs-memstat.diff')
-        utils.execute(paths.IOTJS_PATH, 'git', ['apply', iotjs_memstat_patch])
+        utils.patch(paths.IOTJS_PATH, iotjs_memstat_patch, revert)
 
         libtuv_memstat_patch = utils.join(paths.PATCHES_PATH, 'libtuv-memstat.diff')
-        utils.execute(paths.IOTJS_LIBTUV_PATH, 'git', ['apply', libtuv_memstat_patch])
+        utils.patch(paths.IOTJS_LIBTUV_PATH, libtuv_memstat_patch, revert)
         utils.execute(paths.IOTJS_LIBTUV_PATH, 'git', ['add', '-u'])
 
         jerry_memstat_patch = utils.join(paths.PATCHES_PATH, 'jerry-memstat.diff')
-        utils.execute(paths.IOTJS_JERRY_PATH, 'git', ['apply', jerry_memstat_patch])
+        utils.patch(paths.IOTJS_JERRY_PATH, jerry_memstat_patch, revert)
         utils.execute(paths.IOTJS_JERRY_PATH, 'git', ['add', '-u'])
 
     def build(self, device):
@@ -119,8 +92,6 @@ class Application(base.ApplicationBase):
         # prebuild the OS
         os = device.get_os()
         os.prebuild(self)
-
-        self.update_repository()
 
         common_build_flags = [
             '--clean',
@@ -137,6 +108,8 @@ class Application(base.ApplicationBase):
 
         # Run the buildscript with minimal build flags for binary information.
         utils.execute(paths.IOTJS_PATH, 'tools/build.py', minimal_build_flags)
+        utils.execute(paths.IOTJS_PATH, 'arm-linux-gnueabi-strip',
+                                                    [self.get_minimal_image()])
 
         # Enable further modules.
         include_modules = ['spi', 'uart']
@@ -174,6 +147,10 @@ class Application(base.ApplicationBase):
 
         # Run the buildscript.
         utils.execute(paths.IOTJS_PATH, 'tools/build.py', build_flags)
+
+        # Revert all the memstat patches from the project.
+        if device.get_type() == 'stm32f4dis':
+            self.apply_patches(revert=True)
 
         os.build(self, self.buildtype, 'all')
 

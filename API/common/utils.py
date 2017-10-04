@@ -60,6 +60,30 @@ def execute(cwd, cmd, args=[], quiet=False):
         console.fail('[Failed - %s] %s' % (cmd, str(e)))
 
 
+def patch(project, patch, revert=False):
+    '''
+    Apply the given patch to the given project.
+    '''
+    patch_cmd = ['patch', '-p1', '-d', project]
+    dry_options = ['--dry-run', '-R', '-f', '-s', '-i']
+
+    if not os.path.exists(patch):
+        console.fail(patch + ' does not exist.')
+
+    # First check if the patch can be applied to the project.
+    patch_applicable = subprocess.call(patch_cmd + dry_options + [patch])
+
+    # Apply the patch if project is clean and revert flag is not set.
+    if not revert and patch_applicable:
+        if subprocess.call(patch_cmd + ['-i', patch]):
+            console.fail('Failed to apply ' + patch)
+
+    # Revert the patch if the project already contains the modifications.
+    if revert and not patch_applicable:
+        if subprocess.call(patch_cmd + ['-i', patch, '-R']):
+            console.fail('Failed to revert ' + patch)
+
+
 def generate_romfs(output_path, input_path):
     '''
     Create a ROMFS image from the contents of the given path.
@@ -177,6 +201,24 @@ def relpath(path, start):
     Return a relative filepath to path from the start directory.
     '''
     return os.path.relpath(path, start)
+
+
+def get_section_sizes(executable):
+    '''
+    Returns the sizes of the main sections.
+    '''
+    args = ['-A', executable]
+    sections, _ = execute(os.curdir, 'arm-linux-gnueabi-size', args, quiet=True)
+
+    sizes = {}
+    for line in sections.splitlines():
+        for key in ['text', 'data', 'rodata', 'bss']:
+            if '.%s' % key in line:
+                sizes[key] = line.split()[1]
+
+    sizes['total'] = size(executable)
+
+    return sizes
 
 
 def last_commit_info(git_repo_path):

@@ -83,7 +83,7 @@ class TestRunner(object):
 
         # Create the result.
         result = {
-            'bin' : app.get_section_sizes(),
+            'bin' : utils.get_section_sizes(app.get_minimal_image()),
             'date' : utils.get_standardized_date(),
             'tests' : self.results,
             'submodules' : submodules
