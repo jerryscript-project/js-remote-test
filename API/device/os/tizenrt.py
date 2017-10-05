@@ -36,7 +36,7 @@ class OperatingSystem(base.OperatingSystemBase):
         '''
         return utils.join(paths.TIZENRT_BIN_PATH, 'tinyara.bin')
 
-    def update_repository(self):
+    def __update_repository(self):
         '''
         Update the repository.
         '''
@@ -44,14 +44,14 @@ class OperatingSystem(base.OperatingSystemBase):
         utils.execute(paths.TIZENRT_PATH, 'git', ['reset', '--hard'])
         utils.execute(paths.TIZENRT_PATH, 'git', ['pull'])
 
-    def apply_patches(self, app):
+    def __apply_patches(self, app):
         '''
         Apply patch file.
         '''
         patch = utils.join(paths.PATCHES_PATH, 'tizenrt-%s.diff' % app.get_name())
         utils.execute(paths.TIZENRT_PATH, 'git', ['apply', patch])
 
-    def configure(self, app):
+    def __configure(self, app):
         '''
         Configuring TizenRT.
         '''
@@ -60,19 +60,7 @@ class OperatingSystem(base.OperatingSystemBase):
         configure_name = utils.join('artik053', app.get_name())
         utils.execute(paths.TIZENRT_TOOLS_PATH, './configure.sh', [configure_name])
 
-    def prebuild(self, app, buildtype='release'):
-        self.update_repository()
-        self.copy_app_files(app)
-        self.apply_patches(app)
-        self.configure(app)
-        self.copy_test_files(app)
-
-        '''
-        Configure NuttX to netnsh and create the first build.
-        '''
-        utils.execute(paths.TIZENRT_OS_PATH, 'make', ['context'])
-
-    def copy_app_files(self, app):
+    def __copy_app_files(self, app):
         '''
         Copy application files into the NuttX apps.
         '''
@@ -87,11 +75,10 @@ class OperatingSystem(base.OperatingSystemBase):
 
             tizenrt_app_path = utils.join(paths.TIZENRT_APP_SYSTEM_PATH, app_name)
             utils.copy_files(app_path, tizenrt_app_path)
-
             rt_config_path = utils.join(paths.TIZENRT_CONFIGS_PATH, 'artik053', app_name)
             utils.copy_files(app_config_path, rt_config_path)
 
-    def copy_test_files(self, app):
+    def __copy_test_files(self, app):
         '''
         Copy sample files into the NuttX apps.
         '''
@@ -101,12 +88,17 @@ class OperatingSystem(base.OperatingSystemBase):
         utils.execute(paths.ROOT_FOLDER, 'cp',
                       [app.get_test_dir(), paths.TIZENRT_ROMFS_CONTENTS_PATH, '-r'])
 
-    def apply_app_patches(self, app):
+    def prebuild(self, app, buildtype='release'):
+        self.__update_repository()
+        self.__copy_app_files(app)
+        self.__apply_patches(app)
+        self.__configure(app)
+        self.__copy_test_files(app)
+
         '''
-        Apply app patch file.
+        Configure NuttX to netnsh and create the first build.
         '''
-        app_patch = utils.join(paths.PATCHES_PATH, '%s-tizenrt.diff' % app.get_name())
-        utils.execute(paths.IOTJS_PATH, 'git', ['apply', app_patch])
+        utils.execute(paths.TIZENRT_OS_PATH, 'make', ['context'])
 
     def build(self, app, buildtype, maketarget):
         '''

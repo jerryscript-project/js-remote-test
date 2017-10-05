@@ -24,7 +24,7 @@ class OperatingSystem(base.OperatingSystemBase):
     def __init__(self):
         super(self.__class__, self).__init__('nuttx')
 
-    def apply_patches(self):
+    def __apply_patches(self):
         # Note: since not the latest master is used, we should apply
         # some fixes for the NuttX.
         patch = utils.join(paths.PATCHES_PATH, 'nuttx-7.19.diff')
@@ -43,7 +43,7 @@ class OperatingSystem(base.OperatingSystemBase):
         '''
         return utils.join(paths.NUTTX_PATH, 'nuttx.bin')
 
-    def copy_app_files(self, app):
+    def __copy_app_files(self, app):
         '''
         Copy application files into the NuttX apps.
         '''
@@ -52,7 +52,7 @@ class OperatingSystem(base.OperatingSystemBase):
         # Override the default romfs image file.
         utils.copy_file(app.get_romfs_file(), utils.join(paths.NUTTX_APPS_NSHLIB_PATH, 'nsh_romfsimg.h'))
 
-    def configure(self, app):
+    def __configure(self, app):
         '''
         Configuring NuttX.
         '''
@@ -62,9 +62,9 @@ class OperatingSystem(base.OperatingSystemBase):
         utils.copy_file(app.get_config_file(), utils.join(paths.NUTTX_PATH, '.config'))
 
     def prebuild(self, app, buildtype='release'):
-        self.apply_patches()
-        self.copy_app_files(app)
-        self.configure(app)
+        self.__apply_patches()
+        self.__copy_app_files(app)
+        self.__configure(app)
         '''
         Pre-build the operating system (for the generated headers).
         '''

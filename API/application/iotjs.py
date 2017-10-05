@@ -69,7 +69,7 @@ class Application(base.ApplicationBase):
 
         return utils.join(paths.IOTJS_PATH, 'nsh_romfsimg.h')
 
-    def apply_patches(self, revert=False):
+    def __apply_patches(self, revert=False):
         '''
         Apply memstat patches to measure the memory consumption of IoT.js
         '''
@@ -129,7 +129,7 @@ class Application(base.ApplicationBase):
             build_flags.append('--nuttx-home=%s' % paths.NUTTX_PATH)
 
             # Enable memstat for IoT.js (libtuv, jerryscript, iotjs)
-            self.apply_patches()
+            self.__apply_patches()
 
         elif device.get_type() == 'rpi2':
             build_flags.append('--target-board=%s' % device.get_type())
@@ -150,7 +150,7 @@ class Application(base.ApplicationBase):
 
         # Revert all the memstat patches from the project.
         if device.get_type() == 'stm32f4dis':
-            self.apply_patches(revert=True)
+            self.__apply_patches(revert=True)
 
         os.build(self, self.buildtype, 'all')
 
