@@ -24,7 +24,7 @@ class OperatingSystem(base.OperatingSystemBase):
     def __init__(self):
         super(self.__class__, self).__init__('nuttx')
 
-    def apply_pacthes(self):
+    def apply_patches(self):
         # Note: since not the latest master is used, we should apply
         # some fixes for the NuttX.
         patch = utils.join(paths.PATCHES_PATH, 'nuttx-7.19.diff')
@@ -39,7 +39,7 @@ class OperatingSystem(base.OperatingSystemBase):
 
     def get_image(self):
         '''
-        Return the path to the operating system.
+        Return the path to the image file.
         '''
         return utils.join(paths.NUTTX_PATH, 'nuttx.bin')
 
@@ -62,7 +62,7 @@ class OperatingSystem(base.OperatingSystemBase):
         utils.copy_file(app.get_config_file(), utils.join(paths.NUTTX_PATH, '.config'))
 
     def prebuild(self, app, buildtype='release'):
-        self.apply_pacthes()
+        self.apply_patches()
         self.copy_app_files(app)
         self.configure(app)
         '''

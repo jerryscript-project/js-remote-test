@@ -36,7 +36,7 @@ class OperatingSystem(base.OperatingSystemBase):
 
     def prebuild(self, app, buildtype='release'):
         '''
-        Configure NuttX to netnsh and create the first build.
+        Create the first build.
         '''
         pass
 

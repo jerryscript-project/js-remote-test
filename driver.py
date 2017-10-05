@@ -33,7 +33,7 @@ def parse_options():
                         help='indicate the device for testing (default: %(default)s)')
 
     parser.add_argument('--public', action='store_true', default=False,
-                        help='pusblish results to the web (default: %(default)s)')
+                        help='publish results to the web (default: %(default)s)')
 
     parser.add_argument('--timeout', metavar='sec', type=int, default=180,
                         help='timeout for tests (default: %(default)s sec)')

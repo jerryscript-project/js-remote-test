@@ -162,7 +162,7 @@ TIZENRT_ROMFS_CONTENTS_PATH = os.path.join(TIZENRT_FS_PATH, 'contents')
 # ================================
 #
 
-# Path to the iotjs folder.
+# Path to the jerryscript folder.
 JERRY_PATH = os.path.join(PROJECTS_ROOT, 'jerryscript')
 
 # Path to the apps folder within jerry.
@@ -171,10 +171,14 @@ JERRY_APPS_PATH = os.path.join(JERRY_PATH, 'targets/nuttx-stm32f4/')
 # Path to the targets folder within jerry.
 JERRY_TARGETS_PATH = os.path.join(JERRY_PATH, 'targets')
 
+# Path to the jerry-tests folder within jerry.
 JERRY_TEST_JERRY_PATH = os.path.join(JERRY_PATH, 'tests/jerry')
 
+# Path to the bin folder within jerry.
 JERRY_BUILD_PATH = os.path.join(JERRY_PATH, 'build/bin')
 
+# Path to the minimal build folder.
 JERRY_MINIMAL_BUILD_PATH = os.path.join(JERRY_PATH, 'features_disable/build')
 
+# Path to the bin folder of the minimal build.
 JERRY_MINIMAL_BIN_PATH = os.path.join(JERRY_MINIMAL_BUILD_PATH, 'bin')

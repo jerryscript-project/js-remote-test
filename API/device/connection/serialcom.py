@@ -52,7 +52,7 @@ class Connection(object):
 
     def getc(self, size, timeout=1):
         '''
-        Recevice data from the serial port.
+        Receive data from the serial port.
         '''
         time.sleep(2)
 
