@@ -55,6 +55,21 @@ OUTPUT_PATH = os.path.join(PROJECT_ROOT, 'results')
 # ================================
 #
 
+# Path to the tools folder.
+TOOLS_PATH = os.path.join(PROJECT_ROOT, 'tools')
+
+#
+# ================================
+#
+
+# Path to the resources folder.
+RESOURCES_PATH = os.path.join(PROJECT_ROOT, 'resources')
+
+#
+# ================================
+#
+
+
 # Path to the iotjs-test-results folder.
 IOTJS_TEST_RESULTS_WEB_PATH = os.path.join(PROJECTS_ROOT, 'iotjs-test-results')
 
@@ -182,3 +197,6 @@ JERRY_MINIMAL_BUILD_PATH = os.path.join(JERRY_PATH, 'features_disable/build')
 
 # Path to the bin folder of the minimal build.
 JERRY_MINIMAL_BIN_PATH = os.path.join(JERRY_MINIMAL_BUILD_PATH, 'bin')
+
+# Path to the Freya folder
+FREYA_PATH = os.path.join(PROJECTS_ROOT, 'Freya')

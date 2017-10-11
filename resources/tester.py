@@ -34,7 +34,7 @@ import sys
 
 REMOTE_TESTRUNNER_PATH = os.path.abspath(os.path.dirname(__file__))
 
-FREYA_BIN = os.path.join(REMOTE_TESTRUNNER_PATH, 'Freya', 'vg-in-place')
+FREYA_BIN = os.path.join(REMOTE_TESTRUNNER_PATH, 'valgrind_freya', 'vg-in-place')
 FREYA_LOG = os.path.join(REMOTE_TESTRUNNER_PATH, 'freya.log')
 FREYA_CONFIG = os.path.join(REMOTE_TESTRUNNER_PATH, 'iotjs-freya.config')
 

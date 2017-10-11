@@ -70,23 +70,7 @@ user@desktop $ ssh-copy-id pi@address
 ```
 
 Since Raspberry devices have much more resources than microcontrollers, it is possible to use other programs to get more precise information from the tested application (iotjs, jerry). Such a program is the Freya tool of Valgrind, that monitors the memory management and provides information about the memory usage.
-<br />
 
-The Freya installer, and other helper scripts for Raspberry Pi are in the `resources` folder. These files should be moved to the device into the same folder. You should remember this path becasue later it must be defined for the testrunner.
-
-```
-# Remote path: /home/pi/testrunner
-user@desktop $ rsync resources/* pi@address:~/testrunner
-```
-
-In the next step, you should run the `init-pi.sh` file on the Raspberry. This script is responsible for cloning and build the Freya project:
-
-```
-# Build Freya
-user@desktop $ ssh pi@address
-pi@address ~ $ cd testrunner
-pi@address ~ $ bash init-pi.sh
-```
 <br />
 
 ### Set up Artik053 board to test

@@ -51,21 +51,40 @@ class Device(base.DeviceBase):
         rpath_app = utils.join(self.remote_path, app.get_cmd())
         rpath_testsuite = utils.join(self.remote_path, 'test.tar')
 
+        # Freya cross build.
+        utils.copy_file(utils.join(paths.TOOLS_PATH, 'freya-cross-build.sh'), paths.FREYA_PATH)
+        utils.execute(paths.FREYA_PATH, './freya-cross-build.sh')
+
+        freya_dir = utils.join(paths.FREYA_PATH, 'valgrind_freya')
+        lpath_freya = utils.make_archive(freya_dir, 'tar')
+        rpath_freya = utils.join(self.remote_path, 'valgrind_freya.tar')
+
+        lpath_resources = utils.make_archive(paths.RESOURCES_PATH, 'tar')
+        rpath_resources = utils.join(self.remote_path, 'resources.tar')
+
         self.ssh.open()
 
         # Clean up in the remote folder.
         self.ssh.exec_command('rm -f ' + rpath_app)
         self.ssh.exec_command('rm -f ' + rpath_testsuite)
+        self.ssh.exec_command('rm -f ' + rpath_freya)
+        self.ssh.exec_command('rm -f ' + rpath_resources)
+
         self.ssh.exec_command('rm -rf ' + self.get_test_path())
 
-        # Send the application and the testsuite.
+        # Send the application, the testsuite, the valgrind and the resource files.
         self.ssh.send_file(lpath_app, rpath_app)
         self.ssh.send_file(lpath_testsuite, rpath_testsuite)
+        self.ssh.send_file(lpath_freya, rpath_freya)
+        self.ssh.send_file(lpath_resources, rpath_resources)
 
-        # Let the iotjs to be runnable and extract the tests.
+        # Let the iotjs to be runnable and extract the tests and valgrind files.
         self.ssh.exec_command('chmod 770 ' + rpath_app)
         self.ssh.exec_command('mkdir ' + self.get_test_path())
+        self.ssh.exec_command('mkdir ' + utils.join(self.remote_path, 'valgrind_freya'))
         self.ssh.exec_command('tar -xmf ' + rpath_testsuite + ' -C ' + self.get_test_path())
+        self.ssh.exec_command('tar -xmf ' + rpath_freya + ' -C ' + utils.join(self.remote_path, 'valgrind_freya'))
+        self.ssh.exec_command('tar -xmf ' + rpath_resources + ' -C ' + self.remote_path)
 
     def reset(self):
         '''
