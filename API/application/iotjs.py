@@ -84,6 +84,16 @@ class Application(base.ApplicationBase):
         utils.patch(paths.IOTJS_JERRY_PATH, jerry_memstat_patch, revert)
         utils.execute(paths.IOTJS_JERRY_PATH, 'git', ['add', '-u'])
 
+    def get_include_module_option(self, os_name):
+        '''
+        Get os dependency module list with include module option string.
+        '''
+        module_file_path = utils.join(paths.IOTJS_PATH, 'build.module')
+        with open(module_file_path, 'r') as file:
+            config = json.loads(file.read().encode('ascii'))
+            extend_module = config['module']['supported']['extended']               
+            return '--iotjs-include-module=' + ','.join(extend_module[os_name])
+
     def build(self, device):
         '''
         Build IoT.js for the target device/OS and for Raspberry Pi 2.
@@ -111,12 +121,11 @@ class Application(base.ApplicationBase):
         utils.execute(paths.IOTJS_PATH, 'arm-linux-gnueabi-strip',
                                                     [self.get_minimal_image()])
 
-        # Enable further modules.
-        include_modules = ['spi', 'uart']
 
         # The following builds are target specific with memory usage features.
         build_flags = list(common_build_flags)
-        build_flags.append('--iotjs-include-module=%s' % ','.join(include_modules))
+        # Enable further modules.
+        build_flags.append(self.get_include_module_option(os.get_name()))
 
         # Specify target os.
         build_flags.append('--target-os=%s' % os.get_name())

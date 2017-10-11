@@ -107,7 +107,9 @@ class OperatingSystem(base.OperatingSystemBase):
         app_name = app.get_name()
         if app_name == 'iotjs':
             # TODO: Support release build
-            iotjs_root_path = 'IOTJS_ROOT_DIR=' + paths.IOTJS_PATH
-            utils.execute(paths.TIZENRT_OS_PATH, 'make', [iotjs_root_path])
+            build_options = ['IOTJS_ROOT_DIR=' + paths.IOTJS_PATH]
+            build_options.append('IOTJS_BUILD_OPTION=' +
+                                 app.get_include_module_option(self.get_name()))
+            utils.execute(paths.TIZENRT_OS_PATH, 'make', build_options)
         elif app_name == 'jerryscript':
             utils.execute(paths.TIZENRT_OS_PATH, 'make')
