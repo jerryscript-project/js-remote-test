@@ -154,6 +154,13 @@ def define_environment(env, value):
     os.environ[env] = value
 
 
+def get_environment(env):
+    '''
+    Get environment value.
+    '''
+    return os.environ.get(env)
+
+
 def exists(path):
     '''
     Checks that the given path is exist.

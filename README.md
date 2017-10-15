@@ -109,6 +109,11 @@ $ python driver.py
   Publish the test results to the web projects.
   https://samsung.github.io/iotjs-test-results/
   https://jerryscript-project.github.io/jerryscript-test-results/
+  Set the required environment variables (FIREBASE_USER, FIREBASE_PWD).
+  ```
+  $ export FIREBASE_USER="your_user_email"
+  $ export FIREBASE_PWD="your_user_password"
+  ```
 
 --remote-path
   When the operating system is provided (e.g. in case of Raspberry),

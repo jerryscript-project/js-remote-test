@@ -13,8 +13,7 @@
 # limitations under the License.
 
 import json
-
-from firebase_admin import credentials, db, initialize_app
+import pyrebase
 
 from API.common import paths, reporter, utils
 
@@ -110,30 +109,28 @@ class TestRunner(object):
 
         # Publish results to firebase
 
-        # Service account credential will allow our server to authenticate
-        # with Firebase as an admin and disregard any security rules.
-        # Keep it confidential and never store it in a public repository.
-        serviceAccountKey = utils.join(paths.PROJECT_ROOT, 'serviceAccountKey.json')
+        user = utils.get_environment('FIREBASE_USER')
+        pwd =  utils.get_environment('FIREBASE_PWD')
 
-        if not utils.exists(serviceAccountKey):
+        if not (pwd and user):
             return
 
-        # Fetch the service account key JSON file contents
-        cred = credentials.Certificate(serviceAccountKey)
+        config = {
+            "apiKey": "AIzaSyDMgyPr0V49Rdf5ODAU9nLY02ZGEUNoxiM",
+            "authDomain": "remote-testrunner.firebaseapp.com",
+            "databaseURL": "https://remote-testrunner.firebaseio.com",
+            "storageBucket": "remote-testrunner.appspot.com",
+        }
 
-        # Initialize the app with a service account, granting admin privileges
-        initialize_app(cred, {
-            'databaseURL': "https://remote-testrunner.firebaseio.com",
-            'databaseAuthVariableOverride': {
-                'uid': 'testrunner-service'
-            }
-        })
+        firebase = pyrebase.initialize_app(config)
+        auth = firebase.auth()
+        db = firebase.database()
 
-        ref = db.reference(app.get_name() + '/' + device_dir)
+        user = auth.sign_in_with_email_and_password(user, pwd)
 
         with open(result_file_path) as result_file:
-            data = json.load(result_file)
-            ref.push(data)
+            result_data = json.load(result_file)
+            db.child(app.get_name() + '/' + device_dir).push(result_data, user['idToken'])
 
             # Update the status icon after upload was successful.
             self.__update_status_icon(app.get_name(), device.get_type())
