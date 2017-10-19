@@ -141,7 +141,7 @@ class TestRunner(object):
         '''
         testfile = utils.join(device.get_test_path(), testset, test['name'])
 
-        if device.get_type() is 'stm32f4dis':
+        if device.get_type() in ['stm32f4dis', 'artik053']:
             if app.get_name() is "jerryscript":
                 return device.execute(app.get_cmd(), [testfile, '--mem-stats', '--log-level 2'])
             elif app.get_name() is "iotjs":

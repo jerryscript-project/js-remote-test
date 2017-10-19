@@ -130,6 +130,8 @@ class Application(base.ApplicationBase):
         # Specify target os.
         build_flags.append('--target-os=%s' % os.get_name())
 
+        enable_memstat = False
+
         if device.get_type() == 'stm32f4dis':
             build_flags.append('--target-board=%s' % device.get_type())
             build_flags.append('--jerry-heaplimit=78')
@@ -137,8 +139,7 @@ class Application(base.ApplicationBase):
             build_flags.append('--no-parallel-build')
             build_flags.append('--nuttx-home=%s' % paths.NUTTX_PATH)
 
-            # Enable memstat for IoT.js (libtuv, jerryscript, iotjs)
-            self.__apply_patches()
+            enable_memstat = True
 
         elif device.get_type() == 'rpi2':
             build_flags.append('--target-board=%s' % device.get_type())
@@ -147,21 +148,26 @@ class Application(base.ApplicationBase):
             build_flags.append('--jerry-compile-flag=-g')
 
         elif device.get_type() == 'artik053':
-            build_flags.append('--target-board=artik05x')
-            build_flags.append('--sysroot=%s' % paths.TIZENRT_OS_PATH)
+            enable_memstat = True           
 
         else:
             console.fail('Non-minimal IoT.js build failed, unsupported '
                          'device (%s)!' % device.get_type())
 
-        # Run the buildscript.
-        utils.execute(paths.IOTJS_PATH, 'tools/build.py', build_flags)
+        # Enable memstat for IoT.js (libtuv, jerryscript, iotjs) 
+        if enable_memstat:
+            self.__apply_patches()
 
-        # Revert all the memstat patches from the project.
-        if device.get_type() == 'stm32f4dis':
-            self.__apply_patches(revert=True)
+        # Run the buildscript.
+        # For artik053, build IoT.js in os.build.
+        if not device.get_type() == 'artik053':
+            utils.execute(paths.IOTJS_PATH, 'tools/build.py', build_flags)
 
         os.build(self, self.buildtype, 'all')
+
+        # Revert all the memstat patches from the project.
+        if enable_memstat:
+            self.__apply_patches(revert=True)
 
     def __in_dictlist(self, key, value, dictlist):
         for this in dictlist:

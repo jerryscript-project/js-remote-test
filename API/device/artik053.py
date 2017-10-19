@@ -109,5 +109,16 @@ class Device(base.DeviceBase):
             stdout += self.serial.readline().replace('\n', '')
             print(stdout)
 
-        #TODO: Add memory result.
-        return exitcode, stdout, 'n/a'
+        # Find the memory size.
+        if stdout.rfind('Heap stat') != -1:
+            stdout, heap = stdout.rsplit("Heap stats", 1)
+
+            match = re.search(r'Peak allocated = (\d+) bytes', str(heap))
+            if match:
+                memory = match.group(1)
+            else:
+                memory = 'n/a'
+        else:
+            memory = 'n/a'
+        
+        return exitcode, stdout, memory

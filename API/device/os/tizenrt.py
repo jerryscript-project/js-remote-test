@@ -95,10 +95,7 @@ class OperatingSystem(base.OperatingSystemBase):
         self.__configure(app)
         self.__copy_test_files(app)
 
-        '''
-        Configure NuttX to netnsh and create the first build.
-        '''
-        utils.execute(paths.TIZENRT_OS_PATH, 'make', ['context'])
+        utils.execute(paths.TIZENRT_OS_PATH, 'make', ['clean'])
 
     def build(self, app, buildtype, maketarget):
         '''
@@ -109,7 +106,10 @@ class OperatingSystem(base.OperatingSystemBase):
             # TODO: Support release build
             build_options = ['IOTJS_ROOT_DIR=' + paths.IOTJS_PATH]
             build_options.append('IOTJS_BUILD_OPTION=' +
+                                 '--clean ' +
+                                 '--jerry-memstat ' +
                                  app.get_include_module_option(self.get_name()))
+
             utils.execute(paths.TIZENRT_OS_PATH, 'make', build_options)
         elif app_name == 'jerryscript':
             utils.execute(paths.TIZENRT_OS_PATH, 'make')
