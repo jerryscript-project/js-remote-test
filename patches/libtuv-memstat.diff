@@ -1,5 +1,5 @@
 diff --git a/src/unix/fs.c b/src/unix/fs.c
-index 4281246..cc0d694 100644
+index d443a02..db096c7 100644
 --- a/src/unix/fs.c
 +++ b/src/unix/fs.c
 @@ -98,7 +98,7 @@
@@ -12,7 +12,7 @@ index 4281246..cc0d694 100644
          uv__req_unregister(loop, req);                                        \
          return -ENOMEM;                                                       \
 diff --git a/src/uv-common.c b/src/uv-common.c
-index 813e499..04a7f18 100644
+index 1bed201..28e8f53 100644
 --- a/src/uv-common.c
 +++ b/src/uv-common.c
 @@ -67,7 +67,6 @@ static uv__allocator_t uv__allocator = {
@@ -23,16 +23,22 @@ index 813e499..04a7f18 100644
  char* uv__strdup(const char* s) {
    size_t len = strlen(s) + 1;
    char* m = uv__malloc(len);
-@@ -75,13 +74,29 @@ char* uv__strdup(const char* s) {
+@@ -75,13 +74,36 @@ char* uv__strdup(const char* s) {
      return NULL;
    return memcpy(m, s, len);
  }
--#endif
 +
++#if defined(__NUTTX__)
 +#define SIZEOF_MM_ALLOCNODE 8
++#elif defined(__TIZENRT__)
++#define SIZEOF_MM_ALLOCNODE 16
++#else
++#error "Undefined memory allocation chunk size."
+ #endif
+ 
 +extern void jmem_heap_stat_alloc (size_t size);
 +extern void jmem_heap_stat_free (size_t size);
- 
++
  void* uv__malloc(size_t size) {
 -  return uv__allocator.local_malloc(size);
 +  char* ptr = (char*)uv__allocator.local_malloc(size);
@@ -55,7 +61,7 @@ index 813e499..04a7f18 100644
    int saved_errno;
  
    /* Libuv expects that free() does not clobber errno.  The system allocator
-@@ -93,11 +108,31 @@ void uv__free(void* ptr) {
+@@ -93,11 +115,31 @@ void uv__free(void* ptr) {
  }
  
  void* uv__calloc(size_t count, size_t size) {

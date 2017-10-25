@@ -1,16 +1,23 @@
 diff --git a/src/iotjs_util.c b/src/iotjs_util.c
-index 62ca214..dd6a978 100644
+index be0e78f..37cdb35 100644
 --- a/src/iotjs_util.c
 +++ b/src/iotjs_util.c
-@@ -58,8 +58,18 @@ iotjs_string_t iotjs_file_read(const char* path) {
+@@ -63,9 +63,25 @@ iotjs_string_t iotjs_file_read(const char* path) {
+   return contents;
  }
  
- 
++#if defined(__NUTTX__)
 +#define SIZEOF_MM_ALLOCNODE 8
++#elif defined(__TIZENRT__)
++#define SIZEOF_MM_ALLOCNODE 16
++#else
++#error "Undefined memory allocation chunk size."
++#endif
++
 +extern void jmem_heap_stat_alloc(size_t size);
 +extern void jmem_heap_stat_free(size_t size);
 +
-+
+ 
  char* iotjs_buffer_allocate(size_t size) {
    char* buffer = (char*)(calloc(size, sizeof(char)));
 +
@@ -21,7 +28,7 @@ index 62ca214..dd6a978 100644
    IOTJS_ASSERT(buffer != NULL);
    return buffer;
  }
-@@ -67,11 +77,26 @@ char* iotjs_buffer_allocate(size_t size) {
+@@ -73,11 +89,26 @@ char* iotjs_buffer_allocate(size_t size) {
  
  char* iotjs_buffer_reallocate(char* buffer, size_t size) {
    IOTJS_ASSERT(buffer != NULL);
