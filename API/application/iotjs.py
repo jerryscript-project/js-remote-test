@@ -84,16 +84,6 @@ class Application(base.ApplicationBase):
         utils.patch(paths.IOTJS_JERRY_PATH, jerry_memstat_patch, revert)
         utils.execute(paths.IOTJS_JERRY_PATH, 'git', ['add', '-u'])
 
-    def get_include_module_option(self, os_name):
-        '''
-        Get os dependency module list with include module option string.
-        '''
-        module_file_path = utils.join(paths.IOTJS_PATH, 'build.module')
-        with open(module_file_path, 'r') as file:
-            config = json.loads(file.read().encode('ascii'))
-            extend_module = config['module']['supported']['extended']               
-            return '--iotjs-include-module=' + ','.join(extend_module[os_name])
-
     def build(self, device):
         '''
         Build IoT.js for the target device/OS and for Raspberry Pi 2.
@@ -124,8 +114,6 @@ class Application(base.ApplicationBase):
 
         # The following builds are target specific with memory usage features.
         build_flags = list(common_build_flags)
-        # Enable further modules.
-        build_flags.append(self.get_include_module_option(os.get_name()))
 
         # Specify target os.
         build_flags.append('--target-os=%s' % os.get_name())
@@ -138,6 +126,8 @@ class Application(base.ApplicationBase):
             build_flags.append('--jerry-memstat')
             build_flags.append('--no-parallel-build')
             build_flags.append('--nuttx-home=%s' % paths.NUTTX_PATH)
+            build_flags.append('--profile=%s' % utils.join(paths.IOTJS_TEST_PROFILES_PATH,
+                                                           'nuttx.profile'))
 
             enable_memstat = True
 
@@ -146,6 +136,8 @@ class Application(base.ApplicationBase):
             build_flags.append('--jerry-cmake-param=-DFEATURE_VALGRIND_FREYA=ON')
             build_flags.append('--compile-flag=-g')
             build_flags.append('--jerry-compile-flag=-g')
+            build_flags.append('--profile=%s' % utils.join(paths.IOTJS_TEST_PROFILES_PATH,
+                                                           'rpi2-linux.profile'))
 
         elif device.get_type() == 'artik053':
             enable_memstat = True           

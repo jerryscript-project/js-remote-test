@@ -107,6 +107,9 @@ IOTJS_JERRY_PATH = os.path.join(IOTJS_PATH, 'deps/jerry')
 # Path to the config folder within iotjs.
 IOTJS_CONFIG_PATH = os.path.join(IOTJS_PATH, 'config')
 
+# Path to the test profiles folder within iotjs.
+IOTJS_TEST_PROFILES_PATH = os.path.join(IOTJS_PATH, 'test/profiles')
+
 #
 # ================================
 #

@@ -108,7 +108,8 @@ class OperatingSystem(base.OperatingSystemBase):
             build_options.append('IOTJS_BUILD_OPTION=' +
                                  '--clean ' +
                                  '--jerry-memstat ' +
-                                 app.get_include_module_option(self.get_name()))
+                                 '--profile=%s' % utils.join(paths.IOTJS_TEST_PROFILES_PATH,
+                                                             'tizenrt.profile'))
 
             utils.execute(paths.TIZENRT_OS_PATH, 'make', build_options)
         elif app_name == 'jerryscript':
