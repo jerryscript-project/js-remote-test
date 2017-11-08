@@ -109,6 +109,6 @@ class Device(base.DeviceBase):
         result = json.loads(stdout)
 
         # Make HTML friendly stdout.
-        stdout = result['output'].rstrip('\n').replace('\n', '<br>')
+        result['output'] = result['output'].rstrip('\n').replace('\n', '<br>')
 
-        return result['exitcode'], stdout, result['mempeak']
+        return result

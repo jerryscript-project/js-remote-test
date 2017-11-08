@@ -94,17 +94,24 @@ class Device(base.DeviceBase):
         # Send testrunner command to the device and process its result.
         stdout = self.serial.exec_command('%s %s' % (cmd, ' '.join(args).encode('utf8')))
 
-        if stdout.rfind('Heap stat') != -1:
-            stdout, heap = stdout.rsplit("Heap stats",1)
+        jerry_peak_alloc = 'n/a'
+        malloc_peak = 'n/a'
 
-            match = re.search(r'Peak allocated = (\d+) bytes', str(heap))
+        if stdout.find('Heap stats:') != -1:
+            # Process jerry-memstat output.
+            match = re.search(r'Peak allocated = (\d+) bytes', str(stdout))
 
             if match:
-                memory = match.group(1)
-            else:
-                memory = 'n/a'
-        else:
-            memory = 'n/a'
+                jerry_peak_alloc = int(match.group(1))
+
+            # Process malloc peak output.
+            match = re.search(r'Malloc peak allocated: (\d+) bytes', str(stdout))
+
+            if match:
+                malloc_peak = int(match.group(1))
+
+            # Remove memstat from the output.
+            stdout, _ = stdout.split("Heap stats:", 1)
 
         # Process the exitcode of the last command.
         exitcode = self.serial.exec_command('echo $?')
@@ -114,4 +121,9 @@ class Device(base.DeviceBase):
         # Make HTML friendly stdout.
         stdout = stdout.replace('\n', '<br>')
 
-        return exitcode, stdout, memory
+        return {
+            'exitcode': exitcode,
+            'output': stdout,
+            'jerry_peak_alloc': jerry_peak_alloc,
+            'malloc_peak': malloc_peak
+        }

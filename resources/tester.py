@@ -141,7 +141,19 @@ def run_iotjs(options):
     ]
 
     # 1. Run IoT.js without Freya to get its output and exit value.
-    output, exitcode = execute(options.cwd, options.cmd, [options.testfile])
+    output, exitcode = execute(options.cwd, options.cmd, ['--memstat', options.testfile])
+
+    if output.rfind('Heap stat') != -1:
+        output, jerry_memstat = output.rsplit("Heap stats", 1)
+
+        match = re.search(r'Peak allocated = (\d+) bytes', str(jerry_memstat))
+
+        if match:
+            jerry_peak_alloc = int(match.group(1))
+        else:
+            jerry_peak_alloc = 'n/a'
+    else:
+        jerry_peak_alloc = 'n/a'
 
     # 2. Update the configuration file of Freya:
     ldd_output, _ = execute(options.cwd, 'ldd', ['--version'])
@@ -154,9 +166,14 @@ def run_iotjs(options):
     execute(options.cwd, FREYA_BIN, valgrind_options)
 
     # 4. Process the created log file to get the peak memory.
-    mempeak = process_freya_output()
+    malloc_peak = process_freya_output()
 
-    return { 'exitcode': exitcode, 'output': output, 'mempeak': mempeak }
+    return {
+        'exitcode': exitcode,
+        'output': output,
+        'jerry_peak_alloc': jerry_peak_alloc,
+        'malloc_peak': malloc_peak
+    }
 
 
 def parse_arguments():

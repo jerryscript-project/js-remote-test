@@ -69,16 +69,17 @@ class Application(base.ApplicationBase):
 
         return utils.join(paths.IOTJS_PATH, 'nsh_romfsimg.h')
 
-    def __apply_patches(self, revert=False):
+    def __apply_patches(self, device, revert=False):
         '''
         Apply memstat patches to measure the memory consumption of IoT.js
         '''
-        iotjs_memstat_patch = utils.join(paths.PATCHES_PATH, 'iotjs-memstat.diff')
-        utils.patch(paths.IOTJS_PATH, iotjs_memstat_patch, revert)
+        if device.get_type() in ['stm32f4dis', 'artik053']:
+            iotjs_memstat_patch = utils.join(paths.PATCHES_PATH, 'iotjs-memstat.diff')
+            utils.patch(paths.IOTJS_PATH, iotjs_memstat_patch, revert)
 
-        libtuv_memstat_patch = utils.join(paths.PATCHES_PATH, 'libtuv-memstat.diff')
-        utils.patch(paths.IOTJS_LIBTUV_PATH, libtuv_memstat_patch, revert)
-        utils.execute(paths.IOTJS_LIBTUV_PATH, 'git', ['add', '-u'])
+            libtuv_memstat_patch = utils.join(paths.PATCHES_PATH, 'libtuv-memstat.diff')
+            utils.patch(paths.IOTJS_LIBTUV_PATH, libtuv_memstat_patch, revert)
+            utils.execute(paths.IOTJS_LIBTUV_PATH, 'git', ['add', '-u'])
 
         jerry_memstat_patch = utils.join(paths.PATCHES_PATH, 'jerry-memstat.diff')
         utils.patch(paths.IOTJS_JERRY_PATH, jerry_memstat_patch, revert)
@@ -106,8 +107,6 @@ class Application(base.ApplicationBase):
         # Specify target os.
         build_flags.append('--target-os=%s' % os.get_name())
 
-        enable_memstat = False
-
         if device.get_type() == 'stm32f4dis':
             build_flags.append('--target-board=%s' % device.get_type())
             build_flags.append('--jerry-heaplimit=78')
@@ -116,7 +115,6 @@ class Application(base.ApplicationBase):
             build_flags.append('--profile=%s' % utils.join(paths.IOTJS_TEST_PROFILES_PATH,
                                                            'nuttx.profile'))
 
-            enable_memstat = True
             mapfile = utils.join(paths.NUTTX_PATH, "arch/arm/src/nuttx.map")
 
         elif device.get_type() == 'rpi2':
@@ -129,7 +127,6 @@ class Application(base.ApplicationBase):
             build_flags.append('--profile=%s' % utils.join(paths.IOTJS_TEST_PROFILES_PATH,
                                                            'tizenrt.profile'))
 
-            enable_memstat = True
             mapfile = utils.join(paths.TIZENRT_BUILD_PATH, "output/bin/tinyara.map")
 
         else:
@@ -148,13 +145,12 @@ class Application(base.ApplicationBase):
 
         os.prebuild(self)
         # Enable memstat for IoT.js (libtuv, jerryscript, iotjs)
-        if enable_memstat:
-            build_flags.append('--jerry-memstat')
-            self.__apply_patches()
-        else:
-            build_flags.append('--jerry-cmake-param=-DFEATURE_VALGRIND_FREYA=ON')
+        build_flags.append('--jerry-memstat')
+        if device.get_type() == 'rpi2':
             build_flags.append('--compile-flag=-g')
             build_flags.append('--jerry-compile-flag=-g')
+
+        self.__apply_patches(device)
 
         # 2. Run the buildscript with memstat or Freya
         # For artik053, build IoT.js in os.build.
@@ -164,8 +160,7 @@ class Application(base.ApplicationBase):
         os.build(self, self.buildtype, build_flags, 'all')
 
         # Revert all the memstat patches from the project.
-        if enable_memstat:
-            self.__apply_patches(revert=True)
+        self.__apply_patches(device, revert=True)
 
     def __in_dictlist(self, key, value, dictlist):
         for this in dictlist:

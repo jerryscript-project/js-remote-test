@@ -313,6 +313,16 @@ def last_commit_info(git_repo_path):
     return info
 
 
+def to_int(value):
+    '''
+    Return the value as integer type.
+    '''
+    if isinstance(value, int):
+        return value
+
+    return 0
+
+
 def get_standardized_date():
     '''
     Get the current date in standardized format.

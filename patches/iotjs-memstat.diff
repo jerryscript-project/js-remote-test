@@ -1,11 +1,25 @@
+diff --git a/src/iotjs.c b/src/iotjs.c
+index 2268425..6adb254 100644
+--- a/src/iotjs.c
++++ b/src/iotjs.c
+@@ -231,5 +231,8 @@ terminate:
+   // Release debug print setting.
+   release_debug_settings();
+ 
++  // Print mem-stat info.
++  print_mem_stat();
++
+   return ret_code;
+ }
 diff --git a/src/iotjs_util.c b/src/iotjs_util.c
-index be0e78f..37cdb35 100644
+index be0e78f..5162240 100644
 --- a/src/iotjs_util.c
 +++ b/src/iotjs_util.c
-@@ -63,9 +63,25 @@ iotjs_string_t iotjs_file_read(const char* path) {
+@@ -63,21 +63,73 @@ iotjs_string_t iotjs_file_read(const char* path) {
    return contents;
  }
  
++// Memory statistic for system allocator.
 +#if defined(__NUTTX__)
 +#define SIZEOF_MM_ALLOCNODE 8
 +#elif defined(__TIZENRT__)
@@ -14,21 +28,41 @@ index be0e78f..37cdb35 100644
 +#error "Undefined memory allocation chunk size."
 +#endif
 +
-+extern void jmem_heap_stat_alloc(size_t size);
-+extern void jmem_heap_stat_free(size_t size);
++size_t allocated_bytes = 0;
++size_t peak_allocated_bytes = 0;
 +
++void mem_stat_alloc(size_t size)
++{
++  allocated_bytes += size;
++
++  if (allocated_bytes > peak_allocated_bytes) {
++    peak_allocated_bytes = allocated_bytes;
++  }
++}
++
++void mem_stat_free(size_t size)
++{
++  allocated_bytes -= size;
++}
++
++void print_mem_stat()
++{
++  printf("Heap stats:\n");
++  printf("  Malloc peak allocated: %u bytes\n", peak_allocated_bytes);
++}
  
  char* iotjs_buffer_allocate(size_t size) {
    char* buffer = (char*)(calloc(size, sizeof(char)));
+   IOTJS_ASSERT(buffer != NULL);
 +
++  // memstat
 +  size_t new_size;
 +  memcpy(&new_size, (buffer - SIZEOF_MM_ALLOCNODE), sizeof(size_t));
-+  jmem_heap_stat_alloc(new_size - SIZEOF_MM_ALLOCNODE);
++  mem_stat_alloc(new_size - SIZEOF_MM_ALLOCNODE);
 +
-   IOTJS_ASSERT(buffer != NULL);
    return buffer;
  }
-@@ -73,11 +89,26 @@ char* iotjs_buffer_allocate(size_t size) {
+ 
  
  char* iotjs_buffer_reallocate(char* buffer, size_t size) {
    IOTJS_ASSERT(buffer != NULL);
@@ -36,13 +70,13 @@ index be0e78f..37cdb35 100644
 +
 +  size_t old_size;
 +  memcpy(&old_size, (buffer - SIZEOF_MM_ALLOCNODE), sizeof(size_t));
-+  jmem_heap_stat_free(old_size - SIZEOF_MM_ALLOCNODE);
++  mem_stat_free(old_size - SIZEOF_MM_ALLOCNODE);
 +
 +  char* ptr = (char*)(realloc(buffer, size));
 +
 +  size_t new_size;
 +  memcpy(&new_size, (ptr - SIZEOF_MM_ALLOCNODE), sizeof(size_t));
-+  jmem_heap_stat_alloc(new_size - SIZEOF_MM_ALLOCNODE);
++  mem_stat_alloc(new_size - SIZEOF_MM_ALLOCNODE);
 +
 +  return ptr;
  }
@@ -51,8 +85,23 @@ index be0e78f..37cdb35 100644
  void iotjs_buffer_release(char* buffer) {
 +  size_t size;
 +  memcpy(&size, (buffer - SIZEOF_MM_ALLOCNODE), sizeof(size_t));
-+  jmem_heap_stat_free(size - SIZEOF_MM_ALLOCNODE);
++  mem_stat_free(size - SIZEOF_MM_ALLOCNODE);
 +
    IOTJS_ASSERT(buffer != NULL);
    free(buffer);
  }
+diff --git a/src/iotjs_util.h b/src/iotjs_util.h
+index e7e1896..607f836 100644
+--- a/src/iotjs_util.h
++++ b/src/iotjs_util.h
+@@ -23,6 +23,10 @@
+ // Return value should be released with iotjs_string_destroy()
+ iotjs_string_t iotjs_file_read(const char* path);
+ 
++void mem_stat_alloc(size_t size);
++void mem_stat_free(size_t size);
++void print_mem_stat();
++
+ char* iotjs_buffer_allocate(size_t size);
+ char* iotjs_buffer_reallocate(char* buffer, size_t size);
+ void iotjs_buffer_release(char* buff);

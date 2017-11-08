@@ -185,7 +185,7 @@ class TestRunner(object):
 
                 # 2. execute the test and handle timeout.
                 try:
-                    exitcode, stdout, memory = self.__run_test_on_device(app, device, testset, test)
+                    result = self.__run_test_on_device(app, device, testset, test)
 
                 except utils.TimeoutException:
                     reporter.report_timeout(test['name'])
@@ -194,16 +194,26 @@ class TestRunner(object):
                     continue
 
                 # 3. Process the result.
-                if bool(int(exitcode)) == test.get('expected-failure', False):
+                if bool(int(result['exitcode'])) == test.get('expected-failure', False):
                     reporter.report_pass(test['name'])
                     testresult['result'] = 'pass'
-                    if not 'n/a' in str(memory):
-                        testresult['memory'] = memory
+
+                    jerry_peak = result['jerry_peak_alloc']
+                    malloc_peak = result['malloc_peak']
+                    total_peak = utils.to_int(jerry_peak) + utils.to_int(malloc_peak)
+
+                    testresult['memory'] = {
+                        'jerry': jerry_peak,
+                        'malloc': malloc_peak,
+                        'total': total_peak,
+                        'stack': 'n/a'
+                    }
+
                 else:
                     reporter.report_fail(test['name'])
                     testresult['result'] = 'fail'
 
-                testresult['output'] = stdout
+                testresult['output'] = result['output']
 
                 self.results.append(testresult)
 

@@ -12,7 +12,7 @@ index d443a02..db096c7 100644
          uv__req_unregister(loop, req);                                        \
          return -ENOMEM;                                                       \
 diff --git a/src/uv-common.c b/src/uv-common.c
-index 1bed201..28e8f53 100644
+index 1bed201..6a04338 100644
 --- a/src/uv-common.c
 +++ b/src/uv-common.c
 @@ -67,7 +67,6 @@ static uv__allocator_t uv__allocator = {
@@ -23,7 +23,7 @@ index 1bed201..28e8f53 100644
  char* uv__strdup(const char* s) {
    size_t len = strlen(s) + 1;
    char* m = uv__malloc(len);
-@@ -75,13 +74,36 @@ char* uv__strdup(const char* s) {
+@@ -75,15 +74,38 @@ char* uv__strdup(const char* s) {
      return NULL;
    return memcpy(m, s, len);
  }
@@ -36,8 +36,8 @@ index 1bed201..28e8f53 100644
 +#error "Undefined memory allocation chunk size."
  #endif
  
-+extern void jmem_heap_stat_alloc (size_t size);
-+extern void jmem_heap_stat_free (size_t size);
++extern void mem_stat_alloc(size_t size);
++extern void mem_stat_free(size_t size);
 +
  void* uv__malloc(size_t size) {
 -  return uv__allocator.local_malloc(size);
@@ -45,22 +45,25 @@ index 1bed201..28e8f53 100644
 +
 +  size_t new_size;
 +  memcpy(&new_size, (ptr - SIZEOF_MM_ALLOCNODE), sizeof(size_t));
-+  jmem_heap_stat_alloc(new_size - SIZEOF_MM_ALLOCNODE);
++  mem_stat_alloc(new_size - SIZEOF_MM_ALLOCNODE);
 +
 +  return (void*)ptr;
  }
  
  void uv__free(void* ptr) {
+-  int saved_errno;
+ 
 +  if (ptr == NULL)
 +    return;
 +
 +  size_t size;
 +  memcpy(&size, (char*)ptr - SIZEOF_MM_ALLOCNODE, sizeof(size_t));
-+  jmem_heap_stat_free(size);
++  mem_stat_free(size);
 +
-   int saved_errno;
- 
++  int saved_errno;
    /* Libuv expects that free() does not clobber errno.  The system allocator
+    * honors that assumption but custom allocators may not be so careful.
+    */
 @@ -93,11 +115,31 @@ void uv__free(void* ptr) {
  }
  
@@ -70,7 +73,7 @@ index 1bed201..28e8f53 100644
 +
 +  size_t new_size;
 +  memcpy(&new_size, (ptr - SIZEOF_MM_ALLOCNODE), sizeof(size_t));
-+  jmem_heap_stat_alloc(new_size - SIZEOF_MM_ALLOCNODE);
++  mem_stat_alloc(new_size - SIZEOF_MM_ALLOCNODE);
 +
 +  return (void*)ptr;
  }
@@ -80,13 +83,13 @@ index 1bed201..28e8f53 100644
 +  if (ptr != NULL) {
 +    size_t old_size;
 +    memcpy(&old_size, (char*)ptr - SIZEOF_MM_ALLOCNODE, sizeof(size_t));
-+    jmem_heap_stat_free(old_size - SIZEOF_MM_ALLOCNODE);
++    mem_stat_free(old_size - SIZEOF_MM_ALLOCNODE);
 +
 +    char* new_ptr = (char*)uv__allocator.local_realloc(ptr, size);
 +
 +    size_t new_size;
 +    memcpy(&new_size, (new_ptr - SIZEOF_MM_ALLOCNODE), sizeof(size_t));
-+    jmem_heap_stat_alloc(new_size - SIZEOF_MM_ALLOCNODE);
++    mem_stat_alloc(new_size - SIZEOF_MM_ALLOCNODE);
 +
 +    return (void*)new_ptr;
 +  }
