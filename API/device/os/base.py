@@ -44,7 +44,7 @@ class OperatingSystemBase(object):
         '''
         raise NotImplementedError('Use the concrete subclasses.')
 
-    def build(self, app, buildtype, maketarget):
+    def build(self, app, buildtype, buildoptions, maketarget):
         '''
         Build the operating system.
         '''

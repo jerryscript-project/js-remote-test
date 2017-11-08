@@ -81,8 +81,14 @@ class TestRunner(object):
             submodules['apps'] = utils.last_commit_info(paths.NUTTX_APPS_PATH)
 
         # Create the result.
+        bin_sizes = {}
+        if app.get_name() == "iotjs":
+            bin_sizes = utils.get_section_sizes_from_map(app.get_mapfile())
+        else:
+            bin_sizes = utils.get_section_sizes(app.get_minimal_image())
+
         result = {
-            'bin' : utils.get_section_sizes(app.get_minimal_image()),
+            'bin' : bin_sizes,
             'date' : utils.get_standardized_date(),
             'tests' : self.results,
             'submodules' : submodules

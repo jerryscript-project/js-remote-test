@@ -97,7 +97,7 @@ class OperatingSystem(base.OperatingSystemBase):
 
         utils.execute(paths.TIZENRT_OS_PATH, 'make', ['clean'])
 
-    def build(self, app, buildtype, maketarget):
+    def build(self, app, buildtype, buildoptions, maketarget):
         '''
         Build the operating system.
         '''
@@ -105,11 +105,7 @@ class OperatingSystem(base.OperatingSystemBase):
         if app_name == 'iotjs':
             # TODO: Support release build
             build_options = ['IOTJS_ROOT_DIR=' + paths.IOTJS_PATH]
-            build_options.append('IOTJS_BUILD_OPTION=' +
-                                 '--clean ' +
-                                 '--jerry-memstat ' +
-                                 '--profile=%s' % utils.join(paths.IOTJS_TEST_PROFILES_PATH,
-                                                             'tizenrt.profile'))
+            build_options.append('IOTJS_BUILD_OPTION=' + ' '.join(buildoptions))
 
             utils.execute(paths.TIZENRT_OS_PATH, 'make', build_options)
         elif app_name == 'jerryscript':

@@ -68,10 +68,10 @@ class OperatingSystem(base.OperatingSystemBase):
         '''
         Pre-build the operating system (for the generated headers).
         '''
-        self.build(app, buildtype, 'clean')
-        self.build(app, buildtype, 'context')
+        self.build(app, buildtype, [], 'clean')
+        self.build(app, buildtype, [], 'context')
 
-    def build(self, app, buildtype, maketarget):
+    def build(self, app, buildtype, buildoptions, maketarget):
         '''
         Build the operating system.
         '''
@@ -80,6 +80,7 @@ class OperatingSystem(base.OperatingSystemBase):
         else:
             utils.define_environment('R', '0')
 
+        utils.define_environment('EXTRA_LIBS', '-Map=nuttx.map')
         utils.define_environment('IOTJS_ROOT_DIR', paths.IOTJS_PATH)
 
         utils.execute(paths.NUTTX_PATH, 'make', ['-j1', maketarget])

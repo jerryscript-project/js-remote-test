@@ -40,7 +40,7 @@ class OperatingSystem(base.OperatingSystemBase):
         '''
         pass
 
-    def build(self, app, buildtype, maketarget):
+    def build(self, app, buildtype, buildoptions, maketarget):
         '''
         Build the operating system.
         '''

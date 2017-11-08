@@ -92,12 +92,6 @@ IOTJS_BUILD_PATH = os.path.join(IOTJS_PATH, 'build/arm-linux/%s/bin')
 # Root directory of the test folder.
 IOTJS_TEST_PATH = os.path.join(IOTJS_PATH, 'test')
 
-# Path to the minimal build folder.
-IOTJS_MINIMAL_BUILD_PATH = os.path.join(IOTJS_PATH, 'features_disable/build')
-
-# Path to the bin folder of the minimal build.
-IOTJS_MINIMAL_BIN_PATH = os.path.join(IOTJS_MINIMAL_BUILD_PATH, 'arm-linux/%s/bin/')
-
 # Path to the deps/libtuv folder.
 IOTJS_LIBTUV_PATH = os.path.join(IOTJS_PATH, 'deps/libtuv')
 
@@ -109,6 +103,10 @@ IOTJS_CONFIG_PATH = os.path.join(IOTJS_PATH, 'config')
 
 # Path to the test profiles folder within iotjs.
 IOTJS_TEST_PROFILES_PATH = os.path.join(IOTJS_PATH, 'test/profiles')
+
+IOTJS_MAP_DIR_PATH = os.path.join(IOTJS_PATH, "map")
+
+IOTJS_MAP_FILE_PATH = os.path.join(IOTJS_MAP_DIR_PATH, "iotjs.map")
 
 #
 # ================================

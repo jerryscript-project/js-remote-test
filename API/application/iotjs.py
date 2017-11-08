@@ -31,11 +31,11 @@ class Application(base.ApplicationBase):
         '''
         return utils.join(paths.IOTJS_BUILD_PATH, 'iotjs') % self.buildtype
 
-    def get_minimal_image(self):
+    def get_mapfile(self):
         '''
-        Return the path to the disable-features build.
+        Return the path to the map file.
         '''
-        return utils.join(paths.IOTJS_MINIMAL_BIN_PATH, 'iotjs') % self.buildtype
+        return paths.IOTJS_MAP_FILE_PATH
 
     def get_home_dir(self):
         '''
@@ -92,25 +92,13 @@ class Application(base.ApplicationBase):
         # prebuild the OS
         os = device.get_os()
         os.prebuild(self)
+        utils.rmtree(paths.IOTJS_MAP_DIR_PATH)
 
         common_build_flags = [
             '--clean',
             '--buildtype=%s' % self.buildtype,
             '--target-arch=arm',
         ]
-
-        # Note: We should build IoT.js for Raspberry Pi 2, since the
-        # binary size information (showed on the test-result webpages)
-        # is based on this target.
-        minimal_build_flags = list(common_build_flags)
-        minimal_build_flags.append('--target-board=rpi2')
-        minimal_build_flags.append('--builddir=%s' % paths.IOTJS_MINIMAL_BUILD_PATH)
-
-        # Run the buildscript with minimal build flags for binary information.
-        utils.execute(paths.IOTJS_PATH, 'tools/build.py', minimal_build_flags)
-        utils.execute(paths.IOTJS_PATH, 'arm-linux-gnueabi-strip',
-                                                    [self.get_minimal_image()])
-
 
         # The following builds are target specific with memory usage features.
         build_flags = list(common_build_flags)
@@ -123,39 +111,57 @@ class Application(base.ApplicationBase):
         if device.get_type() == 'stm32f4dis':
             build_flags.append('--target-board=%s' % device.get_type())
             build_flags.append('--jerry-heaplimit=78')
-            build_flags.append('--jerry-memstat')
             build_flags.append('--no-parallel-build')
             build_flags.append('--nuttx-home=%s' % paths.NUTTX_PATH)
             build_flags.append('--profile=%s' % utils.join(paths.IOTJS_TEST_PROFILES_PATH,
                                                            'nuttx.profile'))
 
             enable_memstat = True
+            mapfile = utils.join(paths.NUTTX_PATH, "arch/arm/src/nuttx.map")
 
         elif device.get_type() == 'rpi2':
             build_flags.append('--target-board=%s' % device.get_type())
-            build_flags.append('--jerry-cmake-param=-DFEATURE_VALGRIND_FREYA=ON')
-            build_flags.append('--compile-flag=-g')
-            build_flags.append('--jerry-compile-flag=-g')
             build_flags.append('--profile=%s' % utils.join(paths.IOTJS_TEST_PROFILES_PATH,
                                                            'rpi2-linux.profile'))
+            mapfile = utils.join(paths.IOTJS_BUILD_PATH % self.buildtype, "../iotjs.map")
 
         elif device.get_type() == 'artik053':
-            enable_memstat = True           
+            build_flags.append('--profile=%s' % utils.join(paths.IOTJS_TEST_PROFILES_PATH,
+                                                           'tizenrt.profile'))
+
+            enable_memstat = True
+            mapfile = utils.join(paths.TIZENRT_BUILD_PATH, "output/bin/tinyara.map")
 
         else:
             console.fail('Non-minimal IoT.js build failed, unsupported '
                          'device (%s)!' % device.get_type())
 
-        # Enable memstat for IoT.js (libtuv, jerryscript, iotjs) 
-        if enable_memstat:
-            self.__apply_patches()
-
-        # Run the buildscript.
+        # 1. Run the buildscript and measure binary size
         # For artik053, build IoT.js in os.build.
         if not device.get_type() == 'artik053':
             utils.execute(paths.IOTJS_PATH, 'tools/build.py', build_flags)
 
-        os.build(self, self.buildtype, 'all')
+        os.build(self, self.buildtype, build_flags, 'all')
+
+        utils.mkdir(paths.IOTJS_MAP_DIR_PATH)
+        utils.copy_file(mapfile, paths.IOTJS_MAP_FILE_PATH)
+
+        os.prebuild(self)
+        # Enable memstat for IoT.js (libtuv, jerryscript, iotjs)
+        if enable_memstat:
+            build_flags.append('--jerry-memstat')
+            self.__apply_patches()
+        else:
+            build_flags.append('--jerry-cmake-param=-DFEATURE_VALGRIND_FREYA=ON')
+            build_flags.append('--compile-flag=-g')
+            build_flags.append('--jerry-compile-flag=-g')
+
+        # 2. Run the buildscript with memstat or Freya
+        # For artik053, build IoT.js in os.build.
+        if not device.get_type() == 'artik053':
+            utils.execute(paths.IOTJS_PATH, 'tools/build.py', build_flags)
+
+        os.build(self, self.buildtype, build_flags, 'all')
 
         # Revert all the memstat patches from the project.
         if enable_memstat:

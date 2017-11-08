@@ -14,7 +14,9 @@
 
 import console
 import json
+import lumpy
 import os
+import paths
 import platform
 import re
 import shutil
@@ -210,10 +212,58 @@ def relpath(path, start):
     return os.path.relpath(path, start)
 
 
+def rmtree(path):
+    '''
+    Remove directory
+    '''
+    if exists(path):
+        shutil.rmtree(path)
+
+
+def get_section_sizes_from_map(mapfile):
+    '''
+    Returns the sizes of the main sections.
+    '''
+
+    archives = ['libhttpparser.a',
+            'libiotjs.a',
+            'libjerry-core.a',
+            'libjerry-ext.a',
+            'libjerry-port-default.a',
+            'libjerry-port-default-minimal.a',
+            'libtuv.a']
+
+    data = lumpy.load_map_data(mapfile)
+
+    sections = lumpy.parse_to_sections(data)
+    # extract .rodata section from the .text section
+    lumpy.hoist_section(sections, ".text", ".rodata")
+
+    sizes = {
+        "text": 0,
+        "rodata": 0,
+        "data": 0,
+        "bss": 0,
+    }
+
+    for s in sections:
+        for section_key in sizes:
+            if s['name'] == ".%s" % section_key:
+                for ss in s['contents']:
+                    if ss['path'].endswith(".c.obj)") or \
+                        len(filter(lambda ar: "/%s(" % ar in ss['path'], archives)):
+                        sizes[section_key] += ss["size"]
+                break
+
+    sizes['total'] = sizes["text"] + sizes["data"] + sizes["rodata"]
+    return sizes
+
+
 def get_section_sizes(executable):
     '''
     Returns the sizes of the main sections.
     '''
+
     args = ['-A', executable]
     sections, _ = execute(os.curdir, 'arm-linux-gnueabi-size', args, quiet=True)
 
