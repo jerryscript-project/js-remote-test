@@ -23,6 +23,7 @@ class OperatingSystem(base.OperatingSystemBase):
     '''
     def __init__(self):
         super(self.__class__, self).__init__('tizenrt')
+        self.__update_repository()
 
     def get_home_dir(self):
         '''
@@ -49,6 +50,7 @@ class OperatingSystem(base.OperatingSystemBase):
         Apply patch file.
         '''
         patch = utils.join(paths.PATCHES_PATH, 'tizenrt-%s.diff' % app.get_name())
+        utils.execute(paths.TIZENRT_PATH, 'git', ['reset', '--hard'])
         utils.execute(paths.TIZENRT_PATH, 'git', ['apply', patch])
 
     def __configure(self, app):
@@ -89,13 +91,14 @@ class OperatingSystem(base.OperatingSystemBase):
                       [app.get_test_dir(), paths.TIZENRT_ROMFS_CONTENTS_PATH, '-r'])
 
     def prebuild(self, app, buildtype='release'):
-        self.__update_repository()
         self.__copy_app_files(app)
         self.__apply_patches(app)
-        self.__configure(app)
         self.__copy_test_files(app)
 
+        utils.execute(paths.TIZENRT_OS_PATH, 'make', ['distclean'])
         utils.execute(paths.TIZENRT_OS_PATH, 'make', ['clean'])
+
+        self.__configure(app)
 
     def build(self, app, buildtype, buildoptions, maketarget):
         '''
@@ -103,10 +106,21 @@ class OperatingSystem(base.OperatingSystemBase):
         '''
         app_name = app.get_name()
         if app_name == 'iotjs':
-            # TODO: Support release build
             build_options = ['IOTJS_ROOT_DIR=' + paths.IOTJS_PATH]
             build_options.append('IOTJS_BUILD_OPTION=' + ' '.join(buildoptions))
 
-            utils.execute(paths.TIZENRT_OS_PATH, 'make', build_options)
+            if buildtype == 'release':
+                # Override the config file and apply patch for release build.
+                utils.copy_file(utils.join(paths.CONFIG_PATH, 'iotjs-tizenrt-release.config'),
+                                utils.join(paths.TIZENRT_OS_PATH, '.config'))
+                tizenrt_release_patch = utils.join(paths.PATCHES_PATH, 'iotjs-tizenrt-release.diff')                                
+                utils.patch(paths.IOTJS_PATH, tizenrt_release_patch, False)
+
+                utils.execute(paths.TIZENRT_OS_PATH, 'make', build_options)
+
+                utils.patch(paths.IOTJS_PATH, tizenrt_release_patch, True)
+            else:
+                utils.execute(paths.TIZENRT_OS_PATH, 'make', build_options)
+            
         elif app_name == 'jerryscript':
             utils.execute(paths.TIZENRT_OS_PATH, 'make')

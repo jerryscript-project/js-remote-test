@@ -1,0 +1,20 @@
+diff --git a/src/platform/tizenrt/iotjs_main_tizenrt.c b/src/platform/tizenrt/iotjs_main_tizenrt.c
+index bcf0243..4e7a181 100644
+--- a/src/platform/tizenrt/iotjs_main_tizenrt.c
++++ b/src/platform/tizenrt/iotjs_main_tizenrt.c
+@@ -114,12 +114,12 @@ struct iotjs_thread_arg {
+ pthread_addr_t iotjs_thread(void *thread_arg) {
+   struct iotjs_thread_arg *arg = thread_arg;
+ 
+-#ifdef CONFIG_DEBUG_VERBOSE
++
+   int ret = iotjs_entry(arg->argc, arg->argv);
+   printf("IoT.js Result: %d\n", ret);
+-#else
++
+   iotjs_entry(arg->argc, arg->argv);
+-#endif
++
+   tuv_cleanup();
+ 
+   sleep(1);
