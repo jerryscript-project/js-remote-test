@@ -14,6 +14,8 @@ The following table shows the supported devices and applications:
 
 In the first step, all the dependencies should be installed:
 
+(Note: Ubuntu 14.04 LTS is not supported, please use 16.04 LTS)
+
 ```
 # Install missing packages
 $ bash install-deps.sh

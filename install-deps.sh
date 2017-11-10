@@ -15,6 +15,11 @@
 # limitations under the License.
 
 # Todo: eliminate unneccesary dependencies (e.g. genfs, libusb)
+ubuntu_ver=$(lsb_release -r | cut -d ':' -f 2 | tr -d '[:space:]')
+if [ "$ubuntu_ver" = "14.04" ]; then
+  echo "Ubuntu 14.04 is not supported"
+  exit
+fi
 sudo apt-get install -y autoconf libtool gperf flex bison autoconf2.13
 sudo apt-get install -y cmake libncurses-dev libusb-1.0-0-dev genromfs
 sudo apt-get install -y libsgutils2-dev gcc-arm-none-eabi minicom
