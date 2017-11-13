@@ -12,18 +12,44 @@ index 2268425..6adb254 100644
    return ret_code;
  }
 diff --git a/src/iotjs_util.c b/src/iotjs_util.c
-index be0e78f..5162240 100644
+index be0e78f..d2a4335 100644
 --- a/src/iotjs_util.c
 +++ b/src/iotjs_util.c
-@@ -63,21 +63,73 @@ iotjs_string_t iotjs_file_read(const char* path) {
+@@ -63,21 +63,99 @@ iotjs_string_t iotjs_file_read(const char* path) {
    return contents;
  }
  
-+// Memory statistic for system allocator.
-+#if defined(__NUTTX__)
-+#define SIZEOF_MM_ALLOCNODE 8
-+#elif defined(__TIZENRT__)
++/*
++ * Memory statistic for system allocator.
++ *
++ *
++ * When allocating a chunk of memory, the real size (with padding) is
++ * located in a descriptor (mm_allocnode_s) before the allocated memory area:
++ *
++ *    struct mm_freenode_s
++ *    {
++ *        mmsize_t size;        // Size of the chunk
++ *        ...
++ *    };
++ *
++ * The SIZEOF_MM_ALLOCNODE defines the size of the mm_allocnode_s structure,
++ * that helps to find the size variable.
++ *
++ * Note: on NuttX and TizenRT, the size variable contains the size of the
++ * mm_freenode_s as well, but that is not calculated into the statistic.
++ *
++ * The SIZEOF_MM_ALLOCNODE is defined in:
++ *
++ *    NuttX:   include/nuttx/mm/mm.h
++ *    TizenRT: os/include/tinyara/mm/mm.h
++ */
++
++#if defined(__NUTTX__) || defined(__TIZENRT__)
++#if !defined(NDEBUG) && defined(__TIZENRT__)
 +#define SIZEOF_MM_ALLOCNODE 16
++#else
++#define SIZEOF_MM_ALLOCNODE 8
++#endif
 +#else
 +#error "Undefined memory allocation chunk size."
 +#endif

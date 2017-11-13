@@ -12,7 +12,7 @@ index d443a02..db096c7 100644
          uv__req_unregister(loop, req);                                        \
          return -ENOMEM;                                                       \
 diff --git a/src/uv-common.c b/src/uv-common.c
-index 1bed201..6a04338 100644
+index 1bed201..2cf1e74 100644
 --- a/src/uv-common.c
 +++ b/src/uv-common.c
 @@ -67,7 +67,6 @@ static uv__allocator_t uv__allocator = {
@@ -23,22 +23,49 @@ index 1bed201..6a04338 100644
  char* uv__strdup(const char* s) {
    size_t len = strlen(s) + 1;
    char* m = uv__malloc(len);
-@@ -75,15 +74,38 @@ char* uv__strdup(const char* s) {
+@@ -75,15 +74,65 @@ char* uv__strdup(const char* s) {
      return NULL;
    return memcpy(m, s, len);
  }
 +
-+#if defined(__NUTTX__)
-+#define SIZEOF_MM_ALLOCNODE 8
-+#elif defined(__TIZENRT__)
++/*
++ * Memory statistic for system allocator.
++ *
++ *
++ * When allocating a chunk of memory, the real size (with padding) is
++ * located in a descriptor (mm_allocnode_s) before the allocated memory area:
++ *
++ *    struct mm_freenode_s
++ *    {
++ *        mmsize_t size;        // Size of the chunk
++ *        ...
++ *    };
++ *
++ * The SIZEOF_MM_ALLOCNODE defines the size of the mm_allocnode_s structure,
++ * that helps to find the size variable.
++ *
++ * Note: on NuttX and TizenRT, the size variable contains the size of the
++ * mm_freenode_s as well, but that is not calculated into the statistic.
++ *
++ * The SIZEOF_MM_ALLOCNODE is defined in:
++ *
++ *    NuttX:   include/nuttx/mm/mm.h
++ *    TizenRT: os/include/tinyara/mm/mm.h
++ */
++
++#if defined(__NUTTX__) || defined(__TIZENRT__)
++#if !defined(NDEBUG) && defined(__TIZENRT__)
 +#define SIZEOF_MM_ALLOCNODE 16
 +#else
-+#error "Undefined memory allocation chunk size."
++#define SIZEOF_MM_ALLOCNODE 8
  #endif
- 
++#else
++#error "Undefined memory allocation chunk size."
++#endif
++
 +extern void mem_stat_alloc(size_t size);
 +extern void mem_stat_free(size_t size);
-+
+ 
  void* uv__malloc(size_t size) {
 -  return uv__allocator.local_malloc(size);
 +  char* ptr = (char*)uv__allocator.local_malloc(size);
@@ -64,7 +91,7 @@ index 1bed201..6a04338 100644
    /* Libuv expects that free() does not clobber errno.  The system allocator
     * honors that assumption but custom allocators may not be so careful.
     */
-@@ -93,11 +115,31 @@ void uv__free(void* ptr) {
+@@ -93,11 +142,31 @@ void uv__free(void* ptr) {
  }
  
  void* uv__calloc(size_t count, size_t size) {
