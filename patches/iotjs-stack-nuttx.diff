@@ -1,0 +1,64 @@
+diff --git a/config/nuttx/stm32f4dis/app/iotjs_main.c b/config/nuttx/stm32f4dis/app/iotjs_main.c
+index 966945e..4f0c411 100644
+--- a/config/nuttx/stm32f4dis/app/iotjs_main.c
++++ b/config/nuttx/stm32f4dis/app/iotjs_main.c
+@@ -63,14 +63,59 @@
+ extern int iotjs_entry(int argc, char *argv[]);
+ extern int tuv_cleanup(void);
+ 
++#define PATTERN (0xfe)
++
+ #ifdef CONFIG_BUILD_KERNEL
+ extern int main(int argc, FAR char *argv[])
+ #else
+ extern int iotjs_main(int argc, char *argv[])
+ #endif
+ {
++  FILE *fp;
++
+   int ret = 0;
++  char fname[32];
++  uint8_t stack_info[64];
++  long int size;
++  long int base;
++  long int stack_ptr;
++  size_t file_size;
++
++  /*
++   * Content of /proc/<pid>/stack:
++   * StackBase:  0x2001a368
++   * StackSize:  16364
++   */
++
++  sprintf(fname, "/proc/%d/stack", getpid());
++  fp = fopen(fname, "r");
++  if (!fp) {
++    return 1;
++  }
++
++  /* Extract stack info */
++  file_size = fread(stack_info, 1, 63, fp);
++  stack_info[file_size] = '\0';
++  fclose(fp);
++
++  sscanf(stack_info, "StackBase:  0x%x\nStackSize:  %d", &base, &size);
++  uint8_t *end = (uint8_t *)(base - size + 4);
++
++  /* Stack coloration */
++  asm("mov %0, sp" : "=r" (stack_ptr));
++  memset(end, PATTERN, stack_ptr - (long int)end);
++
++  /* Run IoT.js */
+   ret = iotjs_entry(argc, argv);
+   tuv_cleanup();
++
++  /* Check max stack usage */
++  uint8_t *stack_p = end;
++
++  while (*stack_p == PATTERN) {
++    stack_p++;
++  }
++
++  printf ("Stack usage: %d\n", (int) (base - (long int)stack_p));
+   return ret;
+ }

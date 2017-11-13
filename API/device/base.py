@@ -61,8 +61,8 @@ class DeviceBase(object):
         '''
         raise NotImplementedError('Use the concrete subclasses.')
 
-    def execute(self, cmd, args=[]):
+    def execute(self, app, args=[]):
         '''
-        Run the given command on the board.
+        Run commands of the given command on the board.
         '''
         raise NotImplementedError('Use the concrete subclasses.')

@@ -176,6 +176,22 @@ def run_iotjs(options):
     }
 
 
+def check_stack_usage(options, text):
+    '''
+    Run the given binary to check stack usage.
+    '''
+    output, _ = execute(options.cwd, options.cmd, [options.testfile])
+
+    match = re.search(r'%s(\d+)' % text, output)
+
+    if match:
+        stack = int(match.group(1))
+    else:
+        stack = 'n/a'
+
+    return { 'stack': stack }
+
+
 def parse_arguments():
     '''
     Parse the given arguments.
@@ -207,6 +223,9 @@ def main():
 
     if arguments.cmd.endswith('jerry'):
         results = run_jerry(arguments)
+
+    if arguments.cmd.endswith('_stack'):
+        results = check_stack_usage(arguments, 'Stack usage: ')
 
     # Don't remove this print function. The result will be on the
     # SSH socket when testing remotely.

@@ -149,11 +149,11 @@ class TestRunner(object):
 
         if device.get_type() in ['stm32f4dis', 'artik053']:
             if app.get_name() is "jerryscript":
-                return device.execute(app.get_cmd(), [testfile, '--mem-stats', '--log-level 2'])
+                return device.execute(app, [testfile, '--mem-stats', '--log-level 2'])
             elif app.get_name() is "iotjs":
-                return device.execute(app.get_cmd(), ['--memstat', testfile])
+                return device.execute(app, ['--memstat', testfile])
 
-        return device.execute(app.get_cmd(), [testfile])
+        return device.execute(app, [testfile])
 
     def run(self, app, device, is_publish):
         '''
@@ -200,13 +200,14 @@ class TestRunner(object):
 
                     jerry_peak = result['jerry_peak_alloc']
                     malloc_peak = result['malloc_peak']
-                    total_peak = utils.to_int(jerry_peak) + utils.to_int(malloc_peak)
+                    stack_peak = result['stack_peak']
+                    total_peak = utils.to_int(jerry_peak) + utils.to_int(malloc_peak) + utils.to_int(stack_peak)
 
                     testresult['memory'] = {
                         'jerry': jerry_peak,
                         'malloc': malloc_peak,
-                        'total': total_peak,
-                        'stack': 'n/a'
+                        'stack': stack_peak,
+                        'total': total_peak
                     }
 
                 else:

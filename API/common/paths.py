@@ -108,6 +108,10 @@ IOTJS_MAP_DIR_PATH = os.path.join(IOTJS_PATH, "map")
 
 IOTJS_MAP_FILE_PATH = os.path.join(IOTJS_MAP_DIR_PATH, "iotjs.map")
 
+IOTJS_BUILD_STACK_DIR = os.path.join(IOTJS_PATH, 'build_stack')
+
+IOTJS_BUILD_STACK_PATH = os.path.join(IOTJS_BUILD_STACK_DIR, 'arm-linux/%s/bin/')
+
 #
 # ================================
 #

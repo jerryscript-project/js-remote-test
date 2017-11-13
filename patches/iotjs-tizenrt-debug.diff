@@ -1,5 +1,5 @@
 diff --git a/src/platform/tizenrt/iotjs_main_tizenrt.c b/src/platform/tizenrt/iotjs_main_tizenrt.c
-index bcf0243..d6c30a4 100644
+index bcf0243..0ee8eac 100644
 --- a/src/platform/tizenrt/iotjs_main_tizenrt.c
 +++ b/src/platform/tizenrt/iotjs_main_tizenrt.c
 @@ -104,6 +104,7 @@ void longjmp(jmp_buf buf, int value) {
@@ -10,11 +10,10 @@ index bcf0243..d6c30a4 100644
  
  #if USE_IOTJS_THREAD
  struct iotjs_thread_arg {
-@@ -114,14 +115,56 @@ struct iotjs_thread_arg {
- pthread_addr_t iotjs_thread(void *thread_arg) {
+@@ -115,6 +116,40 @@ pthread_addr_t iotjs_thread(void *thread_arg) {
    struct iotjs_thread_arg *arg = thread_arg;
  
--#ifdef CONFIG_DEBUG_VERBOSE
+ #ifdef CONFIG_DEBUG_VERBOSE
 +  FILE *fp;
 +  char fname[32];
 +  uint8_t stack_info[64];
@@ -51,11 +50,9 @@ index bcf0243..d6c30a4 100644
 +  /* Run IoT.js */
    int ret = iotjs_entry(arg->argc, arg->argv);
    printf("IoT.js Result: %d\n", ret);
--#else
-+
-   iotjs_entry(arg->argc, arg->argv);
--#endif
-+
+ #else
+@@ -122,6 +157,15 @@ pthread_addr_t iotjs_thread(void *thread_arg) {
+ #endif
    tuv_cleanup();
  
 +  /* Check max stack usage */

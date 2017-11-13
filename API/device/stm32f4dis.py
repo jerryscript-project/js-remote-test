@@ -84,10 +84,12 @@ class Device(base.DeviceBase):
         '''
         self.serial.close()
 
-    def execute(self, cmd, args=[]):
+    def execute(self, app, args=[]):
         '''
-        Run the given command on the board.
+        Run commands for the given app on the board.
         '''
+        cmd = app.get_cmd()
+
         self.reset()
         self.login()
 
@@ -96,6 +98,7 @@ class Device(base.DeviceBase):
 
         jerry_peak_alloc = 'n/a'
         malloc_peak = 'n/a'
+        stack_peak = 'n/a'
 
         if stdout.find('Heap stats:') != -1:
             # Process jerry-memstat output.
@@ -109,6 +112,12 @@ class Device(base.DeviceBase):
 
             if match:
                 malloc_peak = int(match.group(1))
+
+            # Process stack usage output.
+            match = re.search(r'Stack usage: (\d+)', str(stdout))
+
+            if match:
+                stack_peak = int(match.group(1))
 
             # Remove memstat from the output.
             stdout, _ = stdout.split("Heap stats:", 1)
@@ -125,5 +134,6 @@ class Device(base.DeviceBase):
             'exitcode': exitcode,
             'output': stdout,
             'jerry_peak_alloc': jerry_peak_alloc,
-            'malloc_peak': malloc_peak
+            'malloc_peak': malloc_peak,
+            'stack_peak': stack_peak
         }

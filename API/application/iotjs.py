@@ -31,6 +31,12 @@ class Application(base.ApplicationBase):
         '''
         return utils.join(paths.IOTJS_BUILD_PATH, 'iotjs') % self.buildtype
 
+    def get_image_stack(self):
+        '''
+        Return the path to the stack binary.
+        '''
+        return utils.join(paths.IOTJS_BUILD_STACK_PATH, 'iotjs') % self.buildtype
+
     def get_mapfile(self):
         '''
         Return the path to the map file.
@@ -69,7 +75,7 @@ class Application(base.ApplicationBase):
 
         return utils.join(paths.IOTJS_PATH, 'nsh_romfsimg.h')
 
-    def __apply_patches(self, device, revert=False):
+    def __apply_heap_patches(self, device, revert=False):
         '''
         Apply memstat patches to measure the memory consumption of IoT.js
         '''
@@ -85,6 +91,18 @@ class Application(base.ApplicationBase):
         utils.patch(paths.IOTJS_JERRY_PATH, jerry_memstat_patch, revert)
         utils.execute(paths.IOTJS_JERRY_PATH, 'git', ['add', '-u'])
 
+    def __apply_stack_patches(self, device, revert=False):
+        '''
+        Apply stack patch to measure the stack consumption of IoT.js
+        '''
+        if device.get_type() == 'rpi2':
+            iotjs_stack_patch = utils.join(paths.PATCHES_PATH, 'iotjs-stack.diff')
+            utils.patch(paths.IOTJS_PATH, iotjs_stack_patch, revert)
+
+        if device.get_type() == 'stm32f4dis':
+            iotjs_stack_nuttx_patch = utils.join(paths.PATCHES_PATH, 'iotjs-stack-nuttx.diff')
+            utils.patch(paths.IOTJS_PATH, iotjs_stack_nuttx_patch, revert)
+
     def build(self, device):
         '''
         Build IoT.js for the target device/OS and for Raspberry Pi 2.
@@ -95,15 +113,13 @@ class Application(base.ApplicationBase):
         os.prebuild(self)
         utils.rmtree(paths.IOTJS_MAP_DIR_PATH)
 
-        common_build_flags = [
+        build_flags = [
             '--clean',
             '--buildtype=%s' % self.buildtype,
             '--target-arch=arm',
         ]
 
         # The following builds are target specific with memory usage features.
-        build_flags = list(common_build_flags)
-
         # Specify target os.
         build_flags.append('--target-os=%s' % os.get_name())
 
@@ -121,6 +137,7 @@ class Application(base.ApplicationBase):
             build_flags.append('--target-board=%s' % device.get_type())
             build_flags.append('--profile=%s' % utils.join(paths.IOTJS_TEST_PROFILES_PATH,
                                                            'rpi2-linux.profile'))
+
             mapfile = utils.join(paths.IOTJS_BUILD_PATH % self.buildtype, "../iotjs.map")
 
         elif device.get_type() == 'artik053':
@@ -143,24 +160,38 @@ class Application(base.ApplicationBase):
         utils.mkdir(paths.IOTJS_MAP_DIR_PATH)
         utils.copy_file(mapfile, paths.IOTJS_MAP_FILE_PATH)
 
-        os.prebuild(self)
         # Enable memstat for IoT.js (libtuv, jerryscript, iotjs)
-        build_flags.append('--jerry-memstat')
-        if device.get_type() == 'rpi2':
-            build_flags.append('--compile-flag=-g')
-            build_flags.append('--jerry-compile-flag=-g')
+        self.__apply_heap_patches(device)
 
-        self.__apply_patches(device)
+        if not device.get_type() == 'rpi2':
+            self.__apply_stack_patches(device)
+
+        os.prebuild(self)
+
+        build_flags_heap = list(build_flags)
+        build_flags_heap.append('--jerry-memstat')
+        if device.get_type() == 'rpi2':
+            build_flags_heap.append('--compile-flag=-g')
+            build_flags_heap.append('--jerry-compile-flag=-g')
 
         # 2. Run the buildscript with memstat or Freya
         # For artik053, build IoT.js in os.build.
         if not device.get_type() == 'artik053':
-            utils.execute(paths.IOTJS_PATH, 'tools/build.py', build_flags)
+            utils.execute(paths.IOTJS_PATH, 'tools/build.py', build_flags_heap)
 
-        os.build(self, self.buildtype, build_flags, 'all')
+        os.build(self, self.buildtype, build_flags_heap, 'all')
 
         # Revert all the memstat patches from the project.
-        self.__apply_patches(device, revert=True)
+        self.__apply_heap_patches(device, revert=True)
+
+        # Build the application to stack consumption check
+        if device.get_type() == 'rpi2':
+            self.__apply_stack_patches(device)
+            build_flags.append('--builddir=%s' % paths.IOTJS_BUILD_STACK_DIR)
+            utils.execute(paths.IOTJS_PATH, 'tools/build.py', build_flags)
+
+        self.__apply_stack_patches(device, revert=True)
+
 
     def __in_dictlist(self, key, value, dictlist):
         for this in dictlist:

@@ -110,17 +110,16 @@ class OperatingSystem(base.OperatingSystemBase):
             build_options.append('IOTJS_BUILD_OPTION=' + ' '.join(buildoptions))
 
             if buildtype == 'release':
-                # Override the config file and apply patch for release build.
+                # Override the config file for release build.
                 utils.copy_file(utils.join(paths.CONFIG_PATH, 'iotjs-tizenrt-release.config'),
                                 utils.join(paths.TIZENRT_OS_PATH, '.config'))
-                tizenrt_release_patch = utils.join(paths.PATCHES_PATH, 'iotjs-tizenrt-release.diff')                                
-                utils.patch(paths.IOTJS_PATH, tizenrt_release_patch, False)
 
-                utils.execute(paths.TIZENRT_OS_PATH, 'make', build_options)
+            tizenrt_patch = utils.join(paths.PATCHES_PATH, 'iotjs-tizenrt-%s.diff' % buildtype)
+            utils.patch(paths.IOTJS_PATH, tizenrt_patch, False)
 
-                utils.patch(paths.IOTJS_PATH, tizenrt_release_patch, True)
-            else:
-                utils.execute(paths.TIZENRT_OS_PATH, 'make', build_options)
-            
+            utils.execute(paths.TIZENRT_OS_PATH, 'make', build_options)
+
+            utils.patch(paths.IOTJS_PATH, tizenrt_patch, True)
+
         elif app_name == 'jerryscript':
             utils.execute(paths.TIZENRT_OS_PATH, 'make')

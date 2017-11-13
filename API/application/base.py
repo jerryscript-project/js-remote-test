@@ -21,6 +21,7 @@ class ApplicationBase(object):
     def __init__(self, name, cmd, options):
         self.name = name
         self.cmd = cmd
+        self.cmd_stack = cmd + '_stack'
         self.buildtype = options.buildtype
 
     def get_name(self):
@@ -34,6 +35,12 @@ class ApplicationBase(object):
         Return the command to run the application.
         '''
         return self.cmd
+
+    def get_cmd_stack(self):
+        '''
+        Return the command to run the application.
+        '''
+        return self.cmd_stack
 
     def get_section_sizes(self):
         '''
