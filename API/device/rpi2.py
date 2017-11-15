@@ -68,28 +68,31 @@ class Device(base.DeviceBase):
 
         # Clean up in the remote folder.
         self.ssh.exec_command('rm -f ' + rpath_app)
-        self.ssh.exec_command('rm -f ' + rpath_app_stack)
         self.ssh.exec_command('rm -f ' + rpath_testsuite)
         self.ssh.exec_command('rm -f ' + rpath_freya)
         self.ssh.exec_command('rm -f ' + rpath_resources)
-
         self.ssh.exec_command('rm -rf ' + self.get_test_path())
 
         # Send the application, the testsuite, the valgrind and the resource files.
         self.ssh.send_file(lpath_app, rpath_app)
-        self.ssh.send_file(lpath_app_stack, rpath_app_stack)
         self.ssh.send_file(lpath_testsuite, rpath_testsuite)
         self.ssh.send_file(lpath_freya, rpath_freya)
         self.ssh.send_file(lpath_resources, rpath_resources)
 
         # Let the iotjs to be runnable and extract the tests and valgrind files.
         self.ssh.exec_command('chmod 770 ' + rpath_app)
-        self.ssh.exec_command('chmod 770 ' + rpath_app_stack)
         self.ssh.exec_command('mkdir ' + self.get_test_path())
         self.ssh.exec_command('mkdir ' + utils.join(self.remote_path, 'valgrind_freya'))
         self.ssh.exec_command('tar -xmf ' + rpath_testsuite + ' -C ' + self.get_test_path())
         self.ssh.exec_command('tar -xmf ' + rpath_freya + ' -C ' + utils.join(self.remote_path, 'valgrind_freya'))
         self.ssh.exec_command('tar -xmf ' + rpath_resources + ' -C ' + self.remote_path)
+
+        # Note: stack measurement is only supported for iotjs.
+        if app.get_name() == 'iotjs':
+            self.ssh.exec_command('rm -f ' + rpath_app_stack)
+            self.ssh.send_file(lpath_app_stack, rpath_app_stack)
+            self.ssh.exec_command('chmod 770 ' + rpath_app_stack)
+
 
     def reset(self):
         '''
@@ -119,15 +122,18 @@ class Device(base.DeviceBase):
 
         # Make HTML friendly stdout.
         result['output'] = result['output'].rstrip('\n').replace('\n', '<br>')
+        result['stack_peak'] = 'n/a'
 
-        # Stack usage measurement
-        command = command_template.format(root=self.remote_path,
-                                          cwd=self.get_test_path(),
-                                          app=utils.join(self.remote_path, cmd_stack),
-                                          file=''.join(args))
+        # Note: stack measurement is only supported for iotjs.
+        if app.get_name() == 'iotjs':
+            # Stack usage measurement
+            command = command_template.format(root=self.remote_path,
+                                              cwd=self.get_test_path(),
+                                              app=utils.join(self.remote_path, cmd_stack),
+                                              file=''.join(args))
 
-        stdout_stack = self.ssh.exec_command(command)
-        result_stack = json.loads(stdout_stack)
-        result['stack_peak'] = result_stack['stack']
+            stdout_stack = self.ssh.exec_command(command)
+            result_stack = json.loads(stdout_stack)
+            result['stack_peak'] = result_stack['stack']
 
         return result

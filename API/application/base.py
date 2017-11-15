@@ -54,6 +54,12 @@ class ApplicationBase(object):
         '''
         raise NotImplementedError('Use the concrete subclasses.')
 
+    def get_image_stack(self):
+        '''
+        Return the path to the binary.
+        '''
+        raise NotImplementedError('Use the concrete subclasses.')
+
     def get_home_dir(self):
         '''
         Return the path to the application files.

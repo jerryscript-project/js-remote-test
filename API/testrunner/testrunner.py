@@ -203,13 +203,16 @@ class TestRunner(object):
                     stack_peak = result['stack_peak']
                     total_peak = utils.to_int(jerry_peak) + utils.to_int(malloc_peak) + utils.to_int(stack_peak)
 
-                    testresult['memory'] = {
-                        'jerry': jerry_peak,
-                        'malloc': malloc_peak,
-                        'stack': stack_peak,
-                        'total': total_peak
-                    }
-
+                    if app.get_name() == 'iotjs':
+                        testresult['memory'] = {
+                            'jerry': jerry_peak,
+                            'malloc': malloc_peak,
+                            'stack': stack_peak,
+                            'total': total_peak
+                        }
+                    # JerryScript supports only jerry-heap data.
+                    elif app.get_name() == 'jerryscript':
+                        testresult['memory'] = jerry_peak
                 else:
                     reporter.report_fail(test['name'])
                     testresult['result'] = 'fail'

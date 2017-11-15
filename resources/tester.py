@@ -125,7 +125,12 @@ def run_jerry(options):
 
     output = output.rsplit("Heap stats",1)[0]
 
-    return { 'exitcode': exitcode, 'output': output, 'mempeak': mempeak }
+    return {
+        'exitcode': exitcode,
+        'output': output,
+        'jerry_peak_alloc': mempeak,
+        'malloc_peak': 'n/a'
+    }
 
 
 def run_iotjs(options):
