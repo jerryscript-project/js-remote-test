@@ -125,7 +125,7 @@ class Application(base.ApplicationBase):
 
         if device.get_type() == 'stm32f4dis':
             build_flags.append('--target-board=%s' % device.get_type())
-            build_flags.append('--jerry-heaplimit=78')
+            build_flags.append('--jerry-heaplimit=56')
             build_flags.append('--no-parallel-build')
             build_flags.append('--nuttx-home=%s' % paths.NUTTX_PATH)
             build_flags.append('--profile=%s' % utils.join(paths.IOTJS_TEST_PROFILES_PATH,
