@@ -37,11 +37,17 @@ class Application(base.ApplicationBase):
         '''
         return utils.join(paths.IOTJS_BUILD_STACK_PATH, 'iotjs') % self.buildtype
 
-    def get_mapfile(self):
+    def get_target_profile_mapfile(self):
         '''
-        Return the path to the map file.
+        Return the path to the target profile map file.
         '''
-        return paths.IOTJS_MAP_FILE_PATH
+        return paths.IOTJS_TARGET_MAP_FILE_PATH
+
+    def get_minimal_profile_mapfile(self):
+        '''
+        Return the path to the minimal profile map file.
+        '''
+        return paths.IOTJS_MINIMAL_MAP_FILE_PATH
 
     def get_home_dir(self):
         '''
@@ -111,59 +117,67 @@ class Application(base.ApplicationBase):
         # prebuild the OS
         os = device.get_os()
         os.prebuild(self)
+
         utils.rmtree(paths.IOTJS_MAP_DIR_PATH)
+        utils.mkdir(paths.IOTJS_MAP_DIR_PATH)
 
         build_flags = [
             '--clean',
             '--buildtype=%s' % self.buildtype,
             '--target-arch=arm',
+            '--target-os=%s' % os.get_name(),
         ]
 
-        # The following builds are target specific with memory usage features.
-        # Specify target os.
-        build_flags.append('--target-os=%s' % os.get_name())
-
+        # Step 1: Set the appropriate build flags for the targets.
         if device.get_type() == 'stm32f4dis':
             build_flags.append('--target-board=%s' % device.get_type())
             build_flags.append('--jerry-heaplimit=56')
             build_flags.append('--no-parallel-build')
             build_flags.append('--nuttx-home=%s' % paths.NUTTX_PATH)
-            build_flags.append('--profile=%s' % utils.join(paths.IOTJS_TEST_PROFILES_PATH,
-                                                           'nuttx.profile'))
 
+            profile = utils.join(paths.IOTJS_TEST_PROFILES_PATH, 'nuttx.profile')
             mapfile = utils.join(paths.NUTTX_PATH, "arch/arm/src/nuttx.map")
 
         elif device.get_type() == 'rpi2':
             build_flags.append('--target-board=%s' % device.get_type())
-            build_flags.append('--profile=%s' % utils.join(paths.IOTJS_TEST_PROFILES_PATH,
-                                                           'rpi2-linux.profile'))
 
+            profile = utils.join(paths.IOTJS_TEST_PROFILES_PATH, 'rpi2-linux.profile')
             mapfile = utils.join(paths.IOTJS_BUILD_PATH % self.buildtype, "../iotjs.map")
 
         elif device.get_type() == 'artik053':
-            build_flags.append('--profile=%s' % utils.join(paths.IOTJS_TEST_PROFILES_PATH,
-                                                           'tizenrt.profile'))
-
+            profile = utils.join(paths.IOTJS_TEST_PROFILES_PATH, 'tizenrt.profile')
             mapfile = utils.join(paths.TIZENRT_BUILD_PATH, "output/bin/tinyara.map")
 
         else:
             console.fail('Non-minimal IoT.js build failed, unsupported '
                          'device (%s)!' % device.get_type())
 
-        # 1. Run the buildscript and measure binary size
-        # For artik053, build IoT.js in os.build.
-        if not device.get_type() == 'artik053':
+        # Step 2: Create minimal profile build for the binary size measurement.
+        build_flags.append('--profile=%s' % paths.IOTJS_MINIMAL_PROFILE_PATH)
+
+        # Note: IoT.js is built by TizenRT in case of artik053.
+        if device.get_type() in ['stm32f4dis', 'rpi2']:
             utils.execute(paths.IOTJS_PATH, 'tools/build.py', build_flags)
 
         os.build(self, self.buildtype, build_flags, 'all')
+        utils.copy_file(mapfile, paths.IOTJS_MINIMAL_MAP_FILE_PATH)
 
-        utils.mkdir(paths.IOTJS_MAP_DIR_PATH)
-        utils.copy_file(mapfile, paths.IOTJS_MAP_FILE_PATH)
+        # Step 3: Create target specific profile build for the binary size measurement.
+        os.prebuild(self)
 
-        # Enable memstat for IoT.js (libtuv, jerryscript, iotjs)
+        build_flags = build_flags[:-1]
+        build_flags.append('--profile=%s' % profile)
+
+        if device.get_type() in ['stm32f4dis', 'rpi2']:
+            utils.execute(paths.IOTJS_PATH, 'tools/build.py', build_flags)
+
+        os.build(self, self.buildtype, build_flags, 'all')
+        utils.copy_file(mapfile, paths.IOTJS_TARGET_MAP_FILE_PATH)
+
+        # Step 4: Create target specific profile with patches for the tests.
         self.__apply_heap_patches(device)
 
-        if not device.get_type() == 'rpi2':
+        if device.get_type() in ['stm32f4dis', 'artik053']:
             self.__apply_stack_patches(device)
 
         os.prebuild(self)
@@ -174,9 +188,7 @@ class Application(base.ApplicationBase):
             build_flags_heap.append('--compile-flag=-g')
             build_flags_heap.append('--jerry-compile-flag=-g')
 
-        # 2. Run the buildscript with memstat or Freya
-        # For artik053, build IoT.js in os.build.
-        if not device.get_type() == 'artik053':
+        if device.get_type() in ['stm32f4dis', 'rpi2']:
             utils.execute(paths.IOTJS_PATH, 'tools/build.py', build_flags_heap)
 
         os.build(self, self.buildtype, build_flags_heap, 'all')

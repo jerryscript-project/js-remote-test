@@ -146,6 +146,9 @@ def mkdir(directory):
     '''
     Create directory.
     '''
+    if exists(directory):
+        return
+
     os.makedirs(directory)
 
 

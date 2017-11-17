@@ -104,9 +104,13 @@ IOTJS_CONFIG_PATH = os.path.join(IOTJS_PATH, 'config')
 # Path to the test profiles folder within iotjs.
 IOTJS_TEST_PROFILES_PATH = os.path.join(IOTJS_PATH, 'test/profiles')
 
+IOTJS_MINIMAL_PROFILE_PATH = os.path.join(IOTJS_PATH, 'profiles/minimal.profile')
+
 IOTJS_MAP_DIR_PATH = os.path.join(IOTJS_PATH, "map")
 
-IOTJS_MAP_FILE_PATH = os.path.join(IOTJS_MAP_DIR_PATH, "iotjs.map")
+IOTJS_MINIMAL_MAP_FILE_PATH = os.path.join(IOTJS_MAP_DIR_PATH, 'minimal_profile.map')
+
+IOTJS_TARGET_MAP_FILE_PATH = os.path.join(IOTJS_MAP_DIR_PATH, 'target_profile.map')
 
 IOTJS_BUILD_STACK_DIR = os.path.join(IOTJS_PATH, 'build_stack')
 

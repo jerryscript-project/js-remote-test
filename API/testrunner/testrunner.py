@@ -82,8 +82,18 @@ class TestRunner(object):
 
         # Create the result.
         bin_sizes = {}
-        if app.get_name() == "iotjs":
-            bin_sizes = utils.get_section_sizes_from_map(app.get_mapfile())
+        if app.get_name() == 'iotjs':
+            target_profile_mapfile = app.get_target_profile_mapfile()
+            minimal_profile_mapfile = app.get_minimal_profile_mapfile()
+
+            target_bin_sizes = utils.get_section_sizes_from_map(target_profile_mapfile)
+            minimal_bin_sizes = utils.get_section_sizes_from_map(minimal_profile_mapfile)
+
+            bin_sizes = {
+                'target_profile': target_bin_sizes,
+                'minimal_profile': minimal_bin_sizes
+            }
+
         else:
             bin_sizes = utils.get_section_sizes(app.get_minimal_image())
 
