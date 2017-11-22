@@ -97,8 +97,7 @@ class Device(base.DeviceBase):
         # Send testrunner command to the device and process its result.
         self.serial.putc('%s %s\n' % (cmd, ' '.join(args).encode('utf8')))
         self.serial.readline()
-        message, stdout = self.serial.read_until(self.serial.get_prompt(),
-            'AssertionError', 'uncaughtException', 'arm_dataabort')
+        message, stdout = self.serial.read_until(self.serial.get_prompt(), 'arm_dataabort')
 
         exitcode = 1
         if message == self.serial.get_prompt():
