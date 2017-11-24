@@ -1,5 +1,5 @@
 diff --git a/src/iotjs.c b/src/iotjs.c
-index 2268425..59e97f4 100644
+index 88a0bd4..d3c7bd3 100644
 --- a/src/iotjs.c
 +++ b/src/iotjs.c
 @@ -28,6 +28,7 @@
@@ -10,21 +10,21 @@ index 2268425..59e97f4 100644
  #include <string.h>
  
  
-@@ -183,8 +184,11 @@ static void iotjs_uv_walk_to_close_callback(uv_handle_t* handle, void* arg) {
-   iotjs_handlewrap_close(handle_wrap, NULL);
+@@ -187,7 +188,11 @@ static jerry_value_t dummy_wait_for_client_source_cb() {
+   return jerry_create_undefined();
  }
  
+-int iotjs_entry(int argc, char** argv) {
 +static int argc;
 +static char **argv;
- 
--int iotjs_entry(int argc, char** argv) {
++
 +static int __attribute__ ((noinline))
 +iotjs_entry_main(void) {
    // Initialize debug print.
    init_debug_settings();
  
-@@ -233,3 +237,52 @@ terminate:
- 
+@@ -257,3 +262,52 @@ terminate:;
+   }
    return ret_code;
  }
 +
