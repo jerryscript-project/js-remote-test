@@ -99,7 +99,7 @@ class TestRunner(object):
 
         result = {
             'bin' : bin_sizes,
-            'date' : utils.get_standardized_date(),
+            'date' : submodules[app.get_name()]['date'],
             'tests' : self.results,
             'submodules' : submodules
         }
@@ -113,7 +113,7 @@ class TestRunner(object):
         if not utils.exists(result_dir):
             utils.mkdir(result_dir)
 
-        result_file_name = result['date'] + '.json'
+        result_file_name = utils.get_standardized_date() + '.json'
         result_file_name = result_file_name.replace(':', '.')
         result_file_path = utils.join(result_dir, result_file_name)
 

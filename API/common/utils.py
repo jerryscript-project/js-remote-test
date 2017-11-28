@@ -296,22 +296,20 @@ def last_commit_info(git_repo_path):
     if git_repo_path == 'linux':
         return info
 
-    output, status_code = execute(git_repo_path, 'git', ['log', '-1'], quiet=True)
+    git_flags = [
+        'log',
+        '-1',
+        '--date=format-local:%Y-%m-%dT%H:%M:%SZ',
+        '--format=%H%n%an <%ae>%n%cd%n%s'
+    ]
 
-    for line in output.splitlines():
-        if line.startswith('commit'):
-            info['commit'] = line.split(' ')[1]
+    output, status_code = execute(git_repo_path, 'git', git_flags, quiet=True)
+    output = output.splitlines()
 
-        elif line.startswith('Author'):
-            info['author'] = ' '.join(line.split(' ')[1:])
-
-        elif line.startswith('Date'):
-                info['date'] = ' '.join(line.split(' ')[1:])
-
-        elif line:
-            # Save only the header of the commit message.
-            info['message'] = line
-            break
+    info['commit'] = output[0] if status_code == 0 else 'n/a'
+    info['author'] = output[1] if status_code == 0 else 'n/a'
+    info['date'] = output[2] if status_code == 0 else 'n/a'
+    info['message'] = output[3] if status_code == 0 else 'n/a'
 
     return info
 
