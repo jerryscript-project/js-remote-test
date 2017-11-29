@@ -128,7 +128,7 @@ class Device(base.DeviceBase):
         self.logout()
 
         # Make HTML friendly stdout.
-        stdout = stdout.replace('\n', '<br>')
+        stdout = stdout.rstrip('\n').replace('\n', '<br>')
 
         return {
             'exitcode': exitcode,

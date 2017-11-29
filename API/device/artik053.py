@@ -136,6 +136,9 @@ class Device(base.DeviceBase):
             # Remove memstat from the output.
             stdout, _ = stdout.split("Heap stats:", 1)
 
+        # Make HTML friendly stdout.
+        stdout = stdout.rstrip('\n').replace('\n', '<br>')
+
         return {
             'exitcode': exitcode,
             'output': stdout,
