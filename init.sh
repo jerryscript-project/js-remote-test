@@ -31,5 +31,5 @@ git -C $PROJECTS_DIR clone -b "nuttx-7.19" https://bitbucket.org/nuttx/apps.git
 git -C $PROJECTS_DIR clone -b "nuttx-7.19" https://bitbucket.org/nuttx/nuttx.git
 git -C $PROJECTS_DIR clone -b "gh-pages" https://github.com/Samsung/js-remote-test.git "iotjs-test-results"
 git -C $PROJECTS_DIR clone -b "gh-pages" https://github.com/jerryscript-project/jerryscript-test-results.git
-git -C $PROJECTS_DIR clone https://github.com/Samsung/TizenRT.git
+git -C $PROJECTS_DIR clone -b "1.1_Public_Release" https://github.com/Samsung/TizenRT.git
 git -C $PROJECTS_DIR clone https://github.com/szeged/Freya.git

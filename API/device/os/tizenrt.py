@@ -23,7 +23,7 @@ class OperatingSystem(base.OperatingSystemBase):
     '''
     def __init__(self):
         super(self.__class__, self).__init__('tizenrt')
-        self.__update_repository()
+        self.__clear_repository()
 
     def get_home_dir(self):
         '''
@@ -37,13 +37,13 @@ class OperatingSystem(base.OperatingSystemBase):
         '''
         return utils.join(paths.TIZENRT_BIN_PATH, 'tinyara.bin')
 
-    def __update_repository(self):
+    def __clear_repository(self):
         '''
-        Update the repository.
+        Clear the repository.
         '''
         utils.execute(paths.TIZENRT_PATH, 'git', ['clean', '-dxf'])
         utils.execute(paths.TIZENRT_PATH, 'git', ['reset', '--hard'])
-        utils.execute(paths.TIZENRT_PATH, 'git', ['pull'])
+        utils.execute(paths.TIZENRT_PATH, 'git', ['checkout', '1.1_Public_Release'])
 
     def __apply_patches(self, app):
         '''
