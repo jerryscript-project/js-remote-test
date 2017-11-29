@@ -114,7 +114,7 @@ class OperatingSystem(base.OperatingSystemBase):
                 utils.copy_file(utils.join(paths.CONFIG_PATH, 'iotjs-tizenrt-release.config'),
                                 utils.join(paths.TIZENRT_OS_PATH, '.config'))
 
-            tizenrt_patch = utils.join(paths.PATCHES_PATH, 'iotjs-tizenrt-%s.diff' % buildtype)
+            tizenrt_patch = utils.join(paths.PATCHES_PATH, 'tizenrt-iotjs-stack.diff')
             utils.patch(paths.IOTJS_PATH, tizenrt_patch, False)
 
             utils.execute(paths.TIZENRT_OS_PATH, 'make', build_options)
