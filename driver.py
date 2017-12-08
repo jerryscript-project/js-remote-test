@@ -21,7 +21,7 @@ def parse_options():
     '''
     Parse the given options.
     '''
-    parser = argparse.ArgumentParser('Remote testrunner for microcontrollers')
+    parser = argparse.ArgumentParser(description='Remote testrunner for microcontrollers')
 
     parser.add_argument('--app', choices=['iotjs', 'jerryscript'], default='iotjs',
                         help='the target application (default: %(default)s)')

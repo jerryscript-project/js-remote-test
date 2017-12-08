@@ -22,7 +22,7 @@ from API.common import console, paths, utils
 
 class Device(base.DeviceBase):
     '''
-    Device class for the stm32f4-discovery board.
+    Device class for the rpi2 board.
     '''
     def __init__(self, options):
         super(self.__class__, self).__init__('rpi2', remote_path=options.remote_path)

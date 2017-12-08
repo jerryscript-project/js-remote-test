@@ -89,7 +89,6 @@ class Device(base.DeviceBase):
         Run commands for the given app on the board.
         '''
         cmd = app.get_cmd()
-        cmd_stack = app.get_cmd_stack()
 
         self.reset()
         self.login()
