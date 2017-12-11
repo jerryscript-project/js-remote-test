@@ -31,12 +31,6 @@ class Application(base.ApplicationBase):
         '''
         return utils.join(paths.IOTJS_BUILD_PATH, 'iotjs') % self.buildtype
 
-    def get_image_stack(self):
-        '''
-        Return the path to the stack binary.
-        '''
-        return utils.join(paths.IOTJS_BUILD_STACK_PATH, 'iotjs') % self.buildtype
-
     def get_target_profile_mapfile(self):
         '''
         Return the path to the target profile map file.
@@ -176,14 +170,13 @@ class Application(base.ApplicationBase):
 
         # Step 4: Create target specific profile with patches for the tests.
         self.__apply_heap_patches(device)
-
-        if device.get_type() in ['stm32f4dis', 'artik053']:
-            self.__apply_stack_patches(device)
+        self.__apply_stack_patches(device)
 
         os.prebuild(self)
 
         build_flags_heap = list(build_flags)
         build_flags_heap.append('--jerry-memstat')
+
         if device.get_type() == 'rpi2':
             build_flags_heap.append('--compile-flag=-g')
             build_flags_heap.append('--jerry-compile-flag=-g')
@@ -195,13 +188,6 @@ class Application(base.ApplicationBase):
 
         # Revert all the memstat patches from the project.
         self.__apply_heap_patches(device, revert=True)
-
-        # Build the application to stack consumption check
-        if device.get_type() == 'rpi2':
-            self.__apply_stack_patches(device)
-            build_flags.append('--builddir=%s' % paths.IOTJS_BUILD_STACK_DIR)
-            utils.execute(paths.IOTJS_PATH, 'tools/build.py', build_flags)
-
         self.__apply_stack_patches(device, revert=True)
 
 

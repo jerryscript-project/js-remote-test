@@ -21,7 +21,6 @@ class ApplicationBase(object):
     def __init__(self, name, cmd, options):
         self.name = name
         self.cmd = cmd
-        self.cmd_stack = cmd + '_stack'
         self.buildtype = options.buildtype
 
     def get_name(self):
@@ -36,12 +35,6 @@ class ApplicationBase(object):
         '''
         return self.cmd
 
-    def get_cmd_stack(self):
-        '''
-        Return the command to run the application.
-        '''
-        return self.cmd_stack
-
     def get_section_sizes(self):
         '''
         Returns the sizes of the main sections.
@@ -49,12 +42,6 @@ class ApplicationBase(object):
         raise NotImplementedError('Use the concrete subclasses.')
 
     def get_image(self):
-        '''
-        Return the path to the binary.
-        '''
-        raise NotImplementedError('Use the concrete subclasses.')
-
-    def get_image_stack(self):
         '''
         Return the path to the binary.
         '''

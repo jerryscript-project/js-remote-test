@@ -148,17 +148,24 @@ def run_iotjs(options):
     # 1. Run IoT.js without Freya to get its output and exit value.
     output, exitcode = execute(options.cwd, options.cmd, ['--memstat', options.testfile])
 
-    if output.rfind('Heap stat') != -1:
-        output, jerry_memstat = output.rsplit("Heap stats", 1)
+    jerry_peak_alloc = 'n/a'
+    stack_peak = 'n/a'
 
-        match = re.search(r'Peak allocated = (\d+) bytes', str(jerry_memstat))
+    if output.find('Heap stats:') != -1:
+        # Process jerry-memstat output.
+        match = re.search(r'Peak allocated = (\d+) bytes', str(output))
 
         if match:
             jerry_peak_alloc = int(match.group(1))
-        else:
-            jerry_peak_alloc = 'n/a'
-    else:
-        jerry_peak_alloc = 'n/a'
+
+        # Process stack usage output.
+        match = re.search(r'Stack usage: (\d+)', str(output))
+
+        if match:
+            stack_peak = int(match.group(1))
+
+        # Remove memstat from the output.
+        output, _ = output.split("Heap stats:", 1)
 
     # 2. Update the configuration file of Freya:
     ldd_output, _ = execute(options.cwd, 'ldd', ['--version'])
@@ -177,7 +184,8 @@ def run_iotjs(options):
         'exitcode': exitcode,
         'output': output,
         'jerry_peak_alloc': jerry_peak_alloc,
-        'malloc_peak': malloc_peak
+        'malloc_peak': malloc_peak,
+        'stack_peak': stack_peak
     }
 
 
@@ -228,9 +236,6 @@ def main():
 
     if arguments.cmd.endswith('jerry'):
         results = run_jerry(arguments)
-
-    if arguments.cmd.endswith('_stack'):
-        results = check_stack_usage(arguments, 'Stack usage: ')
 
     # Don't remove this print function. The result will be on the
     # SSH socket when testing remotely.

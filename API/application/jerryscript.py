@@ -32,12 +32,6 @@ class Application(base.ApplicationBase):
         '''
         return utils.join(paths.JERRY_BUILD_PATH, 'jerry')
 
-    def get_image_stack(self):
-        '''
-        Return the path to the stack binary.
-        '''
-        return 0
-
     def get_minimal_image(self):
         '''
         Return the path to the disable-features build.

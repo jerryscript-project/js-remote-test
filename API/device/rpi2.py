@@ -46,11 +46,9 @@ class Device(base.DeviceBase):
         Send the application and the testsuite to the device with SFTP.
         '''
         lpath_app = app.get_image()
-        lpath_app_stack = app.get_image_stack()
         lpath_testsuite = utils.make_archive(app.get_test_dir(), 'tar')
 
         rpath_app = utils.join(self.remote_path, app.get_cmd())
-        rpath_app_stack = utils.join(self.remote_path, app.get_cmd_stack())
         rpath_testsuite = utils.join(self.remote_path, 'test.tar')
 
         # Freya cross build.
@@ -87,13 +85,6 @@ class Device(base.DeviceBase):
         self.ssh.exec_command('tar -xmf ' + rpath_freya + ' -C ' + utils.join(self.remote_path, 'valgrind_freya'))
         self.ssh.exec_command('tar -xmf ' + rpath_resources + ' -C ' + self.remote_path)
 
-        # Note: stack measurement is only supported for iotjs.
-        if app.get_name() == 'iotjs':
-            self.ssh.exec_command('rm -f ' + rpath_app_stack)
-            self.ssh.send_file(lpath_app_stack, rpath_app_stack)
-            self.ssh.exec_command('chmod 770 ' + rpath_app_stack)
-
-
     def reset(self):
         '''
         Since the SSH library stops the process in case of timeout, don't need any reset.
@@ -104,15 +95,11 @@ class Device(base.DeviceBase):
         '''
         Run commands for the given app on the board.
         '''
-        cmd = app.get_cmd()
-        cmd_stack = app.get_cmd_stack()
-
-        # Heap measurement
         command_template = 'python {root}/tester.py --cwd {cwd} --cmd {app} --testfile {file}'
 
         command = command_template.format(root=self.remote_path,
                                           cwd=self.get_test_path(),
-                                          app=utils.join(self.remote_path, cmd),
+                                          app=utils.join(self.remote_path, app.get_cmd()),
                                           file=''.join(args))
 
         stdout = self.ssh.exec_command(command)
@@ -122,18 +109,5 @@ class Device(base.DeviceBase):
 
         # Make HTML friendly stdout.
         result['output'] = result['output'].rstrip('\n').replace('\n', '<br>')
-        result['stack_peak'] = 'n/a'
-
-        # Note: stack measurement is only supported for iotjs.
-        if app.get_name() == 'iotjs':
-            # Stack usage measurement
-            command = command_template.format(root=self.remote_path,
-                                              cwd=self.get_test_path(),
-                                              app=utils.join(self.remote_path, cmd_stack),
-                                              file=''.join(args))
-
-            stdout_stack = self.ssh.exec_command(command)
-            result_stack = json.loads(stdout_stack)
-            result['stack_peak'] = result_stack['stack']
 
         return result
