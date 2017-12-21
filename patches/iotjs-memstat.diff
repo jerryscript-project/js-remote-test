@@ -1,5 +1,5 @@
 diff --git a/src/iotjs.c b/src/iotjs.c
-index 88a0bd4..194545e 100644
+index dd2c5b8..fb6567a 100644
 --- a/src/iotjs.c
 +++ b/src/iotjs.c
 @@ -252,6 +252,9 @@ terminate:;
@@ -13,10 +13,10 @@ index 88a0bd4..194545e 100644
      return iotjs_entry(argc, argv);
    }
 diff --git a/src/iotjs_util.c b/src/iotjs_util.c
-index be0e78f..d2a4335 100644
+index be0e78f..5ef83e7 100644
 --- a/src/iotjs_util.c
 +++ b/src/iotjs_util.c
-@@ -63,21 +63,99 @@ iotjs_string_t iotjs_file_read(const char* path) {
+@@ -63,21 +63,98 @@ iotjs_string_t iotjs_file_read(const char* path) {
    return contents;
  }
  
@@ -94,7 +94,8 @@ index be0e78f..d2a4335 100644
  char* iotjs_buffer_reallocate(char* buffer, size_t size) {
    IOTJS_ASSERT(buffer != NULL);
 -  return (char*)(realloc(buffer, size));
-+
+-}
+ 
 +  size_t old_size;
 +  memcpy(&old_size, (buffer - SIZEOF_MM_ALLOCNODE), sizeof(size_t));
 +  mem_stat_free(old_size - SIZEOF_MM_ALLOCNODE);
@@ -106,8 +107,7 @@ index be0e78f..d2a4335 100644
 +  mem_stat_alloc(new_size - SIZEOF_MM_ALLOCNODE);
 +
 +  return ptr;
- }
- 
++}
  
  void iotjs_buffer_release(char* buffer) {
 +  size_t size;
