@@ -129,7 +129,8 @@ def run_jerry(options):
         'exitcode': exitcode,
         'output': output,
         'jerry_peak_alloc': mempeak,
-        'malloc_peak': 'n/a'
+        'malloc_peak': 'n/a',
+        'stack_peak': 'n/a'
     }
 
 
