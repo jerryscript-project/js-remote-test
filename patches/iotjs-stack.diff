@@ -1,5 +1,5 @@
 diff --git a/src/iotjs.c b/src/iotjs.c
-index 88a0bd4..3f0d343 100644
+index e204f59..01347ab 100644
 --- a/src/iotjs.c
 +++ b/src/iotjs.c
 @@ -28,6 +28,7 @@
@@ -10,7 +10,7 @@ index 88a0bd4..3f0d343 100644
  #include <string.h>
  
  
-@@ -187,7 +188,11 @@ static jerry_value_t dummy_wait_for_client_source_cb() {
+@@ -186,7 +187,11 @@ static jerry_value_t dummy_wait_for_client_source_cb() {
    return jerry_create_undefined();
  }
  
@@ -20,10 +20,10 @@ index 88a0bd4..3f0d343 100644
 +
 +static int __attribute__ ((noinline))
 +iotjs_entry_main(void) {
-   // Initialize debug print.
-   init_debug_settings();
+   int ret_code = 0;
  
-@@ -257,3 +262,62 @@ terminate:;
+   // Initialize IoT.js
+@@ -252,3 +257,62 @@ terminate:;
    }
    return ret_code;
  }
