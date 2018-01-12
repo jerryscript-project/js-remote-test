@@ -42,7 +42,7 @@ import logging
 import json
 import re
 
-logging.basicConfig(level=logging.WARNING)
+logging.basicConfig(level=logging.ERROR)
 log = logging.getLogger(__name__)
 
 def load_map_data(filepath):
