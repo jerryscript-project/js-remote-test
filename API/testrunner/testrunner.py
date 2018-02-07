@@ -18,50 +18,12 @@ import pyrebase
 from API.common import paths, reporter, utils
 
 
-TEST_RESULTS_WEB_PATH = {
-    "jerryscript" : paths.JERRY_TEST_RESULTS_WEB_PATH,
-    "iotjs" : paths.IOTJS_TEST_RESULTS_WEB_PATH
-}
-
-
 class TestRunner(object):
     '''
     Base class for the concrete target testrunners.
     '''
     def __init__(self):
         self.results = []
-
-    def __update_status_icon(self, app_name, device_type):
-        '''
-        Update the status icon.
-        '''
-        results_web_path = TEST_RESULTS_WEB_PATH[app_name]
-        if not utils.exists(results_web_path):
-            return
-
-        utils.execute(results_web_path, 'git', ['pull', 'origin', 'gh-pages'])
-        status = 'passing'
-        for test in self.results:
-            if test['result'] == 'fail':
-                status = 'failing'
-                break
-
-        current_status_icon = utils.join(results_web_path, 'status', '%s.svg' % device_type)
-
-        if not utils.exists(current_status_icon):
-            return
-
-        with open(current_status_icon) as file:
-            if status in file.read():
-                return
-
-        image = 'pass.svg' if status is 'passing' else 'fail.svg'
-        copied_status_icon = utils.join(results_web_path, 'img', image)
-        utils.copy_file(copied_status_icon, current_status_icon)
-
-        utils.execute(results_web_path, 'git', ['add', current_status_icon])
-        utils.execute(results_web_path, 'git', ['commit', '-m', 'Update the status badge.'])
-        utils.execute(results_web_path, 'git', ['push'])
 
     def __save(self, app, device, is_publish):
         '''
@@ -125,10 +87,10 @@ class TestRunner(object):
 
         # Publish results to firebase
 
-        user = utils.get_environment('FIREBASE_USER')
+        email = utils.get_environment('FIREBASE_USER')
         pwd =  utils.get_environment('FIREBASE_PWD')
 
-        if not (pwd and user):
+        if not (pwd and email):
             return
 
         config = {
@@ -142,14 +104,32 @@ class TestRunner(object):
         auth = firebase.auth()
         db = firebase.database()
 
-        user = auth.sign_in_with_email_and_password(user, pwd)
 
         with open(result_file_path) as result_file:
             result_data = json.load(result_file)
+            user = auth.sign_in_with_email_and_password(email, pwd)
+
             db.child(app.get_name() + '/' + device_dir).push(result_data, user['idToken'])
 
             # Update the status icon after upload was successful.
-            self.__update_status_icon(app.get_name(), device.get_type())
+            status = 'passed'
+            for test in self.results:
+                if test['result'] == 'fail':
+                    status = 'failed'
+                    break
+
+            # The storage service allows to upload images to Firebase.
+            storage = firebase.storage()
+
+            # Download the corresponding status badge.
+            storage_status_path = 'status/%s.svg' % status
+            storage.child(storage_status_path).download("status.svg")
+
+            # Upload the status badge for the appropriate app-device pair.
+            storage_badge_path = 'status/%s/%s.svg' % (app.get_name(), device.get_type())
+            storage.child(storage_badge_path).put("status.svg", user['idToken'])
+
+            utils.remove_file("status.svg")
 
     def __run_test_on_device(self, app, device, testset, test):
         '''

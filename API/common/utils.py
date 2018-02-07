@@ -223,6 +223,16 @@ def rmtree(path):
         shutil.rmtree(path)
 
 
+def remove_file(filename):
+    '''
+    Remove the given file.
+    '''
+    try:
+        os.remove(filename)
+    except OSError:
+        pass
+
+
 def get_section_sizes_from_map(mapfile):
     '''
     Returns the sizes of the main sections.

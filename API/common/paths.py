@@ -39,14 +39,6 @@ TOOLS_PATH = os.path.join(PROJECT_ROOT, 'tools')
 RESOURCES_PATH = os.path.join(PROJECT_ROOT, 'resources')
 
 #
-# ================ Web related projects ================
-#
-
-IOTJS_TEST_RESULTS_WEB_PATH = os.path.join(PROJECTS_ROOT, 'iotjs-test-results')
-
-JERRY_TEST_RESULTS_WEB_PATH = os.path.join(PROJECTS_ROOT, 'jerryscript-test-results')
-
-#
 # ================ IoT.js ================
 #
 
