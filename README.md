@@ -1,6 +1,6 @@
 # Remote testing environment
 
-The main goal of the project is to run IoT.js and JerryScript tests on low footprint devices such as STM32F4-Discovery reference board. Since the size of the volatile memory (SRAM) can be very limited, the testing happens remotely. This means that the main control flow (test selection, output processing) happens on the host side and just the test execution happens on the device side. The communication is established over `serial port` or `SSH`.
+The main goal of the project is to run IoT.js and JerryScript tests on low footprint devices such as STM32F4-Discovery reference board. Since the size of the volatile memory (SRAM) can be very limited, the testing happens remotely. This means that the main control flow (test selection, output processing) happens on the host side and just the test execution happens on the device side. The communication is established over serial port or SSH.
 <br />
 
 The following table shows the supported devices and applications:
@@ -12,117 +12,119 @@ The following table shows the supported devices and applications:
 | Artik053                               | &#128504; |  &#128504;  |
 <br />
 
-In the first step, all the dependencies should be installed:
+In the first step, all the dependencies should be installed:  
+**Note**: minimum system requirement for Ubuntu: 16.04
 
-(Note: Ubuntu 14.04 LTS is not supported, please use 16.04 LTS)
-
-```
-# Install missing packages
+```sh
+# Assuming you are in the remote testrunner folder.
 $ bash install-deps.sh
-
-# Download subprojects
-$ bash init.sh
-```
-<br />
-
-### Set up STM32F4-Discovery board to test
-
-In case of the stm32f4-discovery devices the communication happens over the serial port. That is why a `miniusb` (flashing) and a `microusb` (serial communication) cables are needed. There are prepared NuttX configuration files in the `config` folder that contain all the settings that is required.
-
-#### Flash the device without root permission
-
-In order to flash the binary onto the board without the system requires root permission, copy the `49-stlinkv2.rules` to `/etc/udev/rules.d/`.
-
-```
-$ sudo cp projects/stlink/etc/udev/rules.d/49-stlinkv2.rules /etc/udev/rules.d/
 ```
 
-(Source: https://github.com/texane/stlink/blob/master/doc/compiling.md#permissions-with-udev)
+### Set up STM32F4-Discovery
 
-#### Read/write serial without root permission
+In case of the stm32f4-discovery devices the communication happens over the serial port. That is why a `miniusb` (flashing) and a `microusb` (serial communication) cables are needed.
 
-Since the board is restarted at every test, the serial device id could change (from `/dev/ttyACM0` to `/dev/ttyACM1`) during testing. To eliminate this side effect, a permanent serial id should be created for the device:
+#### Eliminate root permission and use permanent device ID
 
-http://hintshop.ludvig.co.nz/show/persistent-names-usb-serial-devices/
+By default, unknown devices require root permission to use them. On UNIX systems, udev rule files help to add permissions and symbolic links to the devices. ST-Link already has a pre-defined rule file that should be copied to the udev folder. This helps to flash the device without root permission.
 
-You need to complete the previously created udev rule with `MODE="0666"` to allow the member of others (like us) to read/write the serial device without root permission, because it is required normally.
-
-So your udev ruleset should look like this:
-```
-SUBSYSTEM=="tty", ATTRS{idVendor}=="<your vendor id>", ATTRS{idProduct}=="<your product id>", MODE="0666", SYMLINK+="STM32F4"
+```sh
+# Assuming you are in the remote testrunner folder.
+$ sudo cp deps/stlink/etc/udev/rules.d/49-stlinkv2.rules /etc/udev/rules.d/
 ```
 
-Now you can refer to the device as `/dev/STM32F4`.
+It is needed to create an other udev file for the serial communication. The rules of the file should allow the member of others (like us) to read/write the serial device without root permission. Furthermore, the board is restarted at every test, so the serial device id could change (from /dev/ttyACM0 to /dev/ttyACM1) during testing. This can be eliminated, if a symbolic link could be used to identify the device.
 
-<br />
+```sh
+cat >> /etc/udev/rules.d/99-udev.rules << EOL
+SUBSYSTEM=="tty", ATTRS{idVendor}=="0525", ATTRS{idProduct}=="a4a7", MODE="0666", SYMLINK+="STM32F4"
+EOL
+```
 
-### Set up Raspberry Pi 2 to test
+Sources:
+  * https://github.com/texane/stlink/blob/master/doc/compiling.md#permissions-with-udev
+  * http://hintshop.ludvig.co.nz/show/persistent-names-usb-serial-devices/
+
+### Set up Raspberry Pi 2
 
 Raspberry devices should have a UNIX based operating system, like Raspbian Jessie. Since the communication happens over `SSH`, an ssh server should be installed on the device:
 
-```
+```sh
+# Assuming you are on the device.
 pi@raspberrypi $ sudo apt-get install openssh-server
 ```
 
 After that, Raspberry devices can handle ssh connections. In order to avoid the authentication every time, you should create an ssh key (on your desktop) and share the public key with the device:
 
-```
+```sh
+# Assuming you are on the host.
 user@desktop $ ssh-keygen -t rsa
 user@desktop $ ssh-copy-id pi@address
 ```
 
 Since Raspberry devices have much more resources than microcontrollers, it is possible to use other programs to get more precise information from the tested application (iotjs, jerry). Such a program is the Freya tool of Valgrind, that monitors the memory management and provides information about the memory usage.
 
-<br />
+### Set up ARTIK 053
 
-### Set up Artik053 board to test
+In case of the ARTIK 053 devices, the communication happens over the serial port. You only need a `microusb` cable in order to test. Use udev rule files to define the appropriate permissions and symbolic link for the device (like in case of STM32F4-Discovery):
 
-In case of the artik053 devices, the communication happens over the serial port. You only need a `microusb` cable in order to test. To handle the device without root permission, please follow the `STM32F4-Discovery` [flash](#flash-the-device-without-root-permission) and [read/write](#readwrite-serial-without-root-permission) sections.
+```sh
+cat >> /etc/udev/rules.d/99-udev.rules << EOL
+SUBSYSTEMS=="usb",ATTRS{idVendor}=="0403",ATTRS{idProduct}=="6010",SYMLINK+="ARTIK053",MODE="0666" RUN+="/sbin/modprobe ftdi_sio" RUN+="/bin/sh -c 'echo 0403 6010 > /sys/bus/usb-serial/drivers/ftdi_sio/new_id'"
+EOL
+```
 
-<br />
+Source:
+  * https://github.com/Samsung/TizenRT/blob/master/build/configs/artik053/README.md#add-usb-device-rules
+
+
 
 ### Start testrunner
 
 On the host side, it is enough to run the `driver.py` file.
 
-```
+```sh
+# Assuming you are in the remote testrunner folder.
 $ python driver.py
 ```
 
 ### Testrunner parameters:
 
-```
+```sh
 --app
   Defines the application to test {iotjs, jerryscript}.
 
---branch
-  Defines the application branch that should be tested.
+--app-path
+  Defines the path to the application project.
 
 --buildtype
   Defines the buildtype for the projects {release, debug}. Just for debugging.
-
---commit
-  Defines the application commit that should be tested.
 
 --device
   Defines the target device {stm32f4dis, rpi2, artik053}.
 
 --public
-  Publish the test results to the web projects.
-  https://samsung.github.io/iotjs-test-results/
-  https://jerryscript-project.github.io/jerryscript-test-results/
-  Set the required environment variables (FIREBASE_USER, FIREBASE_PWD).
-  ```
+  Publish the test results to the public database.
+  This option requires a username and a password pairs that the contributors maintain.
+  These information should be set by environment variables:
+
   $ export FIREBASE_USER="your_user_email"
   $ export FIREBASE_PWD="your_user_password"
-  ```
-
---remote-path
-  When the operating system is provided (e.g. in case of Raspberry),
-  you should define, which folder contains the helper scripts to test.
 
 --timeout
   Defines a time (in seconds) when to restart the device.
+
+--no-build
+  Do not build the projects.
+
+--no-profile-build
+  Do not build the different profiles.
+
+--no-flash
+  Do not flash the device.
+
+--no-test
+  Do not test.
 
 SSH communication:
 
@@ -131,6 +133,9 @@ SSH communication:
 
 --address
   IP(v4) address of the device.
+
+--remote-workdir
+  Defines the working direcory where the testing happens.
 
 Serial communication:
 
@@ -144,12 +149,12 @@ Serial communication:
 ### Examples to run tests
 
 ```
-$ python driver.py --device stm32f4dis --app iotjs --port /dev/ttyACM0 --baud 115200
-$ python driver.py --device stm32f4dis --app jerryscript --port /dev/ttyACM0 --baud 115200
-$ python driver.py --device rpi2 --app iotjs --address a.b.c.d --username pi --remote-path /home/pi/testrunner
-$ python driver.py --device rpi2 --app jerryscript --address a.b.c.d --username pi --remote-path /home/pi/testrunner
-$ python driver.py --device artik053 --app iotjs --port /dev/ttyUSB1 --baud 115200
-$ python driver.py --device artik053 --app jerryscript --port /dev/ttyUSB1 --baud 115200
+$ python driver.py --device stm32f4dis --app iotjs --port /dev/STM32F4 --baud 115200
+$ python driver.py --device stm32f4dis --app jerryscript --port /dev/STM32F4 --baud 115200
+$ python driver.py --device rpi2 --app iotjs --address a.b.c.d --username pi --remote-workdir /home/pi/testrunner
+$ python driver.py --device rpi2 --app jerryscript --address a.b.c.d --username pi --remote-workdir /home/pi/testrunner
+$ python driver.py --device artik053 --app iotjs --port /dev/ARTIK053 --baud 115200
+$ python driver.py --device artik053 --app jerryscript --port /dev/ARTIK053 --baud 115200
 ```
 
 All the results are written into JSON files that are found in a `results` folder. Name of the output files are datetime with the following format:

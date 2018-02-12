@@ -20,122 +20,34 @@ ROOT_FOLDER = os.path.join(os.path.dirname(__file__), '../..')
 # Root directory of the project (abs path).
 PROJECT_ROOT = os.path.abspath(ROOT_FOLDER)
 
-# Files for the NuttX/TizenRT measurement.
-CONFIG_PATH = os.path.join(PROJECT_ROOT, 'config')
-
-# Folder where the submodules can be found.
-PROJECTS_ROOT = os.path.join(PROJECT_ROOT, 'projects')
-
-# Folder where the necessary patch files can be found.
-PATCHES_PATH = os.path.join(PROJECT_ROOT, 'patches')
-
-# Folder where the results can be found.
-OUTPUT_PATH = os.path.join(PROJECT_ROOT, 'results')
-
-# Scripts for the js-remote-test project.
-TOOLS_PATH = os.path.join(PROJECT_ROOT, 'tools')
-
-# Files for the RPi2 measurement.
-RESOURCES_PATH = os.path.join(PROJECT_ROOT, 'resources')
-
 #
-# ================ IoT.js ================
+# ================================
 #
 
-IOTJS_PATH = os.path.join(PROJECTS_ROOT, 'iotjs')
+API_PATH = os.path.join(PROJECT_ROOT, 'API')
 
-IOTJS_APPS_PATH = os.path.join(IOTJS_PATH, 'config/nuttx/stm32f4dis/app/')
+BUILD_PATH = os.path.join(PROJECT_ROOT, 'build')
 
-IOTJS_BUILD_PATH = os.path.join(IOTJS_PATH, 'build/arm-linux/%s/bin')
-
-IOTJS_TEST_PATH = os.path.join(IOTJS_PATH, 'test')
-
-IOTJS_LIBTUV_PATH = os.path.join(IOTJS_PATH, 'deps/libtuv')
-
-IOTJS_JERRY_PATH = os.path.join(IOTJS_PATH, 'deps/jerry')
-
-IOTJS_TEST_PROFILES_PATH = os.path.join(IOTJS_PATH, 'test/profiles')
-
-IOTJS_MINIMAL_PROFILE_PATH = os.path.join(IOTJS_PATH, 'profiles/minimal.profile')
-
-IOTJS_MAP_DIR_PATH = os.path.join(IOTJS_PATH, "map")
-
-IOTJS_MINIMAL_MAP_FILE_PATH = os.path.join(IOTJS_MAP_DIR_PATH, 'minimal_profile.map')
-
-IOTJS_TARGET_MAP_FILE_PATH = os.path.join(IOTJS_MAP_DIR_PATH, 'target_profile.map')
-
-IOTJS_BUILD_STACK_DIR = os.path.join(IOTJS_PATH, 'build_stack')
-
-IOTJS_BUILD_STACK_PATH = os.path.join(IOTJS_BUILD_STACK_DIR, 'arm-linux/%s/bin/')
+RESULT_PATH = os.path.join(PROJECT_ROOT, 'results')
 
 #
-# ================ Stlink ================
+# ================================
 #
 
-STLINK_PATH = os.path.join(PROJECTS_ROOT, 'stlink')
+RESOURCES_PATH = os.path.join(API_PATH, 'resources')
 
-STLINK_BUILD_PATH = os.path.join(STLINK_PATH, 'build/Release/')
+RESOURCES_JSON = os.path.join(RESOURCES_PATH, 'resources.json')
 
-#
-# ================ NuttX ================
-#
+CONFIG_PATH = os.path.join(RESOURCES_PATH, 'configs')
 
-NUTTX_PATH = os.path.join(PROJECTS_ROOT, 'nuttx')
+PATCHES_PATH = os.path.join(RESOURCES_PATH, 'patches')
 
-NUTTX_TOOLS_PATH = os.path.join(NUTTX_PATH, 'tools')
+FREYA_CONFIG = os.path.join(RESOURCES_PATH, 'etc', 'iotjs-freya.config')
 
-NUTTX_APPS_PATH = os.path.join(PROJECTS_ROOT, 'apps')
-
-NUTTX_APPS_NSHLIB_PATH = os.path.join(NUTTX_APPS_PATH, 'nshlib')
-
-NUTTX_APPS_SYSTEM_PATH = os.path.join(NUTTX_APPS_PATH, 'system')
-
-NUTTX_APPS_INTERPRETER_PATH = os.path.join(NUTTX_APPS_PATH, 'interpreters')
+FREYA_TESTER = os.path.join(RESOURCES_PATH, 'etc', 'tester.py')
 
 #
-# ================ TizenRT ================
+# ================================
 #
 
-TIZENRT_PATH = os.path.join(PROJECTS_ROOT, 'TizenRT')
-
-TIZENRT_APPS_PATH = os.path.join(TIZENRT_PATH, 'apps')
-
-TIZENRT_OS_PATH = os.path.join(TIZENRT_PATH, 'os')
-
-TIZENRT_APP_SYSTEM_PATH = os.path.join(TIZENRT_APPS_PATH, 'system')
-
-TIZENRT_BUILD_PATH = os.path.join(TIZENRT_PATH, 'build')
-
-TIZENRT_TOOLS_PATH = os.path.join(TIZENRT_OS_PATH, 'tools')
-
-TIZENRT_CONFIGS_PATH = os.path.join(TIZENRT_BUILD_PATH, 'configs')
-
-TIZENRT_OPENOCD_PATH = os.path.join(TIZENRT_CONFIGS_PATH, 'artik053/tools/openocd')
-
-TIZENRT_FS_PATH = os.path.join(TIZENRT_PATH, 'tools/fs')
-
-TIZENRT_ROMFS_CONTENTS_PATH = os.path.join(TIZENRT_FS_PATH, 'contents')
-
-#
-# ================ JerryScript ================
-#
-
-JERRY_PATH = os.path.join(PROJECTS_ROOT, 'jerryscript')
-
-JERRY_APPS_PATH = os.path.join(JERRY_PATH, 'targets/nuttx-stm32f4/')
-
-JERRY_TARGETS_PATH = os.path.join(JERRY_PATH, 'targets')
-
-JERRY_TEST_JERRY_PATH = os.path.join(JERRY_PATH, 'tests/jerry')
-
-JERRY_BUILD_PATH = os.path.join(JERRY_PATH, 'build/bin')
-
-JERRY_MINIMAL_BUILD_PATH = os.path.join(JERRY_PATH, 'features_disable/build')
-
-JERRY_MINIMAL_BIN_PATH = os.path.join(JERRY_MINIMAL_BUILD_PATH, 'bin')
-
-#
-# ================ Freya ================
-#
-
-FREYA_PATH = os.path.join(PROJECTS_ROOT, 'Freya')
+TESTRUNNER_PATH = os.path.join(API_PATH, 'testrunner')

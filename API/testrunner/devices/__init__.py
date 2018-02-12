@@ -1,5 +1,3 @@
-#! /bin/bash
-
 # Copyright 2017-present Samsung Electronics Co., Ltd. and other contributors
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,16 +12,24 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# Todo: eliminate unneccesary dependencies (e.g. genfs, libusb)
-ubuntu_ver=$(lsb_release -r | cut -d ':' -f 2 | tr -d '[:space:]')
-if [ "$ubuntu_ver" = "14.04" ]; then
-  echo "Ubuntu 14.04 is not supported"
-  exit
-fi
-sudo apt-get install -y autoconf libtool gperf flex bison autoconf2.13
-sudo apt-get install -y cmake libncurses-dev libusb-1.0-0-dev genromfs
-sudo apt-get install -y libsgutils2-dev gcc-arm-none-eabi minicom
-sudo apt-get install -y python-pip pkg-config libssl-dev
-sudo apt-get install -y gcc-arm-linux-gnueabihf binutils-arm-linux-gnueabi
+import stm32f4dis
+import artik053
+import rpi2
 
-sudo pip install paramiko pyserial pyrebase
+
+DEVICES = {
+    "stm32f4dis": stm32f4dis.STM32F4Device,
+    "rpi2": rpi2.RPi2Device,
+    "artik053": artik053.ARTIK053Device
+}
+
+
+def create_device(env):
+    '''
+    Create a device object for testing.
+    '''
+    device = env['info']['device']
+
+    device_class = DEVICES[device]
+
+    return device_class(env)

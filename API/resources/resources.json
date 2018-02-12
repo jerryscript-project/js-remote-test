@@ -1,0 +1,142 @@
+{
+  "targets": {
+    "stm32f4dis": ["nuttx", "nuttx-apps", "stlink"],
+    "rpi2": ["freya"],
+    "artik053": ["tizenrt"]
+  },
+  "paths": {
+    "result": "%result-path/%app/%device",
+    "build": "%build-path/%app/%device/%build-type",
+    "build-json": "%build-path/%app/%device/%build-type/build.json",
+    "build-test": "%build-path/%app/%device/%build-type/test",
+    "build-target": "%build-path/%app/%device/%build-type/profiles/target",
+    "build-minimal": "%build-path/%app/%device/%build-type/profiles/minimal"
+  },
+  "modules": {
+    "stlink": {
+      "url": "https://github.com/texane/stlink.git",
+      "src": "%js-remote-test/deps/stlink",
+      "version": "master",
+      "paths": {
+        "st-flash": "%stlink/build/Release/st-flash"
+      }
+    },
+    "tizenrt": {
+      "url": "https://github.com/Samsung/TizenRT.git",
+      "src": "%js-remote-test/deps/tizenrt",
+      "version": "1.1_Public_Release",
+      "paths": {
+        "os": "%tizenrt/os/",
+        "tools": "%tizenrt/os/tools/",
+        "image": "%tizenrt/build/output/bin/tinyara.bin",
+        "include": "%tizenrt/os/include",
+        "contents": "%tizenrt/tools/fs/contents/",
+        "linker-map": "%tizenrt/build/output/bin/tinyara.map"
+      },
+      "config": [
+        { "deps": ["iotjs"], "src": "%config/tizenrt-iotjs.config", "dst": "%tizenrt/build/configs/artik053/iotjs/defconfig" },
+        { "deps": ["jerryscript"], "src": "%jerryscript/targets/tizenrt-artik053/apps/jerryscript/", "dst": "%tizenrt/apps/system/jerryscript/" },
+        { "deps": ["jerryscript"], "src": "%jerryscript/targets/tizenrt-artik053/configs/jerryscript/", "dst": "%tizenrt/build/configs/artik053/jerryscript/" },
+        { "deps": ["jerryscript"], "src": "%config/tizenrt-jerryscript.config", "dst": "%tizenrt/build/configs/artik053/jerryscript/defconfig" }
+      ],
+      "patches": [
+        { "file": "%patches/tizenrt-openocd.diff", "revert": false}
+      ]
+    },
+    "nuttx": {
+      "url": "https://bitbucket.org/nuttx/nuttx.git",
+      "src": "%js-remote-test/deps/nuttx",
+      "version": "nuttx-7.19",
+      "paths": {
+        "tools": "%nuttx/tools/",
+        "image": "%nuttx/nuttx.bin",
+        "linker-map": "%nuttx/arch/arm/src/nuttx.map"
+      },
+      "patches": [
+        { "file": "%patches/nuttx-7.19.diff" }
+      ],
+      "config": [
+        { "deps": ["iotjs"], "src": "%config/nuttx-iotjs.config", "dst": "%nuttx/configs/stm32f4discovery/usbnsh/defconfig" },
+        { "deps": ["jerryscript"], "src": "%config/nuttx-jerryscript.config", "dst": "%nuttx/configs/stm32f4discovery/usbnsh/defconfig" }
+      ]
+    },
+    "nuttx-apps": {
+      "url": "https://bitbucket.org/nuttx/apps.git",
+      "src": "%js-remote-test/deps/apps",
+      "version": "nuttx-7.19",
+      "paths": {
+        "romfs": "%nuttx-apps/nshlib/nsh_romfsimg.h"
+      },
+      "config": [
+        { "deps": ["iotjs"], "src": "%iotjs/config/nuttx/stm32f4dis/app/", "dst": "%nuttx-apps/system/iotjs/" },
+        { "deps": ["jerryscript"], "src": "%jerryscript/targets/nuttx-stm32f4/", "dst": "%nuttx-apps/interpreters/jerryscript/" }
+      ],
+      "patches": [
+        { "deps": ["iotjs"], "file": "%patches/nuttx-iotjs-stack.diff" }
+      ]
+    },
+    "jerryscript": {
+      "url": "https://github.com/jerryscript-project/jerryscript.git",
+      "src": "%js-remote-test/deps/jerryscript",
+      "version": "master",
+      "extra-build-flags": {
+        "stm32f4dis": ["--mem-stats=ON"],
+        "rpi2": ["--mem-stats=ON", "--debug"],
+        "artik053": ["--mem-stats=ON"]
+      },
+      "paths": {
+        "tests": "%jerryscript/tests/jerry/",
+        "minimal-profile": "%jerryscript/jerry-core/profiles/minimal.profile",
+        "es2015-subset-profile": "%jerryscript/jerry-core/profiles/es2015-subset.profile",
+        "linker-map": "%jerryscript/build/jerry-main/jerry.map",
+        "image": "%jerryscript/build/bin/jerry",
+        "stm32f4dis-toolchain": "%jerryscript/cmake/toolchain_mcu_stm32f4.cmake",
+        "artik053-toolchain": "%jerryscript/cmake/toolchain_mcu_artik053.cmake",
+        "rpi2-toolchain": "%jerryscript/cmake/toolchain_linux_armv7l.cmake"
+      }
+    },
+    "iotjs": {
+      "url": "https://github.com/Samsung/iotjs.git",
+      "src": "%js-remote-test/deps/iotjs",
+      "version": "master",
+      "extra-build-flags": {
+        "stm32f4dis": ["--jerry-memstat"],
+        "rpi2": ["--jerry-memstat", "--compile-flag=-g", "--jerry-compile-flag=-g"],
+        "artik053": ["--jerry-memstat"]
+      },
+      "paths": {
+        "tests": "%iotjs/test/",
+        "testfiles": "%iotjs/test/testsets.json",
+        "build-info": "%iotjs/tools/iotjs_build_info.js",
+        "minimal-profile": "%iotjs/profiles/minimal.profile",
+        "tizenrt-profile": "%iotjs/test/profiles/tizenrt.profile",
+        "nuttx-profile": "%iotjs/test/profiles/nuttx.profile",
+        "rpi2-profile": "%iotjs/test/profiles/rpi2-linux.profile",
+        "linker-map": "%iotjs/build/arm-linux/%build-type/iotjs.map",
+        "image": "%iotjs/build/arm-linux/%build-type/bin/iotjs"
+      },
+      "patches": [
+        { "deps": ["artik053"], "file": "%patches/tizenrt-iotjs-stack.diff" },
+        { "deps": ["stm32f4dis", "artik053"], "file": "%patches/iotjs-system-heap.diff" },
+        { "deps": ["stm32f4dis", "artik053"], "file": "%patches/libtuv-system-heap.diff", "submodule": "%iotjs/deps/libtuv/" },
+        { "deps": ["stm32f4dis", "artik053", "rpi2"], "file": "%patches/jerryscript-jerry-heap.diff", "submodule": "%iotjs/deps/jerry/" },
+        { "deps": ["rpi2"], "file": "%patches/linux-iotjs-stack.diff" }
+      ]
+    },
+    "iotjs-test-results": {
+      "url": "https://github.com/Samsung/js-remote-test.git",
+      "src": "%js-remote-test/deps/iotjs-test-results",
+      "version": "gh-pages"
+    },
+    "jerryscript-test-results": {
+      "url": "https://github.com/jerryscript-project/jerryscript-test-results.git",
+      "src": "%js-remote-test/deps/jerryscript-test-results",
+      "version": "gh-pages"
+    },
+    "freya": {
+      "url": "https://github.com/szeged/Freya.git",
+      "src": "%js-remote-test/deps/valgrind_freya",
+      "version": "master"
+    }
+  }
+}

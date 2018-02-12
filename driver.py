@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 # Copyright 2017-present Samsung Electronics Co., Ltd. and other contributors
 #
 # Licensed under the Apache License, Version 2.0 (the 'License');
@@ -21,41 +23,71 @@ def parse_options():
     '''
     Parse the given options.
     '''
-    parser = argparse.ArgumentParser(description='Remote testrunner for microcontrollers')
+    parser = argparse.ArgumentParser('[J]ava[S]cript [remote] [test]runner')
 
-    parser.add_argument('--app', choices=['iotjs', 'jerryscript'], default='iotjs',
-                        help='the target application (default: %(default)s)')
+    parser.add_argument('--app',
+                        choices=['iotjs', 'jerryscript'], default='iotjs',
+                        help='specify the target application (default: %(default)s)')
 
-    parser.add_argument('--buildtype', choices=['release', 'debug'], default='release',
-                        help='buildtype for the os and the app (default: %(default)s)')
+    parser.add_argument('--app-path',
+                        metavar='PATH',
+                        help='specify the path to the application (default: %(default)s)')
 
-    parser.add_argument('--device', choices=['stm32f4dis', 'rpi2', 'artik053'], default='stm32f4dis',
-                        help='indicate the device for testing (default: %(default)s)')
+    parser.add_argument('--buildtype',
+                        choices=['release', 'debug'], default='release',
+                        help='specify the build type (default: %(default)s)')
 
-    parser.add_argument('--public', action='store_true', default=False,
-                        help='publish results to the web (default: %(default)s)')
+    parser.add_argument('--no-build',
+                        action='store_true', default=False,
+                        help='do not build the projects (default: %(default)s)')
 
-    parser.add_argument('--timeout', metavar='sec', type=int, default=180,
-                        help='timeout for tests (default: %(default)s sec)')
+    parser.add_argument('--no-profile-build',
+                        action='store_true', default=False,
+                        help='do not build the different profiles (default: %(default)s)')
 
-    group = parser.add_argument_group("SSH communication")
+    parser.add_argument('--no-flash',
+                        action='store_true', default=False,
+                        help='do not flash the device (default: %(default)s)')
 
-    group.add_argument('--username', metavar='nick',
-                       help='username of the target device')
+    parser.add_argument('--no-test',
+                        action='store_true', default=False,
+                        help='do not test the applciation (default: %(default)s)')
 
-    group.add_argument('--address', metavar='address',
-                        help='address of the target device (ip or ip:port)')
+    parser.add_argument('--device',
+                        choices=['stm32f4dis', 'rpi2', 'artik053'], default='stm32f4dis',
+                        help='specify the target device (default: %(default)s)')
 
-    group.add_argument('--remote-path', metavar='path',
-                        help='remote test folder on the device')
+    parser.add_argument('--public',
+                        action='store_true', default=False,
+                        help='upload the test results (default: %(default)s)')
+
+    parser.add_argument('--timeout',
+                        metavar='SEC', default=180, type=int,
+                        help='specify the maximum timeout (default: %(default)s sec)')
+
+    group = parser.add_argument_group("Secure Shell communication")
+
+    group.add_argument('--username',
+                       metavar='USER',
+                       help='specify the username to login to the device.')
+
+    group.add_argument('--address',
+                       metavar='IPADDR',
+                       help='specify the ip address of the device')
+
+    group.add_argument('--remote-workdir',
+                       metavar='PATH',
+                       help='specify the test folder on the device')
 
     group = parser.add_argument_group("Serial communication")
 
-    group.add_argument('--port', metavar='device',
-                       help='serial port name (e.g. /dev/ttyACM0 or /dev/ttyUSB0)')
+    group.add_argument('--port',
+                       metavar='DEVICE-ID',
+                       help='specify the port of the device (e.g. /dev/ttyACM0)')
 
-    group.add_argument('--baud', metavar='baud', type=int, default=115200,
-                       help='baud rate (default: %(default)s)')
+    group.add_argument('--baud',
+                       type=int, default=115200,
+                       help='specify the baud rate (default: %(default)s)')
 
     return parser.parse_args()
 
@@ -66,15 +98,21 @@ def main():
     '''
     options = parse_options()
 
-    device = API.device.create(options)
-    app = API.application.create(options)
+    # Get an environment object that holds all the necessary
+    # information for the build and the test.
+    env = API.load_testing_environment(options)
 
-    app.build(device)
+    # Initialize the testing environment by building all the
+    # required modules to be ready to run tests.
+    builder = API.builder.create(env)
+    builder.create_profile_builds()
+    builder.create_test_build()
 
-    device.flash(app)
+    # Run all the tests.
+    testrunner = API.testrunner.TestRunner(env)
+    testrunner.run()
+    testrunner.save()
 
-    testrunner = API.testrunner.TestRunner()
-    testrunner.run(app, device, options.public)
 
 if __name__ == '__main__':
     main()

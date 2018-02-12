@@ -17,11 +17,12 @@ import json
 import lumpy
 import os
 import paths
-import platform
 import re
 import shutil
 import subprocess
 import time
+import paths
+import pyrebase
 
 
 class TimeoutException(Exception):
@@ -48,8 +49,6 @@ def execute(cwd, cmd, args=[], quiet=False):
 
         output = process.communicate()[0]
         exitcode = process.returncode
-        if exitcode:
-            raise Exception('Not null exit value')
 
         if quiet:
             output = re.sub(' +', ' ', output)
@@ -86,46 +85,62 @@ def patch(project, patch, revert=False):
             console.fail('Failed to revert ' + patch)
 
 
-def generate_romfs(output_path, input_path):
+def generate_romfs(src, dst):
     '''
-    Create a ROMFS image from the contents of the given path.
+    Create a romfs_img from the source directory that is
+    converted to a header (byte array) file. Finally, add
+    a `const` modifier to the byte array to be the data
+    in the Read Only Memory.
     '''
-    genromfs_flags = ['-f', 'romfs_img', '-d', input_path]
-    xxd_flags = ['-i', 'romfs_img', 'nsh_romfsimg.h']
-    sed_flags = ['-ie', 's/unsigned/const\ unsigned/g', 'nsh_romfsimg.h']
+    romfs_img = join(os.curdir, 'romfs_img')
 
-    execute(output_path, 'genromfs', genromfs_flags)
-    execute(output_path, 'xxd', xxd_flags)
-    execute(output_path, 'sed', sed_flags)
+    execute(os.curdir, 'genromfs', ['-f', romfs_img, '-d', src])
+    execute(os.curdir, 'xxd', ['-i', 'romfs_img', dst])
+    execute(os.curdir, 'sed', ['-i', 's/unsigned/const\ unsigned/g', dst])
+
+    os.remove(romfs_img)
 
 
 def write_json_file(filename, data):
     '''
     Write a JSON file from the given data.
     '''
+    mkdir(dirname(filename))
+
     with open(filename, 'w') as filename_p:
-        json.dump(data, filename_p)
+        json.dump(data, filename_p, indent=2)
 
         # Add a newline to the end of the line.
         filename_p.write('\n')
 
 
-def copy_file(src, dst):
+def read_json_file(filename):
     '''
-    Copy a single file to the given place.
+    Read JSON file.
     '''
-    shutil.copy(src, dst)
+    with open(filename, 'r') as file:
+        return json.load(file)
 
 
-def copy_files(src, dst):
+def copy(src, dst):
     '''
-    Copy files from a directory to an other directory.
+    Copy src to dst.
     '''
-    if not os.path.exists(dst):
-        os.makedirs(dst)
+    if os.path.isdir(src):
+        # Remove dst folder because copytree function
+        # fails when is already exists.
+        if exists(dst):
+            shutil.rmtree(dst)
 
-    for file_name in os.listdir(src):
-        shutil.copy(src + file_name, dst)
+        shutil.copytree(src, dst, symlinks=False, ignore=None)
+
+    else:
+        # Create dst if it does not exist.
+        basedir = dirname(dst)
+        if not exists(basedir):
+            mkdir(basedir)
+
+        shutil.copy(src, dst)
 
 
 def move(src, dst):
@@ -156,7 +171,7 @@ def define_environment(env, value):
     '''
     Define environment.
     '''
-    os.environ[env] = value
+    os.environ[env] = str(value)
 
 
 def get_environment(env):
@@ -164,6 +179,13 @@ def get_environment(env):
     Get environment value.
     '''
     return os.environ.get(env)
+
+
+def unset_environment(env):
+    '''
+    Unset environment.
+    '''
+    os.unsetenv(env)
 
 
 def exists(path):
@@ -237,57 +259,56 @@ def get_section_sizes_from_map(mapfile):
     '''
     Returns the sizes of the main sections.
     '''
+    sizes = {
+        'bss': 0,
+        'text': 0,
+        'data': 0,
+        'rodata': 0,
+        'total': 0
+    }
 
-    archives = ['libhttpparser.a',
-            'libiotjs.a',
-            'libjerry-core.a',
-            'libjerry-ext.a',
-            'libjerry-port-default.a',
-            'libjerry-port-default-minimal.a',
-            'libtuv.a']
+    if not exists(mapfile):
+        return sizes
+
+    archives = [
+        'libhttpparser.a',
+        'libiotjs.a',
+        'libjerry-core.a',
+        'libjerry-ext.a',
+        'libjerry-port-default.a',
+        'libjerry-port-default-minimal.a',
+        'libtuv.a'
+    ]
+
+    # FIXME: use `ar` command to get the object files from
+    # the static libraries. With the object name list, the
+    # binary size estimation can be more punctual and don't
+    # need this exclude section.
+    exclude_archives = [
+        'libjerry-libm.a',
+        'libjerry-libc.a'
+    ]
 
     data = lumpy.load_map_data(mapfile)
 
     sections = lumpy.parse_to_sections(data)
-    # extract .rodata section from the .text section
+    # Extract .rodata section from the .text section.
     lumpy.hoist_section(sections, ".text", ".rodata")
-
-    sizes = {
-        "text": 0,
-        "rodata": 0,
-        "data": 0,
-        "bss": 0,
-    }
 
     for s in sections:
         for section_key in sizes:
-            if s['name'] == ".%s" % section_key:
-                for ss in s['contents']:
-                    if ss['path'].endswith(".c.obj)") or \
-                        len(filter(lambda ar: "/%s(" % ar in ss['path'], archives)):
-                        sizes[section_key] += ss["size"]
-                break
+            if s['name'] != '.%s' % section_key:
+                continue
 
-    sizes['total'] = sizes["text"] + sizes["data"] + sizes["rodata"]
-    return sizes
+            for ss in s['contents']:
+                if len(filter(lambda ar: ar in ss['path'], exclude_archives)):
+                    continue
 
+                if ss['path'].endswith('.c.obj)') or \
+                    len(filter(lambda ar: '/%s(' % ar in ss['path'], archives)):
+                    sizes[section_key] += ss['size']
 
-def get_section_sizes(executable):
-    '''
-    Returns the sizes of the main sections.
-    '''
-
-    args = ['-A', executable]
-    sections, _ = execute(os.curdir, 'arm-linux-gnueabi-size', args, quiet=True)
-
-    sizes = {}
-    for line in sections.splitlines():
-        for key in ['text', 'data', 'rodata', 'bss']:
-            if '.%s' % key in line:
-                sizes[key] = line.split()[1]
-
-    sizes['total'] = size(executable)
-
+    sizes['total'] = sizes['text'] + sizes['data'] + sizes['rodata']
     return sizes
 
 
@@ -324,30 +345,168 @@ def last_commit_info(git_repo_path):
     return info
 
 
-def to_int(value):
+def create_build_info(env):
     '''
-    Return the value as integer type.
+    Write binary size and commit information into a file.
     '''
-    if isinstance(value, int):
-        return value
+    app_name = env['info']['app']
+    build_path = env['paths']['build']
 
-    return 0
+    # Binary size information.
+    minimal_map = join(env['paths']['build-minimal'], 'linker.map')
+    target_map = join(env['paths']['build-target'], 'linker.map')
+
+    bin_sizes = {
+        'minimal-profile': get_section_sizes_from_map(minimal_map),
+        'target-profile': get_section_sizes_from_map(target_map)
+    }
+
+    # Git commit information from the projects.
+    submodules = {}
+
+    for name, module in env['modules'].iteritems():
+        # Don't duplicate the application information.
+        if name == 'app':
+            continue
+
+        submodules[name] = last_commit_info(module['src'])
+
+    # Merge the collected values into a result object.
+    build_info = {
+        'build-date': get_standardized_date(),
+        'last-commit-date': submodules[app_name]['date'],
+        'bin': bin_sizes,
+        'submodules': submodules
+    }
+
+    write_json_file(join(build_path, 'build.json'), build_info)
+
+
+def upload_data_to_firebase(env, test_info):
+    '''
+    Upload the results of the testrunner to the Firebase database.
+    '''
+    info = env['info']
+
+    if not info['public']:
+        return
+
+    email = get_environment('FIREBASE_USER')
+    password = get_environment('FIREBASE_PWD')
+
+    if not (email and password):
+        return
+
+    config = {
+        'apiKey': 'AIzaSyDMgyPr0V49Rdf5ODAU9nLY02ZGEUNoxiM',
+        'authDomain': 'remote-testrunner.firebaseapp.com',
+        'databaseURL': 'https://remote-testrunner.firebaseio.com',
+        'storageBucket': 'remote-testrunner.appspot.com',
+    }
+
+    firebase = pyrebase.initialize_app(config)
+    database = firebase.database()
+    authentication = firebase.auth()
+
+    # Identify the place where the data should be stored.
+    database_path = '%s/%s' % (info['app'], info['device'])
+
+    user = authentication.sign_in_with_email_and_password(email, password)
+    database.child(database_path).push(test_info, user['idToken'])
+
+    # Update the status images.
+    status = 'passed'
+    for test in self.test_info['tests']:
+        if test['result'] == 'fail':
+            status = 'failed'
+            break
+
+    # The storage service allows to upload images to Firebase.
+    storage = firebase.storage()
+    # Download the corresponding status badge.
+    storage_status_path = 'status/%s.svg' % status
+    storage.child(storage_status_path).download('status.svg')
+    # Upload the status badge for the appropriate app-device pair.
+    storage_badge_path = 'status/%s/%s.svg' % (info['app'], info['device'])
+    storage.child(storage_badge_path).put('status.svg', user['idToken'])
+
+    remove_file('status.svg')
 
 
 def get_standardized_date():
     '''
     Get the current date in standardized format.
     '''
-    return time.strftime('%Y-%m-%dT%H:%M:%SZ')
+    return time.strftime('%Y-%m-%dT%H.%M.%SZ')
 
-def get_system():
-    '''
-    Get the underlying platform name.
-    '''
-    return platform.system()
 
-def get_architecture():
+def read_test_files(env):
     '''
-    Get the architecture on platform.
+    Read all the tests from the given folder and create a
+    dictionary similar to the IoT.js testsets.json file.
     '''
-    return platform.architecture()[0][:2]
+    testsets = {}
+    # Read all the tests from the application.
+    app = env['modules']['app']
+    testpath = app['paths']['tests']
+
+    for root, dirs, files in os.walk(testpath):
+        # The name of the testset is always the folder name.
+        testset = relpath(root, testpath)
+
+        # Create a new testset entry if it doesn't exist.
+        if testset not in testsets:
+            testsets[testset] = []
+
+        for filename in files:
+            test = {
+                'name': filename
+            }
+
+            if 'fail' in testset:
+                test['expected-failure'] = True
+
+            testsets[testset].append(test)
+
+    return testsets
+
+
+def process_output(output):
+    '''
+    Extract the runtiome memory information from the output of the test.
+    '''
+    exitcode = 0
+    memstat = {
+        'heap-jerry': 'n/a',
+        'heap-system': 'n/a',
+        'stack': 'n/a'
+    }
+
+    if output.find('Heap stats:') != -1:
+        # Process jerry-memstat output.
+        match = re.search(r'Peak allocated = (\d+) bytes', output)
+
+        if match:
+            memstat['heap-jerry'] = match.group(1)
+
+        # Process malloc peak output.
+        match = re.search(r'Malloc peak allocated: (\d+) bytes', output)
+
+        if match:
+            memstat['heap-system'] = match.group(1)
+
+        # Process stack usage output.
+        match = re.search(r'Stack usage: (\d+)', output)
+
+        if match:
+            memstat['stack'] = match.group(1)
+
+        match = re.search(r'(IoT.js|JerryScript) [Rr]esult: (\d+)', output)
+
+        if match:
+            exitcode = match.group(2)
+
+        # Remove memstat from the output.
+        output, _ = output.split('Heap stats:', 1)
+
+    return output, memstat, exitcode

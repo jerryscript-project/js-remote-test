@@ -1,0 +1,53 @@
+diff --git a/build/configs/artik053/artik053_download.sh b/build/configs/artik053/artik053_download.sh
+index 0fa4b9a..3c50c2a 100755
+--- a/build/configs/artik053/artik053_download.sh
++++ b/build/configs/artik053/artik053_download.sh
+@@ -128,6 +128,15 @@ main()
+ 			popd
+ 			;;
+ 
++		RESET|reset)
++			echo "board reset"
++
++			pushd ${OPENOCD_DIR_PATH}
++			${OPENOCD_BIN_PATH}/openocd -f artik053.cfg -c ' 	\
++			reset; \
++			exit'
++			popd
++			;;
+ 		*)
+ 			echo "${arg} is not suppported in artik053"
+ 			echo "Usage : make download [ ALL | ERASE_USERFS ]"
+diff --git a/build/configs/artik053/tools/openocd/artik053.cfg b/build/configs/artik053/tools/openocd/artik053.cfg
+index 1e18d50..bddfb64 100644
+--- a/build/configs/artik053/tools/openocd/artik053.cfg
++++ b/build/configs/artik053/tools/openocd/artik053.cfg
+@@ -251,5 +251,13 @@ proc flash_erase_part { partition } {
+ 		flash_erase $start $size -silent
+ 	}
+ }
++
++proc reset {} {
++	prepare_target
++	flash_enable_write
++	catch {mwb 0x80090400 0x1}
++	exit 0
++}
++
+ add_usage_text flash_erase_part "{partition|all}"
+ add_help_text flash_erase_part "Erase a partition. If specified 'all', all r/w partitions are erased."
+diff --git a/build/configs/artik053/tools/openocd/partition_map.cfg b/build/configs/artik053/tools/openocd/partition_map.cfg
+index c3abdef..a43c31a 100644
+--- a/build/configs/artik053/tools/openocd/partition_map.cfg
++++ b/build/configs/artik053/tools/openocd/partition_map.cfg
+@@ -40,8 +40,8 @@ set partition_list {
+ 	os	{ "OS"			0x040C8000	0x00258000	0 }
+ 	factory	{ "Factory Reset"	0x04320000	0x00180000	0 }
+ 	ota	{ "OTA download"	0x044A0000	0x00180000	0 }
+-	user 	{ "USER R/W" 		0x04620000 	0x000FA000  	0 }
+-	rom  	{ "ROM FS"  		0x0471A000 	0x00064000  	0 }
++	user 	{ "USER R/W" 		0x04620000 	0x000C8000  	0 }
++	rom  	{ "ROM FS"  		0x046E8000 	0x00096000  	0 }
+ 	nvram	{ "WiFi NVRAM"		0x0477E000	0x00002000	1 }
+ 	sssrw	{ "SSS R/W Key"		0x04780000	0x00080000	1 }
+ }
