@@ -123,16 +123,6 @@
         { "deps": ["rpi2"], "file": "%patches/linux-iotjs-stack.diff" }
       ]
     },
-    "iotjs-test-results": {
-      "url": "https://github.com/Samsung/js-remote-test.git",
-      "src": "%js-remote-test/deps/iotjs-test-results",
-      "version": "gh-pages"
-    },
-    "jerryscript-test-results": {
-      "url": "https://github.com/jerryscript-project/jerryscript-test-results.git",
-      "src": "%js-remote-test/deps/jerryscript-test-results",
-      "version": "gh-pages"
-    },
     "freya": {
       "url": "https://github.com/szeged/Freya.git",
       "src": "%js-remote-test/deps/valgrind_freya",

@@ -31,9 +31,6 @@ def load_testing_environment(options):
     # Update the deps list with user selected projects.
     deps.append(options.app)
 
-    if options.public:
-        deps.append('%s-test-results' % options.app)
-
     # Get the required module information.
     modules = {
         name: resources['modules'][name] for name in deps
