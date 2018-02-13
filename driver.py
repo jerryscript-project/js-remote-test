@@ -23,7 +23,7 @@ def parse_options():
     '''
     Parse the given options.
     '''
-    parser = argparse.ArgumentParser('[J]ava[S]cript [remote] [test]runner')
+    parser = argparse.ArgumentParser(description='[J]ava[S]cript [remote] [test]runner')
 
     parser.add_argument('--app',
                         choices=['iotjs', 'jerryscript'], default='iotjs',
@@ -51,7 +51,7 @@ def parse_options():
 
     parser.add_argument('--no-test',
                         action='store_true', default=False,
-                        help='do not test the applciation (default: %(default)s)')
+                        help='do not test the application (default: %(default)s)')
 
     parser.add_argument('--device',
                         choices=['stm32f4dis', 'rpi2', 'artik053'], default='stm32f4dis',
@@ -63,7 +63,7 @@ def parse_options():
 
     parser.add_argument('--timeout',
                         metavar='SEC', default=180, type=int,
-                        help='specify the maximum timeout (default: %(default)s sec)')
+                        help='specify the timeout (default: %(default)s sec)')
 
     group = parser.add_argument_group("Secure Shell communication")
 

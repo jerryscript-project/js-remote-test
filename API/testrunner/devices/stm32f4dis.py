@@ -99,7 +99,7 @@ class STM32F4Device(object):
         self.reset()
         self.login()
 
-        # Absoulute path to the test file on the device.
+        # Absolute path to the test file on the device.
         testfile = '/test/%s/%s' % (testset, test['name'])
 
         command = {

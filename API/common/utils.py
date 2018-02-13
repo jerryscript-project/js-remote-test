@@ -473,7 +473,7 @@ def read_test_files(env):
 
 def process_output(output):
     '''
-    Extract the runtiome memory information from the output of the test.
+    Extract the runtime memory information from the output of the test.
     '''
     exitcode = 0
     memstat = {

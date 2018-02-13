@@ -18,7 +18,7 @@ from API.builder import builder
 
 class ARTIK053Builder(builder.BuilderBase):
     '''
-    Build all modules for the STM32F4-Discovery target.
+    Build all modules for the Artik053 target.
     '''
     def __init__(self, options):
         super(self.__class__, self).__init__(options)
@@ -62,7 +62,7 @@ class ARTIK053Builder(builder.BuilderBase):
 
     def _build_jerryscript(self, profile, extra_flags):
         '''
-        Collect build-flags for JerryScript.
+        Build JerryScript for TizenRT target.
         '''
         tizenrt = self.env['modules']['tizenrt']
         jerry = self.env['modules']['jerryscript']
@@ -122,7 +122,7 @@ class ARTIK053Builder(builder.BuilderBase):
 
     def _append_testfiles(self):
         '''
-        Add test files to the ROMFS file of NuttX.
+        Add test files to the contents folder of TizenRT.
         '''
         target_app = self.env['modules']['app']
         tizenrt = self.env['modules']['tizenrt']

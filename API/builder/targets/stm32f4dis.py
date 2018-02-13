@@ -79,7 +79,7 @@ class STM32F4Builder(builder.BuilderBase):
 
     def _build_jerryscript(self, profile, extra_flags):
         '''
-        Collect build-flags for JerryScript.
+        Build JerryScript for NuttX target.
         '''
         nuttx = self.env['modules']['nuttx']
         jerry = self.env['modules']['jerryscript']

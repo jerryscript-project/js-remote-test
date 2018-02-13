@@ -135,7 +135,7 @@ SSH communication:
   IP(v4) address of the device.
 
 --remote-workdir
-  Defines the working direcory where the testing happens.
+  Defines the working directory where the testing happens.
 
 Serial communication:
 
@@ -163,4 +163,4 @@ All the results are written into JSON files that are found in a `results` folder
 %YY-%mm-%ddT%HH.%MM.%SSZ.json      e.g. 2017-04-15T10.02.33Z.json
 ```
 
-Every JSON file contain information about the test results (status, output, memory usage), environments (used hashes, commit messages) and the main section sizes of the application (iotjs or jerryscript) binary. These sizes are based on a stripped release, rpi2 build.
+Every JSON file contain information about the test results (status, output, memory usage), environments (used hashes, commit messages) and the main section sizes of the application (iotjs or jerryscript) binary.

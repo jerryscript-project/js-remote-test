@@ -108,16 +108,16 @@ class RPi2Device(object):
         self.login()
 
         template = 'python %s/tester.py --cwd %s --cmd %s --testfile %s'
-        # Absoulute path to the test folder.
+        # Absolute path to the test folder.
         testdir = '%s/test' % self.workdir
-        # Absoulute path to the test file.
+        # Absolute path to the test file.
         testfile = '%s/%s/%s' % (testdir, testset, test['name'])
         # Absolute path to the application.
         apps = {
             'iotjs': '%s/iotjs' % self.workdir,
             'jerryscript': '%s/jerry' % self.workdir
         }
-        # Create the concreate command that the device will execute.
+        # Create the command that the device will execute.
         command = template % (self.workdir, testdir, apps[self.app], testfile)
 
         stdout = self.channel.exec_command(command)

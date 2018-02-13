@@ -24,7 +24,7 @@ def read_testsets(env):
     application = env['modules']['app']
 
     # Since JerryScript doesn't have testset descriptor file,
-    # simply read the file contents from the test foler.
+    # simply read the file contents from the test folder.
     if application['name'] == 'jerryscript':
         testsets = utils.read_test_files(env)
     else:

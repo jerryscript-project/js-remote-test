@@ -84,7 +84,7 @@ class RPi2Builder(builder.BuilderBase):
 
     def _build_jerryscript(self, profile, extra_flags):
         '''
-        Collect build-flags for JerryScript.
+        Build JerryScript for Linux target.
         '''
         jerry = self.env['modules']['jerryscript']
 
@@ -108,7 +108,7 @@ class RPi2Builder(builder.BuilderBase):
 
     def _build_iotjs(self, profile, extra_flags):
         '''
-        Build IoT.js for NuttX target.
+        Build IoT.js for Linux target.
         '''
         iotjs = self.env['modules']['iotjs']
 
