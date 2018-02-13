@@ -81,7 +81,6 @@ class RPi2Builder(builder.BuilderBase):
 
             utils.copy(src, dst)
 
-
     def _build_jerryscript(self, profile, extra_flags):
         '''
         Build JerryScript for Linux target.

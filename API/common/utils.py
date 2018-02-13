@@ -304,8 +304,10 @@ def get_section_sizes_from_map(mapfile):
                 if len(filter(lambda ar: ar in ss['path'], exclude_archives)):
                     continue
 
-                if ss['path'].endswith('.c.obj)') or \
-                    len(filter(lambda ar: '/%s(' % ar in ss['path'], archives)):
+                cobj_in_path = ss['path'].endswith('.c.obj)')
+                arch_in_path = len(filter(lambda ar: '/%s(' % ar in ss['path'], archives))
+
+                if cobj_in_path or arch_in_path:
                     sizes[section_key] += ss['size']
 
     sizes['total'] = sizes['text'] + sizes['data'] + sizes['rodata']

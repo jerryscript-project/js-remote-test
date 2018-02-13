@@ -45,9 +45,11 @@ import re
 logging.basicConfig(level=logging.ERROR)
 log = logging.getLogger(__name__)
 
+
 def load_map_data(filepath):
     with open(filepath, "r") as fp:
         return fp.readlines()
+
 
 def get_memory_map_lines(data):
     map_started = False
@@ -60,8 +62,9 @@ def get_memory_map_lines(data):
 
         yield i, line.rstrip()
 
+
 def hoist_section(sections, from_section, to_section):
-    matching_sections = [sec for sec in filter(lambda section: section["name"] == from_section, sections)]
+    matching_sections = [sec for sec in sections if sec["name"] == from_section]
     if not matching_sections:
         log.warning("Skipping '%s' section hoisting from '%s' as it was not found",
                     to_section, from_section)
@@ -83,7 +86,7 @@ def hoist_section(sections, from_section, to_section):
         return False
 
     log.debug("Found '%s' section in '%s' in range [%d; %d]",
-              to_section, from_section, start_idx, end_idx +1)
+              to_section, from_section, start_idx, end_idx + 1)
 
     # construct the new section
     hoisted_section = {
@@ -106,8 +109,11 @@ def hoist_section(sections, from_section, to_section):
     sections.append(hoisted_section)
     return True
 
+
 # match top level sections in format: <dot><any non-whitespace charater>
 _re_section_name = r"^(?P<name>\.\S+)"
+
+
 def try_match_section(idx, data, line):
     skip_next = False
     match_section_start = re.match(_re_section_name, line)
@@ -119,12 +125,12 @@ def try_match_section(idx, data, line):
     log.debug("Found section '%s'", section_name)
 
     if len(section_name) >= 14:
-       log.debug("Section name too long. Maybe there is a wrapping")
-       next_line = data[idx + 1]
-       if next_line.startswith("  "):
-           log.debug(" 99.0%% sure that there is wrapping")
-           line += data[idx + 1]
-           skip_next = True
+        log.debug("Section name too long. Maybe there is a wrapping")
+        next_line = data[idx + 1]
+        if next_line.startswith("  "):
+            log.debug(" 99.0%% sure that there is wrapping")
+            line += data[idx + 1]
+            skip_next = True
 
     # format for section lines (should be): <section name> <address> <total size>
     address = 0
@@ -149,8 +155,15 @@ def try_match_section(idx, data, line):
     log.debug("Section parsed: %s", section)
     return section, skip_next
 
+
 # match entry in format: <dot><space><any non-whitespace charater>
-_re_entry_name = r"^ (?P<name>(\.\S+|COMMON))"
+_re_part_name = r"(?P<name>(\.\S+|COMMON))"
+_re_part_entry = r"\s+(?P<address>0x[\da-fA-F]+)\s+(?P<size>0x[\da-fA-F]+)\s+(?P<path>.+)"
+_re_entry_name = r"^ {}".format(_re_part_name)
+_re_wrapped_entry_data = r"^  {}".format(_re_part_entry)
+_re_entry_data = r"^ {}{}".format(_re_part_name, _re_part_entry)
+
+
 def try_match_entry(idx, data, line):
     skip_next = False
     match_entry_start = re.match(_re_entry_name, line)
@@ -165,14 +178,12 @@ def try_match_entry(idx, data, line):
         next_line = data[idx + 1]
         # if the next line starts with at least two spaces and an address
         # it is really just a wrapped line, we'll merge it to the current line
-        re_wrapped_entry_data = r"^  \s+(?P<address>0x[\da-fA-F]+)\s+(?P<size>0x[\da-fA-F]+)\s+(?P<path>.+)"
-        match_entry = re.match(re_wrapped_entry_data, next_line)
+        match_entry = re.match(_re_wrapped_entry_data, next_line)
         if match_entry:
             log.debug(" Verified, entry was indeed wrapped")
             skip_next = True
     else:
-        re_entry_data = r"^ (?P<name>(\.\S+|COMMON))\s+(?P<address>0x[\da-fA-F]+)\s+(?P<size>0x[\da-fA-F]+)\s+(?P<path>.+)"
-        match_entry = re.match(re_entry_data, line)
+        match_entry = re.match(_re_entry_data, line)
 
     if not match_entry:
         return False, False
@@ -188,8 +199,11 @@ def try_match_entry(idx, data, line):
 
     return entry, skip_next
 
+
 # match symbols, format: <lots of spaces> <address> <symbol_name>
 _re_symbol = r"^\s+(?P<address>0x[\da-fA-F]+)\s+(?P<symbol_name>.+)"
+
+
 def try_match_symbol(idx, data, line):
     match_symbol = re.match(_re_symbol, line)
     if not match_symbol:
@@ -200,9 +214,9 @@ def try_match_symbol(idx, data, line):
     log.debug("Found symbol '%s'", symbol_name)
 
     if symbol_name == "(size before relaxing)":
-       # this is not a true symbol, skipping
-       log.debug("Skipping original size")
-       return False, False
+        # this is not a true symbol, skipping
+        log.debug("Skipping original size")
+        return False, False
 
     symbol = {
         "name": symbol_name,
@@ -211,7 +225,10 @@ def try_match_symbol(idx, data, line):
 
     return symbol, False
 
+
 _re_fill_entry = r"^ \*fill\*\s+(?P<address>0x[\da-fA-F]+)\s+(?P<size>0x[\da-fA-F]+)"
+
+
 def try_match_fill(idx, data, line):
     match_fill = re.match(_re_fill_entry, line)
     if not match_fill:
@@ -226,6 +243,7 @@ def try_match_fill(idx, data, line):
     }
     log.debug("Fill entry parsed: %s", entry)
     return entry, False
+
 
 def parse_to_sections(data):
     sections = []
@@ -295,13 +313,15 @@ def parse_to_sections(data):
 
     return sections
 
+
 def dump_section_table(sections):
     for section in sections:
         size = 0
         for entry in section["contents"]:
             size += entry["size"]
 
-        print("Section {name:17} reported size: {size:-7} bytes  calculated size: {calculated_size:-7} bytes (Diff: {size_diff:-7}) {extra_info}"
+        print("Section {name:17} reported size: {size:-7} bytes  "
+              "calculated size: {calculated_size:-7} bytes (Diff: {size_diff:-7}) {extra_info}"
               .format(calculated_size=size, size_diff=section["size"] - size, **section))
 
 
@@ -356,4 +376,3 @@ if __name__ == "__main__":
         with open(output_path, "w") as fp:
             json.dump(sections, fp, indent=2)
         log.info("JSON saved to '%s'", output_path)
-

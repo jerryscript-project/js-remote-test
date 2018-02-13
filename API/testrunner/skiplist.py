@@ -34,7 +34,7 @@ class Skiplist(object):
         result = self._find_in_skiplist(testset, test)
 
         # Update the reason of the test by the label
-        # of the local skiplist. 
+        # of the local skiplist.
         if result and 'reason' in result:
             test['reason'] = result['reason']
 

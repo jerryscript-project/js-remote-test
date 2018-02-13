@@ -122,7 +122,7 @@ def run_jerry(options):
     else:
         mempeak = 'n/a'
 
-    output = output.rsplit("Heap stats",1)[0]
+    output = output.rsplit("Heap stats", 1)[0]
 
     return {
         'memstat': {

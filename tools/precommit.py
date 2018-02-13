@@ -23,7 +23,8 @@ import sys
 from common_py.system.executor import Executor as ex
 
 
-TESTS=['signed-off']
+TESTS = ['signed-off']
+
 
 def parse_option():
     parser = argparse.ArgumentParser(
