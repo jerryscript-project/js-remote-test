@@ -50,15 +50,13 @@ def execute(cwd, cmd, args=[], quiet=False):
         output = process.communicate()[0]
         exitcode = process.returncode
 
-        if quiet:
-            output = re.sub(' +', ' ', output)
-            output = re.sub('\n\n', '\n', output)
-            output = re.sub('\n ', '\n', output)
+        if exitcode:
+            raise Exception('Non-zero exit value.')
 
         return output, exitcode
 
     except Exception as e:
-        console.fail('[Failed - %s] %s' % (cmd, str(e)))
+        console.fail('[Failed - %s %s] %s' % (cmd, ' '.join(args), str(e)))
 
 
 def patch(project, patch, revert=False):
@@ -314,35 +312,33 @@ def get_section_sizes_from_map(mapfile):
     return sizes
 
 
-def last_commit_info(git_repo_path):
+def last_commit_info(gitpath):
     '''
     Get last commit information about the submodules.
     '''
     info = {
-        'message': None,
-        'commit': None,
-        'author': None,
-        'date': None
+        'message': 'n/a',
+        'commit': 'n/a',
+        'author': 'n/a',
+        'date': 'n/a'
     }
 
-    # Linux repository isn't exist.
-    if git_repo_path == 'linux':
-        return info
-
-    git_flags = [
+    options = [
         'log',
         '-1',
         '--date=format-local:%Y-%m-%dT%H:%M:%SZ',
         '--format=%H%n%an <%ae>%n%cd%n%s'
     ]
 
-    output, status_code = execute(git_repo_path, 'git', git_flags, quiet=True)
-    output = output.splitlines()
+    output, exitcode = execute(gitpath, 'git', options, quiet=True)
 
-    info['commit'] = output[0] if status_code == 0 else 'n/a'
-    info['author'] = output[1] if status_code == 0 else 'n/a'
-    info['date'] = output[2] if status_code == 0 else 'n/a'
-    info['message'] = output[3] if status_code == 0 else 'n/a'
+    if exitcode == 0:
+        output = output.splitlines()
+
+        info['commit'] = output[0]
+        info['author'] = output[1]
+        info['date'] = output[2]
+        info['message'] = output[3]
 
     return info
 
