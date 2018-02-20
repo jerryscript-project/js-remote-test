@@ -33,10 +33,7 @@ class ARTIK053Builder(builder.BuilderBase):
         self._build_application(profile, use_extra_flags)
         self._build_tizenrt()
 
-        build_linker_map = utils.join(builddir, 'linker.map')
-        # Copy the linker map file and the image to the build folder.
-        utils.copy(tizenrt['paths']['linker-map'], build_linker_map)
-        utils.copy(tizenrt['paths']['image'], builddir)
+        self._copy_build_files(tizenrt, builddir)
 
     def _prebuild_tizenrt(self):
         '''

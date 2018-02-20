@@ -60,7 +60,7 @@ def _resolve_symbols(env):
     '''
     Resolve all the symbols in the environment object.
 
-    "%%src/test/" -> /home/user/iotjs/test/
+    e.g. %iotjs/test/ -> /home/user/iotjs/test/
     '''
     for key, value in env.iteritems():
         env[key] = _resolve(value, env)
@@ -88,6 +88,14 @@ def _resolve(node, env):
     return node
 
 
+# Device - OS mapping.
+_targets = {
+    'stm32f4dis': 'nuttx',
+    'artik053': 'tizenrt',
+    'rpi2': 'linux'
+}
+
+
 def _replacer(string, env):
     '''
     Replace symbols with the corresponding string data.
@@ -95,7 +103,8 @@ def _replacer(string, env):
     if '%' not in string:
         return string
 
-    # These symbols always could be resolved.
+    # The following symbols are pre-defined, so their
+    # values are defined in this dictionary.
     symbol_mapping = {
         '%app': env['info']['app'],
         '%device': env['info']['device'],
@@ -104,15 +113,18 @@ def _replacer(string, env):
         '%result-path': paths.RESULT_PATH,
         '%build-path': paths.BUILD_PATH,
         '%patches': paths.PATCHES_PATH,
-        '%config': paths.CONFIG_PATH
+        '%config': paths.CONFIG_PATH,
+        '%target': _targets.get(env['info']['device'])
     }
 
     for symbol, value in symbol_mapping.items():
         string = string.replace(symbol, value)
 
     modules = env['modules']
-    # Process the remaining symbols that are
-    # reference to other modules.
+    # The following symbols are user defined that
+    # are references to other modules.
+    # e.g. %iotjs is replaced to the `src` member of
+    # the iotjs module.
     symbols = re.findall(r'%(.*?)/', string)
 
     for name in symbols:

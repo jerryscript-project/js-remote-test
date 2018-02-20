@@ -32,10 +32,7 @@ class RPi2Builder(builder.BuilderBase):
         self._build_application(profile, use_extra_flags)
         self._build_freya()
 
-        build_linker_map = utils.join(builddir, 'linker.map')
-        # Copy the linker map file and the image to the build folder.
-        utils.copy(application['paths']['linker-map'], build_linker_map)
-        utils.copy(application['paths']['image'], builddir)
+        self._copy_build_files(application, builddir)
 
     def _build_freya(self):
         '''

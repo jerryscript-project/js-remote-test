@@ -253,63 +253,54 @@ def remove_file(filename):
         pass
 
 
-def get_section_sizes_from_map(mapfile):
+_liblist = [
+    'libhttpparser.a',
+    'libiotjs.a',
+    'libjerry-core.a',
+    'libjerry-ext.a',
+    'libjerry-port-default.a',
+    'libjerry-port-default-minimal.a',
+    'libtuv.a'
+]
+
+
+def calculate_section_sizes(builddir):
     '''
-    Returns the sizes of the main sections.
+    Return the sizes of the main sections.
     '''
-    sizes = {
+    section_sizes = {
         'bss': 0,
         'text': 0,
         'data': 0,
-        'rodata': 0,
-        'total': 0
+        'rodata': 0
     }
 
-    if not exists(mapfile):
-        return sizes
+    mapfile = join(builddir, 'linker.map')
+    libdir = join(builddir, 'libs')
 
-    archives = [
-        'libhttpparser.a',
-        'libiotjs.a',
-        'libjerry-core.a',
-        'libjerry-ext.a',
-        'libjerry-port-default.a',
-        'libjerry-port-default-minimal.a',
-        'libtuv.a'
-    ]
+    if not (exists(mapfile) and exists(libdir)):
+        return section_sizes
 
-    # FIXME: use `ar` command to get the object files from
-    # the static libraries. With the object name list, the
-    # binary size estimation can be more punctual and don't
-    # need this exclude section.
-    exclude_archives = [
-        'libjerry-libm.a',
-        'libjerry-libc.a'
-    ]
+    # Get the names of the object files that the static
+    # libraries (libjerry-core.a, ...) have.
+    objlist = read_objects_from_libs(libdir, _liblist)
 
-    data = lumpy.load_map_data(mapfile)
-
-    sections = lumpy.parse_to_sections(data)
+    raw_data = lumpy.load_map_data(mapfile)
+    sections = lumpy.parse_to_sections(raw_data)
     # Extract .rodata section from the .text section.
-    lumpy.hoist_section(sections, ".text", ".rodata")
+    lumpy.hoist_section(sections, '.text', '.rodata')
 
-    for s in sections:
-        for section_key in sizes:
-            if s['name'] != '.%s' % section_key:
-                continue
+    for section in sections:
+        section_name = section['name'][1:]
+        # Skip sections that are not relevant.
+        if section_name not in section_sizes.keys():
+            continue
 
-            for ss in s['contents']:
-                if len(filter(lambda ar: ar in ss['path'], exclude_archives)):
-                    continue
+        for entry in section['contents']:
+            if any(obj in entry['path'] for obj in objlist):
+                section_sizes[section_name] += entry['size']
 
-                cobj_in_path = ss['path'].endswith('.c.obj)')
-                arch_in_path = len(filter(lambda ar: '/%s(' % ar in ss['path'], archives))
-
-                if cobj_in_path or arch_in_path:
-                    sizes[section_key] += ss['size']
-
-    sizes['total'] = sizes['text'] + sizes['data'] + sizes['rodata']
-    return sizes
+    return section_sizes
 
 
 def last_commit_info(gitpath):
@@ -351,12 +342,12 @@ def create_build_info(env):
     build_path = env['paths']['build']
 
     # Binary size information.
-    minimal_map = join(env['paths']['build-minimal'], 'linker.map')
-    target_map = join(env['paths']['build-target'], 'linker.map')
+    minimal_builddir = env['paths']['build-minimal']
+    target_builddir = env['paths']['build-target']
 
     bin_sizes = {
-        'minimal-profile': get_section_sizes_from_map(minimal_map),
-        'target-profile': get_section_sizes_from_map(target_map)
+        'minimal-profile': calculate_section_sizes(minimal_builddir),
+        'target-profile': calculate_section_sizes(target_builddir)
     }
 
     # Git commit information from the projects.
@@ -508,3 +499,20 @@ def process_output(output):
         output, _ = output.split('Heap stats:', 1)
 
     return output, memstat, exitcode
+
+
+def read_objects_from_libs(libpath, liblist):
+    '''
+    Read all the names of the object files that are
+    located in the archive files.
+    '''
+    objlist = []
+
+    for file in os.listdir(libpath):
+        if file not in liblist:
+            continue
+
+        output, _ = execute(libpath, 'ar', ['t', file], quiet=True)
+        objlist.extend(output.splitlines())
+
+    return objlist

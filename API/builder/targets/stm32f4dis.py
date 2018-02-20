@@ -34,10 +34,7 @@ class STM32F4Builder(builder.BuilderBase):
         self._build_nuttx()
         self._build_stlink()
 
-        build_linker_map = utils.join(builddir, 'linker.map')
-        # Copy the linker map file and the image to the build folder.
-        utils.copy(nuttx['paths']['linker-map'], build_linker_map)
-        utils.copy(nuttx['paths']['image'], builddir)
+        self._copy_build_files(nuttx, builddir)
 
     def _prebuild_nuttx(self):
         '''

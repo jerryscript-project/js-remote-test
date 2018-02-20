@@ -82,3 +82,16 @@ class BuilderBase(object):
 
         builder = builders.get(application['name'])
         builder(profile, extra_flags)
+
+    def _copy_build_files(self, target_module, builddir):
+        '''
+        Copy the created binaries, libs, linker map to the build folder.
+        '''
+        application = self.env['modules']['app']
+
+        linker_map = utils.join(builddir, 'linker.map')
+        lib_folder = utils.join(builddir, 'libs')
+
+        utils.copy(application['paths']['libdir'], lib_folder)
+        utils.copy(target_module['paths']['linker-map'], linker_map)
+        utils.copy(target_module['paths']['image'], builddir)

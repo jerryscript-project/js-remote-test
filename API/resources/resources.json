@@ -89,6 +89,7 @@
         "minimal-profile": "%jerryscript/jerry-core/profiles/minimal.profile",
         "es2015-subset-profile": "%jerryscript/jerry-core/profiles/es2015-subset.profile",
         "linker-map": "%jerryscript/build/jerry-main/jerry.map",
+        "libdir": "%jerryscript/build/lib",
         "image": "%jerryscript/build/bin/jerry",
         "stm32f4dis-toolchain": "%jerryscript/cmake/toolchain_mcu_stm32f4.cmake",
         "artik053-toolchain": "%jerryscript/cmake/toolchain_mcu_artik053.cmake",
@@ -113,6 +114,7 @@
         "nuttx-profile": "%iotjs/test/profiles/nuttx.profile",
         "rpi2-profile": "%iotjs/test/profiles/rpi2-linux.profile",
         "linker-map": "%iotjs/build/arm-linux/%build-type/iotjs.map",
+        "libdir": "%iotjs/build/arm-%target/%build-type/lib",
         "image": "%iotjs/build/arm-linux/%build-type/bin/iotjs"
       },
       "patches": [
