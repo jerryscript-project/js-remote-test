@@ -405,7 +405,7 @@ def upload_data_to_firebase(env, test_info):
 
     # Update the status images.
     status = 'passed'
-    for test in self.test_info['tests']:
+    for test in test_info['tests']:
         if test['result'] == 'fail':
             status = 'failed'
             break
@@ -476,19 +476,19 @@ def process_output(output):
         match = re.search(r'Peak allocated = (\d+) bytes', output)
 
         if match:
-            memstat['heap-jerry'] = match.group(1)
+            memstat['heap-jerry'] = int(match.group(1))
 
         # Process malloc peak output.
         match = re.search(r'Malloc peak allocated: (\d+) bytes', output)
 
         if match:
-            memstat['heap-system'] = match.group(1)
+            memstat['heap-system'] = int(match.group(1))
 
         # Process stack usage output.
         match = re.search(r'Stack usage: (\d+)', output)
 
         if match:
-            memstat['stack'] = match.group(1)
+            memstat['stack'] = int(match.group(1))
 
         match = re.search(r'(IoT.js|JerryScript) [Rr]esult: (\d+)', output)
 
