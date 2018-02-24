@@ -72,7 +72,8 @@
         { "deps": ["jerryscript"], "src": "%jerryscript/targets/nuttx-stm32f4/", "dst": "%nuttx-apps/interpreters/jerryscript/" }
       ],
       "patches": [
-        { "deps": ["iotjs"], "file": "%patches/nuttx-iotjs-stack.diff" }
+        { "deps": ["iotjs"], "file": "%patches/nuttx-iotjs-stack.diff" },
+        { "deps": ["jerryscript"], "file": "%patches/nuttx-jerryscript-stack.diff" }
       ]
     },
     "jerryscript": {
