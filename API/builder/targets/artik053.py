@@ -79,7 +79,7 @@ class ARTIK053Builder(builder.BuilderBase):
             '--mem-heap=70',
             '--profile=%s' % profiles[profile],
             '--toolchain=%s' % jerry['paths']['artik053-toolchain'],
-            '--compile-flag=-isystem %s' % tizenrt['paths']['include']
+            '--compile-flag="-isystem %s"' % tizenrt['paths']['include']
         ] + extra_flags
 
         # TizenRT requires the path of the used JerryScript folder.
