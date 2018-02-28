@@ -40,7 +40,8 @@
         { "deps": ["jerryscript"], "src": "%config/tizenrt-jerryscript.config", "dst": "%tizenrt/build/configs/artik053/jerryscript/defconfig" }
       ],
       "patches": [
-        { "file": "%patches/tizenrt-openocd.diff", "revert": false}
+        { "file": "%patches/tizenrt-openocd.diff", "revert": false},
+        { "deps": ["jerryscript"], "file": "%patches/tizenrt-jerryscript-stack.diff" }
       ]
     },
     "nuttx": {

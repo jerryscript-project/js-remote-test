@@ -1,0 +1,66 @@
+diff --git a/apps/system/jerryscript/jerry_main.c b/apps/system/jerryscript/jerry_main.c
+index 80d16f5..a39c601 100644
+--- a/apps/system/jerryscript/jerry_main.c
++++ b/apps/system/jerryscript/jerry_main.c
+@@ -42,6 +42,11 @@
+ #define SYNTAX_ERROR_CONTEXT_SIZE 2
+ 
+ /**
++ * Pattern for stack measurement.
++ */
++#define PATTERN (0xfe)
++
++/**
+  * Print usage and available options
+  */
+ static void
+@@ -436,8 +441,49 @@ jerry_cmd_main (int argc, char *argv[])
+ static int
+ jerry(int argc, char *argv[])
+ {
++  FILE *fp;
++  char fname[32];
++  char stack_info[64];
++  unsigned long size;
++  unsigned long base;
++  unsigned long stack_ptr;
++  size_t file_size;
++
++  /*
++   * Content of /proc/<pid>/stack:
++   * StackBase:  0x2001a368
++   * StackSize:  16364
++   */
++
++  sprintf(fname, "/proc/%d/stack", getpid());
++  fp = fopen(fname, "r");
++  if (!fp) {
++    return 1;
++  }
++
++  /* Extract stack info */
++  file_size = fread(stack_info, 1, 63, fp);
++  stack_info[file_size] = '\0';
++  fclose(fp);
++
++  sscanf(stack_info, "StackBase:  0x%x\nStackSize:  %d", &base, &size);
++  uint8_t *end = (uint8_t *)(base - size + 4);
++
++  /* Stack coloration */
++  __asm__("mov %0, sp" : "=r" (stack_ptr));
++  memset(end, PATTERN, stack_ptr - (unsigned long)end);
++
+   int ret_code = jerry_cmd_main(argc, argv);
+ 
++  /* Check max stack usage */
++  uint8_t *stack_p = end;
++
++  while (*stack_p == PATTERN) {
++    stack_p++;
++  }
++
++  printf ("Stack usage: %d\n", (int) (base - (unsigned long)stack_p));
++
+ #ifdef CONFIG_DEBUG_VERBOSE
+   jerry_port_log(JERRY_LOG_LEVEL_DEBUG, "JerryScript result: %d\n", ret_code);
+ #endif
