@@ -12,13 +12,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from targets import artik053, rpi2, stm32f4dis
+from targets import artik053, rpi2, stm32f4dis, artik530
 
 
 BUILDERS = {
     'stm32f4dis': stm32f4dis.STM32F4Builder,
     'artik053': artik053.ARTIK053Builder,
-    'rpi2': rpi2.RPi2Builder
+    'rpi2': rpi2.RPi2Builder,
+    'artik530': artik530.ARTIK530Builder
 }
 
 

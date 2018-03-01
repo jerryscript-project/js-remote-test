@@ -2,7 +2,8 @@
   "targets": {
     "stm32f4dis": ["nuttx", "nuttx-apps", "stlink"],
     "rpi2": ["freya"],
-    "artik053": ["tizenrt"]
+    "artik053": ["tizenrt"],
+    "artik530": []
   },
   "paths": {
     "result": "%result-path/%app/%device",
@@ -10,7 +11,8 @@
     "build-json": "%build-path/%app/%device/%build-type/build.json",
     "build-test": "%build-path/%app/%device/%build-type/test",
     "build-target": "%build-path/%app/%device/%build-type/profiles/target",
-    "build-minimal": "%build-path/%app/%device/%build-type/profiles/minimal"
+    "build-minimal": "%build-path/%app/%device/%build-type/profiles/minimal",
+    "tizen-rpm-package": "%home/GBS-ROOT/local/repos/tizen_unified_preview1/armv7l/RPMS/%app-1.0.0-0.armv7l.rpm"
   },
   "modules": {
     "stlink": {
@@ -107,7 +109,8 @@
       "extra-build-flags": {
         "stm32f4dis": ["--jerry-memstat"],
         "rpi2": ["--jerry-memstat", "--compile-flag=-g", "--jerry-compile-flag=-g"],
-        "artik053": ["--jerry-memstat"]
+        "artik053": ["--jerry-memstat"],
+        "artik530": [""]
       },
       "paths": {
         "tests": "%iotjs/test/",

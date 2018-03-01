@@ -14,6 +14,9 @@
 
 import os
 
+# Home directory path
+HOME = os.path.expanduser('~')
+
 # Root directory of the project (dirname).
 ROOT_FOLDER = os.path.join(os.path.dirname(__file__), '../..')
 
@@ -46,6 +49,7 @@ FREYA_CONFIG = os.path.join(RESOURCES_PATH, 'etc', 'iotjs-freya.config')
 
 FREYA_TESTER = os.path.join(RESOURCES_PATH, 'etc', 'tester.py')
 
+SIMPLE_TESTER = os.path.join(RESOURCES_PATH, 'etc', 'simpletester.py')
 #
 # ================================
 #

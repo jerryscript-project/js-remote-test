@@ -92,7 +92,8 @@ def _resolve(node, env):
 _targets = {
     'stm32f4dis': 'nuttx',
     'artik053': 'tizenrt',
-    'rpi2': 'linux'
+    'rpi2': 'linux',
+    'artik530': 'tizen'
 }
 
 
@@ -106,6 +107,7 @@ def _replacer(string, env):
     # The following symbols are pre-defined, so their
     # values are defined in this dictionary.
     symbol_mapping = {
+        '%home': paths.HOME,
         '%app': env['info']['app'],
         '%device': env['info']['device'],
         '%build-type': env['info']['buildtype'],

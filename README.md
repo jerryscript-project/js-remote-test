@@ -9,7 +9,8 @@ The following table shows the supported devices and applications:
 |                :---:                   |  :---:    |    :---:    |
 | STM32F4-Discovery                      | &#128504; |  &#128504;  |
 | Raspberry Pi 2                         | &#128504; |  &#128504;  |
-| Artik053                               | &#128504; |  &#128504;  |
+| ARTIK 053                               | &#128504; |  &#128504;  |
+| ARTIK 530                               |  |  |
 <br />
 
 In the first step, all the dependencies should be installed:  
@@ -78,6 +79,31 @@ Source:
   * https://github.com/Samsung/TizenRT/blob/master/build/configs/artik053/README.md#add-usb-device-rules
 
 
+### Set up ARTIK 530
+
+In case of the ARTIK 530 devices, the communication happens over `SSH`, like in case of RP2. You need to check a few things before starting remote-test.
+First, you must install rpm packages which are `openssh, python3, rsync` on the remote target. 
+([openssh](http://download.tizen.org/releases/previews/iot/preview1/tizen-4.0-unified_20171016.1/repos/standard/packages/armv7l/openssh-6.6p1-1.2.armv7l.rpm), 
+[libpython3](http://download.tizen.org/releases/previews/iot/preview1/tizen-4.0-base_20170929.1/repos/arm/packages/armv7l/libpython3_4m1_0-3.4.4-2.6.armv7l.rpm), 
+[python3-base](http://download.tizen.org/releases/previews/iot/preview1/tizen-4.0-base_20170929.1/repos/arm/packages/armv7l/python3-base-3.4.4-2.6.armv7l.rpm), 
+[python3](http://download.tizen.org/releases/previews/iot/preview1/tizen-4.0-base_20170929.1/repos/arm/packages/armv7l/python3-3.4.4-2.1.armv7l.rpm), 
+[rsync](http://download.tizen.org/releases/previews/iot/preview1/tizen-4.0-unified_20171016.1/repos/standard/packages/armv7l/rsync-3.1.1-2.1.armv7l.rpm))
+
+Download the packages above and install them with the commands below. To install them, serial port should be connected with the target board. For more details, please refer to [this link](https://developer.tizen.org/development/iot-preview/getting-started/flashing-tizen-images).
+
+```sh
+# Assuming you are on the remote target.
+mount -o remount,rw /
+rpm -ivh <package_file_path>
+```
+
+Next, in order to avoid the authentication every time, you should create an ssh key (on your desktop) and share the public key with the device:
+
+```sh
+# Assuming you are on the host.
+user@desktop $ ssh-keygen -t rsa
+user@desktop $ ssh-copy-id root@address
+```
 
 ### Start testrunner
 
@@ -101,7 +127,7 @@ $ python driver.py
   Defines the buildtype for the projects {release, debug}. Just for debugging.
 
 --device
-  Defines the target device {stm32f4dis, rpi2, artik053}.
+  Defines the target device {stm32f4dis, rpi2, artik053, artik530}.
 
 --public
   Publish the test results to the public database.
@@ -155,6 +181,7 @@ $ python driver.py --device rpi2 --app iotjs --address a.b.c.d --username pi --r
 $ python driver.py --device rpi2 --app jerryscript --address a.b.c.d --username pi --remote-workdir /home/pi/testrunner
 $ python driver.py --device artik053 --app iotjs --port /dev/ARTIK053 --baud 115200
 $ python driver.py --device artik053 --app jerryscript --port /dev/ARTIK053 --baud 115200
+$ python driver.py --device artik530 --app iotjs --address a.b.c.d --username root --remote-workdir /root/testrunner
 ```
 
 All the results are written into JSON files that are found in a `results` folder. Name of the output files are datetime with the following format:
