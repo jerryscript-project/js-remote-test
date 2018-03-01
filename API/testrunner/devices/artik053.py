@@ -100,7 +100,7 @@ class ARTIK053Device(object):
         testfile = '/rom/%s/%s' % (testset, test['name'])
 
         command = {
-            'iotjs': 'iotjs --memstat %s\n' % testfile,
+            'iotjs': 'iotjs --mem-stats %s\n' % testfile,
             'jerryscript': 'jerry %s --mem-stats\n' % testfile
         }
 

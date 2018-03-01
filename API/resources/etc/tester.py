@@ -148,7 +148,7 @@ def run_iotjs(options):
     ]
 
     # 1. Run IoT.js without Freya to get its output and exit value.
-    output, exitcode = execute(options.cwd, options.cmd, ['--memstat', options.testfile])
+    output, exitcode = execute(options.cwd, options.cmd, ['--mem-stats', options.testfile])
 
     jerry_peak_alloc = 'n/a'
     stack_peak = 'n/a'

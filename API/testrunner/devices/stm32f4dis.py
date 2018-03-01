@@ -103,7 +103,7 @@ class STM32F4Device(object):
         testfile = '/test/%s/%s' % (testset, test['name'])
 
         command = {
-            'iotjs': 'iotjs --memstat %s' % testfile,
+            'iotjs': 'iotjs --mem-stats %s' % testfile,
             'jerryscript': 'jerry %s --mem-stats' % testfile
         }
 
