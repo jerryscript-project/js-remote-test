@@ -97,7 +97,7 @@ class STM32F4Builder(builder.BuilderBase):
             '--profile=%s' % profiles[profile],
             '--toolchain=%s' % jerry['paths']['stm32f4dis-toolchain'],
             '--compile-flag=-I%s' % jerry['paths']['stm32f4dis-target'],
-            '--compile-flag="-isystem %s"' % nuttx['paths']['include']
+            '--compile-flag=-isystem %s' % nuttx['paths']['include']
         ] + extra_flags
 
         # NuttX requires the path of the used JerryScript folder.
