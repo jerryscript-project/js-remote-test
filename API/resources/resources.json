@@ -6,83 +6,83 @@
     "artik530": []
   },
   "paths": {
-    "result": "%result-path/%app/%device",
-    "build": "%build-path/%app/%device/%build-type",
-    "build-json": "%build-path/%app/%device/%build-type/build.json",
-    "build-test": "%build-path/%app/%device/%build-type/test",
-    "build-target": "%build-path/%app/%device/%build-type/profiles/target",
-    "build-minimal": "%build-path/%app/%device/%build-type/profiles/minimal",
-    "tizen-rpm-package": "%home/GBS-ROOT/local/repos/tizen_unified_preview1/armv7l/RPMS/%app-1.0.0-0.armv7l.rpm"
+    "result": "%{result-path}/%{app}/%{device}",
+    "build": "%{build-path}/%{app}/%{device}/%{build-type}",
+    "build-json": "%{build-path}/%{app}/%{device}/%{build-type}/build.json",
+    "build-test": "%{build-path}/%{app}/%{device}/%{build-type}/test",
+    "build-target": "%{build-path}/%{app}/%{device}/%{build-type}/profiles/target",
+    "build-minimal": "%{build-path}/%{app}/%{device}/%{build-type}/profiles/minimal",
+    "tizen-rpm-package": "%{home}/GBS-ROOT/local/repos/tizen_unified_preview1/armv7l/RPMS/%{app}-1.0.0-0.armv7l.rpm"
   },
   "modules": {
     "stlink": {
       "url": "https://github.com/texane/stlink.git",
-      "src": "%js-remote-test/deps/stlink",
+      "src": "%{js-remote-test}/deps/stlink",
       "version": "master",
       "paths": {
-        "st-flash": "%stlink/build/Release/st-flash"
+        "st-flash": "%{stlink}/build/Release/st-flash"
       }
     },
     "tizenrt": {
       "url": "https://github.com/Samsung/TizenRT.git",
-      "src": "%js-remote-test/deps/tizenrt",
+      "src": "%{js-remote-test}/deps/tizenrt",
       "version": "1.1_Public_Release",
       "paths": {
-        "os": "%tizenrt/os/",
-        "tools": "%tizenrt/os/tools/",
-        "image": "%tizenrt/build/output/bin/tinyara.bin",
-        "include": "%tizenrt/os/include",
-        "contents": "%tizenrt/tools/fs/contents/",
-        "linker-map": "%tizenrt/build/output/bin/tinyara.map"
+        "os": "%{tizenrt}/os/",
+        "tools": "%{tizenrt}/os/tools/",
+        "image": "%{tizenrt}/build/output/bin/tinyara.bin",
+        "include": "%{tizenrt}/os/include",
+        "contents": "%{tizenrt}/tools/fs/contents/",
+        "linker-map": "%{tizenrt}/build/output/bin/tinyara.map"
       },
       "config": [
-        { "deps": ["iotjs"], "src": "%config/tizenrt-iotjs.config", "dst": "%tizenrt/build/configs/artik053/iotjs/defconfig" },
-        { "deps": ["jerryscript"], "src": "%jerryscript/targets/tizenrt-artik053/apps/jerryscript/", "dst": "%tizenrt/apps/system/jerryscript/" },
-        { "deps": ["jerryscript"], "src": "%jerryscript/targets/tizenrt-artik053/configs/jerryscript/", "dst": "%tizenrt/build/configs/artik053/jerryscript/" },
-        { "deps": ["jerryscript"], "src": "%config/tizenrt-jerryscript.config", "dst": "%tizenrt/build/configs/artik053/jerryscript/defconfig" }
+        { "deps": ["iotjs"], "src": "%{config}/tizenrt-iotjs.config", "dst": "%{tizenrt}/build/configs/artik053/iotjs/defconfig" },
+        { "deps": ["jerryscript"], "src": "%{jerryscript}/targets/tizenrt-artik053/apps/jerryscript/", "dst": "%{tizenrt}/apps/system/jerryscript/" },
+        { "deps": ["jerryscript"], "src": "%{jerryscript}/targets/tizenrt-artik053/configs/jerryscript/", "dst": "%{tizenrt}/build/configs/artik053/jerryscript/" },
+        { "deps": ["jerryscript"], "src": "%{config}/tizenrt-jerryscript.config", "dst": "%{tizenrt}/build/configs/artik053/jerryscript/defconfig" }
       ],
       "patches": [
-        { "file": "%patches/tizenrt-openocd.diff", "revert": false},
-        { "deps": ["jerryscript"], "file": "%patches/tizenrt-jerryscript-stack.diff" }
+        { "file": "%{patches}/tizenrt-openocd.diff", "revert": false},
+        { "deps": ["jerryscript"], "file": "%{patches}/tizenrt-jerryscript-stack.diff" }
       ]
     },
     "nuttx": {
       "url": "https://bitbucket.org/nuttx/nuttx.git",
-      "src": "%js-remote-test/deps/nuttx",
+      "src": "%{js-remote-test}/deps/nuttx",
       "version": "nuttx-7.19",
       "paths": {
-        "tools": "%nuttx/tools/",
-        "image": "%nuttx/nuttx.bin",
-        "include": "%nuttx/include",
-        "linker-map": "%nuttx/arch/arm/src/nuttx.map"
+        "tools": "%{nuttx}/tools/",
+        "image": "%{nuttx}/nuttx.bin",
+        "include": "%{nuttx}/include",
+        "linker-map": "%{nuttx}/arch/arm/src/nuttx.map"
       },
       "patches": [
-        { "file": "%patches/nuttx-7.19.diff" }
+        { "file": "%{patches}/nuttx-7.19.diff" }
       ],
       "config": [
-        { "deps": ["iotjs"], "src": "%config/nuttx-iotjs.config", "dst": "%nuttx/configs/stm32f4discovery/usbnsh/defconfig" },
-        { "deps": ["jerryscript"], "src": "%config/nuttx-jerryscript.config", "dst": "%nuttx/configs/stm32f4discovery/usbnsh/defconfig" }
+        { "deps": ["iotjs"], "src": "%{config}/nuttx-iotjs.config", "dst": "%{nuttx}/configs/stm32f4discovery/usbnsh/defconfig" },
+        { "deps": ["jerryscript"], "src": "%{config}/nuttx-jerryscript.config", "dst": "%{nuttx}/configs/stm32f4discovery/usbnsh/defconfig" }
       ]
     },
     "nuttx-apps": {
       "url": "https://bitbucket.org/nuttx/apps.git",
-      "src": "%js-remote-test/deps/apps",
+      "src": "%{js-remote-test}/deps/apps",
       "version": "nuttx-7.19",
       "paths": {
-        "romfs": "%nuttx-apps/nshlib/nsh_romfsimg.h"
+        "romfs": "%{nuttx-apps}/nshlib/nsh_romfsimg.h"
       },
       "config": [
-        { "deps": ["iotjs"], "src": "%iotjs/config/nuttx/stm32f4dis/app/", "dst": "%nuttx-apps/system/iotjs/" },
-        { "deps": ["jerryscript"], "src": "%jerryscript/targets/nuttx-stm32f4/", "dst": "%nuttx-apps/interpreters/jerryscript/" }
+        { "deps": ["iotjs"], "src": "%{iotjs}/config/nuttx/stm32f4dis/app/", "dst": "%{nuttx-apps}/system/iotjs/" },
+        { "deps": ["jerryscript"], "src": "%{jerryscript}/targets/nuttx-stm32f4/", "dst": "%{nuttx-apps}/interpreters/jerryscript/" }
       ],
       "patches": [
-        { "deps": ["iotjs"], "file": "%patches/nuttx-iotjs-stack.diff" },
-        { "deps": ["jerryscript"], "file": "%patches/nuttx-jerryscript-stack.diff" }
+        { "deps": ["iotjs"], "file": "%{patches}/nuttx-iotjs-stack.diff" },
+        { "deps": ["jerryscript"], "file": "%{patches}/nuttx-jerryscript-stack.diff" }
       ]
     },
     "jerryscript": {
       "url": "https://github.com/jerryscript-project/jerryscript.git",
-      "src": "%js-remote-test/deps/jerryscript",
+      "src": "%{js-remote-test}/deps/jerryscript",
       "version": "master",
       "extra-build-flags": {
         "stm32f4dis": ["--mem-stats=ON"],
@@ -90,24 +90,24 @@
         "artik053": ["--mem-stats=ON"]
       },
       "paths": {
-        "tests": "%jerryscript/tests/jerry/",
-        "minimal-profile": "%jerryscript/jerry-core/profiles/minimal.profile",
-        "es2015-subset-profile": "%jerryscript/jerry-core/profiles/es2015-subset.profile",
-        "linker-map": "%jerryscript/build/jerry-main/jerry.map",
-        "libdir": "%jerryscript/build/lib",
-        "image": "%jerryscript/build/bin/jerry",
-        "stm32f4dis-target": "%jerryscript/targets/nuttx-stm32f4",
-        "stm32f4dis-toolchain": "%jerryscript/cmake/toolchain_mcu_stm32f4.cmake",
-        "artik053-toolchain": "%jerryscript/cmake/toolchain_mcu_artik053.cmake",
-        "rpi2-toolchain": "%jerryscript/cmake/toolchain_linux_armv7l.cmake"
+        "tests": "%{jerryscript}/tests/jerry/",
+        "minimal-profile": "%{jerryscript}/jerry-core/profiles/minimal.profile",
+        "es2015-subset-profile": "%{jerryscript}/jerry-core/profiles/es2015-subset.profile",
+        "linker-map": "%{jerryscript}/build/jerry-main/jerry.map",
+        "libdir": "%{jerryscript}/build/lib",
+        "image": "%{jerryscript}/build/bin/jerry",
+        "stm32f4dis-target": "%{jerryscript}/targets/nuttx-stm32f4",
+        "stm32f4dis-toolchain": "%{jerryscript}/cmake/toolchain_mcu_stm32f4.cmake",
+        "artik053-toolchain": "%{jerryscript}/cmake/toolchain_mcu_artik053.cmake",
+        "rpi2-toolchain": "%{jerryscript}/cmake/toolchain_linux_armv7l.cmake"
       },
       "patches": [
-        { "deps": ["rpi2"], "file": "%patches/linux-jerryscript-stack.diff"}
+        { "deps": ["rpi2"], "file": "%{patches}/linux-jerryscript-stack.diff"}
       ]
     },
     "iotjs": {
       "url": "https://github.com/Samsung/iotjs.git",
-      "src": "%js-remote-test/deps/iotjs",
+      "src": "%{js-remote-test}/deps/iotjs",
       "version": "master",
       "extra-build-flags": {
         "stm32f4dis": ["--jerry-memstat"],
@@ -116,28 +116,28 @@
         "artik530": [""]
       },
       "paths": {
-        "tests": "%iotjs/test/",
-        "testfiles": "%iotjs/test/testsets.json",
-        "build-info": "%iotjs/tools/iotjs_build_info.js",
-        "minimal-profile": "%iotjs/profiles/minimal.profile",
-        "tizenrt-profile": "%iotjs/test/profiles/tizenrt.profile",
-        "nuttx-profile": "%iotjs/test/profiles/nuttx.profile",
-        "rpi2-profile": "%iotjs/test/profiles/rpi2-linux.profile",
-        "linker-map": "%iotjs/build/arm-linux/%build-type/iotjs.map",
-        "libdir": "%iotjs/build/arm-%target/%build-type/lib",
-        "image": "%iotjs/build/arm-linux/%build-type/bin/iotjs"
+        "tests": "%{iotjs}/test/",
+        "testfiles": "%{iotjs}/test/testsets.json",
+        "build-info": "%{iotjs}/tools/iotjs_build_info.js",
+        "minimal-profile": "%{iotjs}/profiles/minimal.profile",
+        "tizenrt-profile": "%{iotjs}/test/profiles/tizenrt.profile",
+        "nuttx-profile": "%{iotjs}/test/profiles/nuttx.profile",
+        "rpi2-profile": "%{iotjs}/test/profiles/rpi2-linux.profile",
+        "linker-map": "%{iotjs}/build/arm-linux/%{build-type}/iotjs.map",
+        "libdir": "%{iotjs}/build/arm-%{target}/%{build-type}/lib",
+        "image": "%{iotjs}/build/arm-linux/%{build-type}/bin/iotjs"
       },
       "patches": [
-        { "deps": ["artik053"], "file": "%patches/tizenrt-iotjs-stack.diff" },
-        { "deps": ["stm32f4dis", "artik053"], "file": "%patches/iotjs-system-heap.diff" },
-        { "deps": ["stm32f4dis", "artik053"], "file": "%patches/libtuv-system-heap.diff", "submodule": "%iotjs/deps/libtuv/" },
-        { "deps": ["stm32f4dis", "artik053", "rpi2"], "file": "%patches/jerryscript-jerry-heap.diff", "submodule": "%iotjs/deps/jerry/" },
-        { "deps": ["rpi2"], "file": "%patches/linux-iotjs-stack.diff" }
+        { "deps": ["artik053"], "file": "%{patches}/tizenrt-iotjs-stack.diff" },
+        { "deps": ["stm32f4dis", "artik053"], "file": "%{patches}/iotjs-system-heap.diff" },
+        { "deps": ["stm32f4dis", "artik053"], "file": "%{patches}/libtuv-system-heap.diff", "submodule": "%{iotjs}/deps/libtuv/" },
+        { "deps": ["stm32f4dis", "artik053", "rpi2"], "file": "%{patches}/jerryscript-jerry-heap.diff", "submodule": "%{iotjs}/deps/jerry/" },
+        { "deps": ["rpi2"], "file": "%{patches}/linux-iotjs-stack.diff" }
       ]
     },
     "freya": {
       "url": "https://github.com/szeged/Freya.git",
-      "src": "%js-remote-test/deps/valgrind_freya",
+      "src": "%{js-remote-test}/deps/valgrind_freya",
       "version": "master"
     }
   }

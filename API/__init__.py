@@ -104,36 +104,31 @@ def _replacer(string, env):
     if '%' not in string:
         return string
 
-    # The following symbols are pre-defined, so their
-    # values are defined in this dictionary.
-    symbol_mapping = {
-        '%home': paths.HOME,
-        '%app': env['info']['app'],
-        '%device': env['info']['device'],
-        '%build-type': env['info']['buildtype'],
-        '%js-remote-test': paths.PROJECT_ROOT,
-        '%result-path': paths.RESULT_PATH,
-        '%build-path': paths.BUILD_PATH,
-        '%patches': paths.PATCHES_PATH,
-        '%config': paths.CONFIG_PATH,
-        '%target': _targets.get(env['info']['device'])
+    symbol_table = {
+        'app': env['info']['app'],
+        'device': env['info']['device'],
+        'build-type': env['info']['buildtype'],
+        'target': _targets.get(env['info']['device']),
+        'js-remote-test': paths.PROJECT_ROOT,
+        'result-path': paths.RESULT_PATH,
+        'build-path': paths.BUILD_PATH,
+        'patches': paths.PATCHES_PATH,
+        'config': paths.CONFIG_PATH,
+        'home': paths.HOME
     }
 
-    for symbol, value in symbol_mapping.items():
-        string = string.replace(symbol, value)
+    for symbol in re.findall('%{(.*?)}', string):
+        # Resolve the symbol from the symbol table.
+        value = symbol_table.get(symbol, None)
 
-    modules = env['modules']
-    # The following symbols are user defined that
-    # are references to other modules.
-    # e.g. %iotjs is replaced to the `src` member of
-    # the iotjs module.
-    symbols = re.findall(r'%(.*?)/', string)
+        # If the symbol is not found, but that is a valid module name in
+        # resources.json, resolve the symbol as a path to the module.
+        if not value and symbol in env['modules']:
+            value = env['modules'][symbol]['src']
 
-    for name in symbols:
-        # Skip if the module does not exist.
-        if name not in modules:
+        if not value:
             continue
 
-        string = string.replace('%' + name, modules[name]['src'])
+        string = string.replace('%%{%s}' % symbol, value)
 
     return string
