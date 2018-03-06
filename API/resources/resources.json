@@ -100,7 +100,10 @@
         "stm32f4dis-toolchain": "%jerryscript/cmake/toolchain_mcu_stm32f4.cmake",
         "artik053-toolchain": "%jerryscript/cmake/toolchain_mcu_artik053.cmake",
         "rpi2-toolchain": "%jerryscript/cmake/toolchain_linux_armv7l.cmake"
-      }
+      },
+      "patches": [
+        { "deps": ["rpi2"], "file": "%patches/linux-jerryscript-stack.diff"}
+      ]
     },
     "iotjs": {
       "url": "https://github.com/Samsung/iotjs.git",

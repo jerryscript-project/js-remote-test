@@ -1,0 +1,71 @@
+diff --git a/jerry-main/main-unix.c b/jerry-main/main-unix.c
+index 8bc1ead..eff2df8 100644
+--- a/jerry-main/main-unix.c
++++ b/jerry-main/main-unix.c
+@@ -48,6 +48,10 @@
+ 
+ static uint8_t buffer[ JERRY_BUFFER_SIZE ];
+ 
++#define STACK_MEASURE_RANGE (8 * 1024 * 1024)
++#define PATTERN (0xfe)
++static uint8_t stack[STACK_MEASURE_RANGE];
++
+ static const uint32_t *
+ read_file (const char *file_name,
+            size_t *out_size_p)
+@@ -363,9 +367,8 @@ instance_alloc (size_t size,
+ 
+ #endif /* JERRY_ENABLE_EXTERNAL_CONTEXT */
+ 
+-int
+-main (int argc,
+-      char **argv)
++static int __attribute__ ((noinline))
++main_jerry (int argc, char **argv)
+ {
+   srand ((unsigned) jerry_port_get_current_time ());
+   const char *file_names[argc];
+@@ -766,3 +769,43 @@ main (int argc,
+ #endif /* JERRY_ENABLE_EXTERNAL_CONTEXT */
+   return ret_code;
+ } /* main */
++
++int __attribute__ ((noinline))
++main (int argc,
++      char **argv)
++{
++  uint8_t * stack_p = stack;
++  uint8_t * stack_end_p = stack + STACK_MEASURE_RANGE;
++
++  while (stack_p < stack_end_p)
++  {
++    *stack_p = PATTERN;
++    stack_p++;
++  }
++
++  // Save the current point of the stack pointer and
++  // modify that to point the custom stack.
++  __asm volatile ("mov %0, sp" : "=r" (stack_p));
++  __asm volatile ("mov sp, %0" : : "r" (stack_end_p));
++
++  int ret_code = main_jerry (argc, argv);
++
++  // Restore the stack pointer to the original value.
++  __asm volatile ("mov sp, %0" : : "r" (stack_p));
++
++  stack_p = stack;
++  stack_end_p = stack + STACK_MEASURE_RANGE;
++
++  while (stack_p < stack_end_p)
++  {
++    if (*stack_p != PATTERN)
++    {
++      break;
++    }
++    stack_p++;
++  }
++
++  printf ("Stack usage: %d\n", (int) (stack_end_p - stack_p));
++
++  return ret_code;
++}

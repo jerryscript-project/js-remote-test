@@ -114,21 +114,30 @@ def run_jerry(options):
     '''
     output, exitcode = execute(options.cwd, options.cmd, [options.testfile, '--mem-stats'])
 
-    # Process the memstat to get the peak memory.
-    match = re.search(r'Peak allocated = (\d+) bytes', str(output))
+    mempeak = 'n/a'
+    stack = 'n/a'
 
-    if match:
-        mempeak = match.group(1)
-    else:
-        mempeak = 'n/a'
+    if output.find('Heap stats:') != -1:
+        # Process jerry-memstat output.
+        match = re.search(r'Peak allocated = (\d+) bytes', output)
 
-    output = output.rsplit("Heap stats", 1)[0]
+        if match:
+            mempeak = int(match.group(1))
+
+        # Process stack usage output.
+        match = re.search(r'Stack usage: (\d+)', output)
+
+        if match:
+            stack = int(match.group(1))
+
+        # Remove memstat from the output.
+        output, _ = output.split('Heap stats:', 1)
 
     return {
         'memstat': {
             'heap-jerry': mempeak,
             'heap-system': 'n/a',
-            'stack': 'n/a'
+            'stack': stack
         },
         'output': output,
         'exitcode': exitcode,
