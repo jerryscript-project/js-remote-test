@@ -12,8 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import paramiko
 import socket
+import paramiko
 
 from API.common.utils import TimeoutException
 

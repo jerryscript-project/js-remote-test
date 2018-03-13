@@ -38,9 +38,11 @@
 # OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+import argparse
 import logging
 import json
 import re
+import sys
 
 logging.basicConfig(level=logging.ERROR)
 log = logging.getLogger(__name__)
@@ -326,9 +328,6 @@ def dump_section_table(sections):
 
 
 if __name__ == "__main__":
-    import argparse
-    import sys
-
     parser = argparse.ArgumentParser(description="LuMPy - Linker Map Parser")
     parser.add_argument("-o", "--output",
                         help="Output path for the JSON file (default: <input>.json) "
