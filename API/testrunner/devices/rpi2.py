@@ -13,7 +13,6 @@
 # limitations under the License.
 
 import json
-import time
 
 from API.common import console, utils, paths
 from connections.sshcom import SSHConnection

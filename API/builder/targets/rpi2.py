@@ -13,7 +13,7 @@
 # limitations under the License.
 
 from API.builder import builder
-from API.common import paths, utils, console
+from API.common import utils
 
 
 class RPi2Builder(builder.BuilderBase):

@@ -16,12 +16,10 @@ import console
 import json
 import lumpy
 import os
-import paths
 import re
 import shutil
 import subprocess
 import time
-import paths
 import pyrebase
 
 

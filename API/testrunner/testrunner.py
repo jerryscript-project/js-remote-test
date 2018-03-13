@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from API.common import reporter, utils, paths
+from API.common import reporter, utils
 from API.testrunner import devices
 from API.testrunner.skiplist import Skiplist
 
