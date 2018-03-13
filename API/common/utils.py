@@ -114,8 +114,8 @@ def read_json_file(filename):
     '''
     Read JSON file.
     '''
-    with open(filename, 'r') as file:
-        return json.load(file)
+    with open(filename, 'r') as json_file:
+        return json.load(json_file)
 
 
 def copy(src, dst):
@@ -205,11 +205,11 @@ def join(path, *paths):
     return os.path.join(path, *paths)
 
 
-def dirname(file):
+def dirname(file_path):
     '''
     Return the folder name.
     '''
-    return os.path.dirname(file)
+    return os.path.dirname(file_path)
 
 
 def basename(path):
@@ -506,11 +506,11 @@ def read_objects_from_libs(libpath, liblist):
     '''
     objlist = []
 
-    for file in os.listdir(libpath):
-        if file not in liblist:
+    for object_file in os.listdir(libpath):
+        if object_file not in liblist:
             continue
 
-        output, _ = execute(libpath, 'ar', ['t', file], quiet=True)
+        output, _ = execute(libpath, 'ar', ['t', object_file], quiet=True)
         objlist.extend(output.splitlines())
 
     return objlist

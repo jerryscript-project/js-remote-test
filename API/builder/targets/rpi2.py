@@ -72,9 +72,9 @@ class RPi2Builder(builder.BuilderBase):
             '.in_place/vgpreload_freya-arm-linux.so'
         ]
 
-        for file in valgrind_files:
-            src = utils.join(freya['src'], file)
-            dst = utils.join(build_dir, file)
+        for valgrind_file in valgrind_files:
+            src = utils.join(freya['src'], valgrind_file)
+            dst = utils.join(build_dir, valgrind_file)
 
             utils.copy(src, dst)
 
