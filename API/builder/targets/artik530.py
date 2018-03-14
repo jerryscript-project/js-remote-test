@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from API.common import utils
+from API.common import paths, utils
 from API.builder import builder
 
 
