@@ -27,7 +27,10 @@ class ARTIK530Builder(builder.BuilderBase):
         '''
         Main method to build the target.
         '''
+        application = self.env['modules']['app']
+
         self._build_application(profile, use_extra_flags)
+        self._copy_build_files(application, builddir)
 
     def _build_jerryscript(self, profile, extra_flags):
         '''
@@ -41,4 +44,31 @@ class ARTIK530Builder(builder.BuilderBase):
         '''
         iotjs = self.env['modules']['iotjs']
 
-        utils.execute(iotjs['src'], 'config/tizen/gbsbuild.sh', ['--debug'])
+        profiles = {
+            'minimal': 'profiles/minimal.profile',
+            'target': 'test/profiles/tizen.profile'
+        }
+
+        build_flags = [
+            '--clean',
+            '--no-parallel-build',
+            '--no-init-submodule',
+            '--target-arch=noarch',
+            '--target-os=tizen',
+            '--target-board=rpi3',
+            '--profile=%s' % profiles[profile],
+            '--buildtype=%s' % self.env['info']['buildtype']
+        ] + extra_flags
+
+        iotjs_build_options = ' '.join(build_flags)
+        # Note: these values should be defined for GBS, because
+        #       it will compile the IoT.js itself.
+        utils.define_environment('IOTJS_BUILD_OPTION', iotjs_build_options)
+
+        utils.execute(iotjs['src'], 'config/tizen/gbsbuild.sh')
+
+        tizen_build_dir = utils.join(paths.GBS_IOTJS_PATH, 'build')
+        iotjs_build_dir = utils.join(iotjs['src'], 'build')
+        # Copy the GBS created binaries to the iotjs build folder.
+        # Note: GBS compiles iotjs in the GBS folder.
+        utils.copy(tizen_build_dir, iotjs_build_dir)

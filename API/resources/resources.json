@@ -123,9 +123,9 @@
         "tizenrt-profile": "%{iotjs}/test/profiles/tizenrt.profile",
         "nuttx-profile": "%{iotjs}/test/profiles/nuttx.profile",
         "rpi2-profile": "%{iotjs}/test/profiles/rpi2-linux.profile",
-        "linker-map": "%{iotjs}/build/arm-linux/%{build-type}/iotjs.map",
-        "libdir": "%{iotjs}/build/arm-%{target}/%{build-type}/lib",
-        "image": "%{iotjs}/build/arm-linux/%{build-type}/bin/iotjs"
+        "linker-map": "%{iotjs}/build/%{target}/%{build-type}/iotjs.map",
+        "libdir": "%{iotjs}/build/%{target}/%{build-type}/lib",
+        "image": "%{iotjs}/build/%{target}/%{build-type}/bin/iotjs"
       },
       "patches": [
         { "deps": ["artik053"], "file": "%{patches}/tizenrt-iotjs-stack.diff" },

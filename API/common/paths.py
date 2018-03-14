@@ -50,8 +50,19 @@ FREYA_CONFIG = os.path.join(RESOURCES_PATH, 'etc', 'iotjs-freya.config')
 FREYA_TESTER = os.path.join(RESOURCES_PATH, 'etc', 'tester.py')
 
 SIMPLE_TESTER = os.path.join(RESOURCES_PATH, 'etc', 'simpletester.py')
+
 #
 # ================================
 #
 
 TESTRUNNER_PATH = os.path.join(API_PATH, 'testrunner')
+
+#
+# ================================
+#
+
+GBS_ROOT_PATH = os.path.join(HOME, 'GBS-ROOT')
+
+GBS_ARCH_PATH = os.path.join(GBS_ROOT_PATH, 'local/BUILD-ROOTS/scratch.armv7l.0')
+
+GBS_IOTJS_PATH = os.path.join(GBS_ARCH_PATH, 'home/abuild/rpmbuild/BUILD/iotjs-1.0.0')

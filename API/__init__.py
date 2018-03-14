@@ -90,10 +90,10 @@ def _resolve(node, env):
 
 # Device - OS mapping.
 _targets = {
-    'stm32f4dis': 'nuttx',
-    'artik053': 'tizenrt',
-    'rpi2': 'linux',
-    'artik530': 'tizen'
+    'stm32f4dis': 'arm-nuttx',
+    'artik053': 'arm-tizenrt',
+    'rpi2': 'arm-linux',
+    'artik530': 'noarch-tizen'
 }
 
 
