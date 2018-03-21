@@ -30,10 +30,14 @@ class TimeoutException(Exception):
     pass
 
 
-def execute(cwd, cmd, args=[], quiet=False):
+def execute(cwd, cmd, args=None, quiet=False):
     '''
     Run the given command.
     '''
+
+    if args is None:
+        args = []
+
     stdout = None
     stderr = None
 
