@@ -15,7 +15,7 @@
 import time
 
 from API.common import console, utils
-from connections.serialcom import SerialConnection
+from API.testrunner.devices.connections.serialcom import SerialConnection
 
 
 class ARTIK053Device(object):

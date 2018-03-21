@@ -15,7 +15,7 @@
 import json
 
 from API.common import console, utils, paths
-from connections.sshcom import SSHConnection
+from API.testrunner.devices.connections.sshcom import SSHConnection
 
 
 class RPi2Device(object):

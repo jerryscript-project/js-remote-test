@@ -12,10 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import stm32f4dis
-import artik053
-import rpi2
-import artik530
+from API.testrunner.devices import artik053, artik530, rpi2, stm32f4dis
 
 
 DEVICES = {

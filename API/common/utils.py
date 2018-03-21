@@ -19,8 +19,8 @@ import shutil
 import subprocess
 import time
 import pyrebase
-import console
-import lumpy
+
+from API.common import console, lumpy
 
 
 class TimeoutException(Exception):
