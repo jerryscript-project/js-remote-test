@@ -26,7 +26,8 @@ class ARTIK530Device(object):
         self.os = 'tizen'
         self.app = env['info']['app']
         self.user = env['info']['username']
-        self.address = env['info']['address']
+        self.ip = env['info']['ip']
+        self.port = env['info']['port']
         self.workdir = env['info']['remote_workdir']
         self.env = env
 
@@ -35,8 +36,9 @@ class ARTIK530Device(object):
 
         data = {
             'username': self.user,
-            'address': self.address,
-            'timeout': env['info']['timeout'],
+            'ip': self.ip,
+            'port': self.port,
+            'timeout': env['info']['timeout']
         }
 
         self.channel = SSHConnection(data)
@@ -47,7 +49,7 @@ class ARTIK530Device(object):
         '''
         if not self.workdir:
             console.fail('Please use --remote-workdir for the device.')
-        if not self.address:
+        if not self.ip:
             console.fail('Please define the IP address of the device.')
         if not self.user:
             console.fail('Please define the username of the device.')
@@ -80,13 +82,14 @@ class ARTIK530Device(object):
         # 2. Deploy the build folder to the device.
         self.login()
         self.channel.exec_command('mount -o remount,rw /')
-        rsync_flags = ['--recursive', '--compress', '--delete']
 
+        shell_flags = 'ssh -p %s' % self.port
+        rsync_flags = ['--rsh', shell_flags, '--recursive', '--compress', '--delete']
         # Note: slash character is required after the path.
         # In this case `rsync` copies the whole folder, not
         # the subcontents to the destination.
         src = self.env['paths']['build'] + '/'
-        dst = '%s@%s:%s' % (self.user, self.address, self.workdir)
+        dst = '%s@%s:%s' % (self.user, self.ip, self.workdir)
 
         utils.execute('.', 'rsync', rsync_flags + [src, dst])
 

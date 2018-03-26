@@ -23,7 +23,7 @@ class SerialConnection(object):
     The serial communication wrapper.
     '''
     def __init__(self, device_info):
-        self.port = device_info['port']
+        self.id = device_info['dev-id']
         self.baud = device_info['baud']
         self.timeout = device_info['timeout']
 
@@ -34,7 +34,7 @@ class SerialConnection(object):
         '''
         Open the serial port.
         '''
-        self.serial = serial.Serial(self.port, self.baud, timeout=self.timeout)
+        self.serial = serial.Serial(port=self.id, baudrate=self.baud, timeout=self.timeout)
 
     def close(self):
         '''

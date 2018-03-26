@@ -24,7 +24,8 @@ class SSHConnection(object):
     '''
     def __init__(self, device_info):
         self.username = device_info['username']
-        self.address = device_info['address']
+        self.ip = device_info['ip']
+        self.port = device_info['port']
         self.timeout = device_info['timeout']
 
         # Note: add your SSH key to the known host file
@@ -37,7 +38,7 @@ class SSHConnection(object):
         '''
         Open the serial port.
         '''
-        self.ssh.connect(self.address, username=self.username)
+        self.ssh.connect(hostname=self.ip, port=self.port, username=self.username)
 
     def close(self):
         '''

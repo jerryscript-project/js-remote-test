@@ -157,15 +157,18 @@ SSH communication:
 --username
   Defines the username for the Raspberry Pi target.
 
---address
+--ip
   IP(v4) address of the device.
+
+--port
+  Defines the SSH port. (default: 22)
 
 --remote-workdir
   Defines the working directory where the testing happens.
 
 Serial communication:
 
---port
+--device-id
   Defines the serial device id (e.g. /dev/ttyACM0)
 
 --baud

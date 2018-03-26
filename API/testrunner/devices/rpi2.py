@@ -26,7 +26,8 @@ class RPi2Device(object):
         self.os = 'linux'
         self.app = env['info']['app']
         self.user = env['info']['username']
-        self.address = env['info']['address']
+        self.ip = env['info']['ip']
+        self.port = env['info']['port']
         self.workdir = env['info']['remote_workdir']
         self.env = env
 
@@ -35,7 +36,8 @@ class RPi2Device(object):
 
         data = {
             'username': self.user,
-            'address': self.address,
+            'ip': self.ip,
+            'port': self.port,
             'timeout': env['info']['timeout']
         }
 
@@ -47,7 +49,7 @@ class RPi2Device(object):
         '''
         if not self.workdir:
             console.fail('Please use --remote-workdir for the device.')
-        if not self.address:
+        if not self.ip:
             console.fail('Please define the IP address of the device.')
         if not self.user:
             console.fail('Please define the username of the device.')
@@ -76,12 +78,13 @@ class RPi2Device(object):
         utils.copy(paths.FREYA_TESTER, build_path)
 
         # 2. Deploy the build folder to the device.
-        rsync_flags = ['--recursive', '--compress', '--delete']
+        shell_flags = 'ssh -p %s' % self.port
+        rsync_flags = ['--rsh', shell_flags, '--recursive', '--compress', '--delete']
         # Note: slash character is required after the path.
         # In this case `rsync` copies the whole folder, not
         # the subcontents to the destination.
         src = self.env['paths']['build'] + '/'
-        dst = '%s@%s:%s' % (self.user, self.address, self.workdir)
+        dst = '%s@%s:%s' % (self.user, self.ip, self.workdir)
 
         utils.execute('.', 'rsync', rsync_flags + [src, dst])
 

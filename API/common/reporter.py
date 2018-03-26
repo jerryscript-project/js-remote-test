@@ -50,12 +50,13 @@ def report_configuration(env):
     console.log('  device:             %s' % info['device'])
     console.log('  timeout:            %s sec' % info['timeout'])
 
-    if info['device'] == 'rpi2':
-        console.log('  address:            %s' % info['address'])
+    if info['device'] in ['rpi2', 'artik530']:
+        console.log('  ip:                 %s' % info['ip'])
+        console.log('  port:               %s' % info['port'])
         console.log('  username:           %s' % info['username'])
         console.log('  remote workdir:     %s' % info['remote_workdir'])
     elif info['device'] in ['stm32f4dis', 'artik053']:
-        console.log('  port:               %s' % info['port'])
+        console.log('  device-id:          %s' % info['device_id'])
         console.log('  baud:               %d' % info['baud'])
 
 

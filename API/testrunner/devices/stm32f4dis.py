@@ -32,7 +32,7 @@ class STM32F4Device(object):
         self.check_args()
 
         data = {
-            'port': env['info']['port'],
+            'dev-id': env['info']['device_id'],
             'baud': env['info']['baud'],
             'timeout': env['info']['timeout'],
             'prompt': 'nsh> '
@@ -44,8 +44,8 @@ class STM32F4Device(object):
         '''
         Check that all the arguments are established.
         '''
-        if not self.env['info']['port']:
-            console.fail('Please use the --port to select the device.')
+        if not self.env['info']['device_id']:
+            console.fail('Please use the --device-id to select the device.')
 
     def initialize(self):
         '''

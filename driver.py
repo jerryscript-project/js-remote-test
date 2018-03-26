@@ -71,9 +71,13 @@ def parse_options():
                        metavar='USER',
                        help='specify the username to login to the device.')
 
-    group.add_argument('--address',
+    group.add_argument('--ip',
                        metavar='IPADDR',
-                       help='specify the ip address of the device')
+                       help='specify the IP address of the device')
+
+    group.add_argument('--port',
+                       metavar='PORT', default=22, type=int,
+                       help='specify the SSH port (default: %(default)s)')
 
     group.add_argument('--remote-workdir',
                        metavar='PATH',
@@ -81,9 +85,9 @@ def parse_options():
 
     group = parser.add_argument_group("Serial communication")
 
-    group.add_argument('--port',
+    group.add_argument('--device-id',
                        metavar='DEVICE-ID',
-                       help='specify the port of the device (e.g. /dev/ttyACM0)')
+                       help='specify the device ID (e.g. /dev/ttyACM0)')
 
     group.add_argument('--baud',
                        type=int, default=115200,
