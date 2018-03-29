@@ -12,7 +12,7 @@
     "build-test": "%{build-path}/%{app}/%{device}/%{build-type}/test",
     "build-target": "%{build-path}/%{app}/%{device}/%{build-type}/profiles/target",
     "build-minimal": "%{build-path}/%{app}/%{device}/%{build-type}/profiles/minimal",
-    "tizen-rpm-package": "%{home}/GBS-ROOT/local/repos/tizen_unified_preview1/armv7l/RPMS/%{app}-1.0.0-0.armv7l.rpm"
+    "tizen-rpm-package": "%{home}/GBS-ROOT/local/repos/tizen_unified_preview2/armv7l/RPMS/%{app}-1.0.0-0.armv7l.rpm"
   },
   "modules": {
     "stlink": {
