@@ -40,11 +40,6 @@ class RPi2Builder(builder.BuilderBase):
         '''
         freya = self.env['modules']['freya']
 
-        build_dir = utils.join(self.env['paths']['build'], 'valgrind_freya')
-        # Do not build if not necessary.
-        if utils.exists(build_dir):
-            return
-
         utils.define_environment('LD', 'arm-linux-gnueabihf-ld')
         utils.define_environment('AR', 'arm-linux-gnueabihf-ar')
         utils.define_environment('CC', 'arm-linux-gnueabihf-gcc')
@@ -55,6 +50,7 @@ class RPi2Builder(builder.BuilderBase):
 
         utils.execute(freya['src'], './autogen.sh')
         utils.execute(freya['src'], './configure', configure_options)
+        utils.execute(freya['src'], 'make', ['clean'])
         utils.execute(freya['src'], 'make', ['TOOLS=freya'])
 
         utils.unset_environment('LD')
@@ -63,6 +59,7 @@ class RPi2Builder(builder.BuilderBase):
         utils.unset_environment('CPP')
         utils.unset_environment('CXX')
 
+        build_dir = utils.join(self.env['paths']['build'], 'valgrind_freya')
         # Copy necessary files into the output directory.
         valgrind_files = [
             'vg-in-place',

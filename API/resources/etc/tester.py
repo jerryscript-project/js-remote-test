@@ -85,7 +85,7 @@ def execute(cwd, cmd, args=[]):
     output = process.communicate()[0]
     exitcode = process.returncode
 
-    return output, exitcode
+    return output.decode('utf-8'), exitcode
 
 
 def process_freya_output():
@@ -182,7 +182,7 @@ def run_iotjs(options):
     ldd_output, _ = execute(options.cwd, 'ldd', ['--version'])
     gnu_libc_version = ldd_output.splitlines()[0].split()[-1]
 
-    sed_options = ['-ie', 's/YOUR_GLIBC_VERSION/%s/g' % gnu_libc_version, 'iotjs-freya.config']
+    sed_options = ['-ie', 's/%%{glibc-version}/%s/g' % gnu_libc_version, 'iotjs-freya.config']
     execute(REMOTE_TESTRUNNER_PATH, 'sed', sed_options)
 
     # 3. Run IoT.js with Freya to create a log file with the memory information.

@@ -30,7 +30,50 @@ class ARTIK530Builder(builder.BuilderBase):
         application = self.env['modules']['app']
 
         self._build_application(profile, use_extra_flags)
+        self._build_freya()
+
         self._copy_build_files(application, builddir)
+
+    def _build_freya(self):
+        '''
+        Cross-compile Valgrind and its Freya tool.
+        '''
+        freya = self.env['modules']['freya']
+
+        utils.define_environment('LD', 'arm-linux-gnueabi-ld')
+        utils.define_environment('AR', 'arm-linux-gnueabi-ar')
+        utils.define_environment('CC', 'arm-linux-gnueabi-gcc')
+        utils.define_environment('CPP', 'arm-linux-gnueabi-cpp')
+        utils.define_environment('CXX', 'arm-linux-gnueabi-g++')
+
+        configure_options = ['--host=armv7-linux-gnueabi']
+
+        utils.execute(freya['src'], './autogen.sh')
+        utils.execute(freya['src'], './configure', configure_options)
+        utils.execute(freya['src'], 'make', ['clean'])
+        utils.execute(freya['src'], 'make', ['TOOLS=freya'])
+
+        utils.unset_environment('LD')
+        utils.unset_environment('AR')
+        utils.unset_environment('CC')
+        utils.unset_environment('CPP')
+        utils.unset_environment('CXX')
+
+        build_dir = utils.join(self.env['paths']['build'], 'valgrind_freya')
+        # Copy necessary files into the output directory.
+        valgrind_files = [
+            'vg-in-place',
+            'coregrind/valgrind',
+            '.in_place/freya-arm-linux',
+            '.in_place/vgpreload_core-arm-linux.so',
+            '.in_place/vgpreload_freya-arm-linux.so'
+        ]
+
+        for valgrind_file in valgrind_files:
+            src = utils.join(freya['src'], valgrind_file)
+            dst = utils.join(build_dir, valgrind_file)
+
+            utils.copy(src, dst)
 
     def _build_jerryscript(self, profile, extra_flags):
         '''

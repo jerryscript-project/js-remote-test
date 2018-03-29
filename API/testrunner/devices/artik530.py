@@ -77,7 +77,13 @@ class ARTIK530Device(object):
 
         # Copy all the tests into the build folder.
         utils.copy(test_src, test_dst)
-        utils.copy(paths.SIMPLE_TESTER, build_path)
+        utils.copy(paths.FREYA_CONFIG, build_path)
+        utils.copy(paths.FREYA_TESTER, build_path)
+
+        # Resolve the iotjs-dirname macro in the Freya configuration file.
+        basename = utils.basename(paths.GBS_IOTJS_PATH)
+        sed_flags = ['-i', 's/%%{iotjs-dirname}/%s/g' % basename, 'iotjs-freya.config']
+        utils.execute(build_path, 'sed', sed_flags)
 
         # 2. Deploy the build folder to the device.
         self.login()
@@ -117,14 +123,16 @@ class ARTIK530Device(object):
         '''
         self.login()
 
-        template = 'python3 %s/simpletester.py --cwd %s --cmd %s --testfile %s'
+        template = 'python3 %s/tester.py --cwd %s --cmd %s --testfile %s'
         # Absolute path to the test folder.
         testdir = '%s/test' % self.workdir
         # Absolute path to the test file.
         testfile = '%s/%s/%s' % (testdir, testset, test['name'])
+        # Absolute path to the application.
+        iotjs = '%s/iotjs' % self.workdir
 
         # Create the command that the device will execute.
-        command = template % (self.workdir, testdir, self.app, testfile)
+        command = template % (self.workdir, testdir, iotjs, testfile)
 
         stdout = self.channel.exec_command(command)
 

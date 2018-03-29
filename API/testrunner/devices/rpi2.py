@@ -77,6 +77,11 @@ class RPi2Device(object):
         utils.copy(paths.FREYA_CONFIG, build_path)
         utils.copy(paths.FREYA_TESTER, build_path)
 
+        # Resolve the iotjs-dirname macro in the Freya configuration file.
+        basename = utils.basename(target_app['src'])
+        sed_flags = ['-i', 's/%%{iotjs-dirname}/%s/g' % basename, 'iotjs-freya.config']
+        utils.execute(build_path, 'sed', sed_flags)
+
         # 2. Deploy the build folder to the device.
         shell_flags = 'ssh -p %s' % self.port
         rsync_flags = ['--rsh', shell_flags, '--recursive', '--compress', '--delete']
@@ -123,7 +128,6 @@ class RPi2Device(object):
         command = template % (self.workdir, testdir, apps[self.app], testfile)
 
         stdout = self.channel.exec_command(command)
-
         # Since the stdout is a JSON text, parse it.
         result = json.loads(stdout)
         # Make HTML friendly stdout.

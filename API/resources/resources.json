@@ -3,7 +3,7 @@
     "stm32f4dis": ["nuttx", "nuttx-apps", "stlink"],
     "rpi2": ["freya"],
     "artik053": ["tizenrt"],
-    "artik530": []
+    "artik530": ["freya"]
   },
   "paths": {
     "result": "%{result-path}/%{app}/%{device}",
@@ -113,7 +113,7 @@
         "stm32f4dis": ["--jerry-memstat"],
         "rpi2": ["--jerry-memstat", "--compile-flag=-g", "--jerry-compile-flag=-g"],
         "artik053": ["--jerry-memstat"],
-        "artik530": [""]
+        "artik530": ["--jerry-memstat", "--compile-flag=-g", "--jerry-compile-flag=-g"]
       },
       "paths": {
         "tests": "%{iotjs}/test/",
@@ -131,8 +131,8 @@
         { "deps": ["artik053"], "file": "%{patches}/tizenrt-iotjs-stack.diff" },
         { "deps": ["stm32f4dis", "artik053"], "file": "%{patches}/iotjs-system-heap.diff" },
         { "deps": ["stm32f4dis", "artik053"], "file": "%{patches}/libtuv-system-heap.diff", "submodule": "%{iotjs}/deps/libtuv/" },
-        { "deps": ["stm32f4dis", "artik053", "rpi2"], "file": "%{patches}/jerryscript-jerry-heap.diff", "submodule": "%{iotjs}/deps/jerry/" },
-        { "deps": ["rpi2"], "file": "%{patches}/linux-iotjs-stack.diff" }
+        { "deps": ["stm32f4dis", "artik053", "rpi2", "artik530"], "file": "%{patches}/jerryscript-jerry-heap.diff", "submodule": "%{iotjs}/deps/jerry/" },
+        { "deps": ["rpi2", "artik530"], "file": "%{patches}/linux-iotjs-stack.diff" }
       ]
     },
     "freya": {
