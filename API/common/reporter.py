@@ -12,8 +12,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from API.common import console
+import json
 
+from API.common import console
 
 def report_testset(testset):
     console.log()
@@ -77,3 +78,52 @@ def report_final(testresults):
     console.log('  FAIL:    %d' % results['fail'], console.TERMINAL_RED)
     console.log('  TIMEOUT: %d' % results['timeout'], console.TERMINAL_RED)
     console.log('  SKIP:    %d' % results['skip'], console.TERMINAL_YELLOW)
+
+
+def report_coverage(coverage_output):
+    with open(coverage_output) as output_file:
+        json_data = json.load(output_file)
+
+        covered_lines = 0
+        all_lines = 0
+        functions = {}
+
+        for key in json_data:
+            ignore = ['run_pass', 'run_fail', 'node', 'tools']
+            skip = False
+            for element in ignore:
+                if element in key:
+                    skip = True
+                    break
+
+            if not skip and key:
+                func_lines = 0
+                covered_func_lines = 0
+                for line in json_data[key]:
+                    if json_data[key][line] is True:
+                        covered_lines += 1
+                        covered_func_lines += 1
+                    all_lines += 1
+                    func_lines += 1
+
+                functions[key] = (covered_func_lines, func_lines)
+
+        if all_lines:
+            avg = float(covered_lines) / all_lines
+
+            result = "{}%, Lines {} / {} are covered".format(round(avg,2) * 100,
+                                                             covered_lines,
+                                                             all_lines)
+
+            console.log()
+            console.log('Finished with the coverage measurement:', console.TERMINAL_BLUE)
+
+            console.log(result, console.TERMINAL_GREEN)
+
+            for key in functions:
+                func_avg = float(functions[key][0]) / functions[key][1]
+                result = "{} : {}%, Lines {} / {} are covered".format(key,
+                                                                      round(func_avg,2) * 100,
+                                                                      functions[key][0],
+                                                                      functions[key][1])
+                console.log(result, console.TERMINAL_YELLOW)

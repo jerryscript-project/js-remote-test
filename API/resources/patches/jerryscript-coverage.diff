@@ -1,0 +1,65 @@
+diff --git a/jerry-core/debugger/debugger-ws.c b/jerry-core/debugger/debugger-ws.c
+index 04fdf0a..06b92ee 100644
+--- a/jerry-core/debugger/debugger-ws.c
++++ b/jerry-core/debugger/debugger-ws.c
+@@ -19,6 +19,7 @@
+ 
+ #ifdef JERRY_DEBUGGER
+ 
++#include <sys/socket.h>
+ #include <arpa/inet.h>
+ #include <errno.h>
+ #include <fcntl.h>
+diff --git a/jerry-core/parser/js/js-parser-statm.c b/jerry-core/parser/js/js-parser-statm.c
+index e06810b..82d993d 100644
+--- a/jerry-core/parser/js/js-parser-statm.c
++++ b/jerry-core/parser/js/js-parser-statm.c
+@@ -335,7 +335,7 @@ parser_parse_var_statement (parser_context_t *context_p) /**< context */
+         cbc_argument_t last_cbc = context_p->last_cbc;
+         context_p->last_cbc_opcode = PARSER_CBC_UNAVAILABLE;
+ 
+-        parser_emit_cbc (context_p, CBC_BREAKPOINT_DISABLED);
++        parser_emit_cbc (context_p, CBC_BREAKPOINT_ENABLED);
+         parser_flush_cbc (context_p);
+ 
+         parser_append_breakpoint_info (context_p, JERRY_DEBUGGER_BREAKPOINT_LIST, ident_line_counter);
+@@ -1677,7 +1677,7 @@ parser_parse_statements (parser_context_t *context_p) /**< context */
+         {
+           JERRY_ASSERT (context_p->last_breakpoint_line == 0);
+ 
+-          parser_emit_cbc (context_p, CBC_BREAKPOINT_DISABLED);
++          parser_emit_cbc (context_p, CBC_BREAKPOINT_ENABLED);
+           parser_flush_cbc (context_p);
+ 
+           parser_append_breakpoint_info (context_p, JERRY_DEBUGGER_BREAKPOINT_LIST, context_p->token.line);
+@@ -1746,7 +1746,7 @@ parser_parse_statements (parser_context_t *context_p) /**< context */
+         && context_p->token.type != LEXER_KEYW_CASE
+         && context_p->token.type != LEXER_KEYW_DEFAULT)
+     {
+-      parser_emit_cbc (context_p, CBC_BREAKPOINT_DISABLED);
++      parser_emit_cbc (context_p, CBC_BREAKPOINT_ENABLED);
+       parser_flush_cbc (context_p);
+ 
+       parser_append_breakpoint_info (context_p, JERRY_DEBUGGER_BREAKPOINT_LIST, context_p->token.line);
+diff --git a/jerry-core/parser/js/js-parser.c b/jerry-core/parser/js/js-parser.c
+index 1b31be1..b62cd21 100644
+--- a/jerry-core/parser/js/js-parser.c
++++ b/jerry-core/parser/js/js-parser.c
+@@ -1420,7 +1420,7 @@ parser_post_processing (parser_context_t *context_p) /**< context */
+       && !(context_p->status_flags & PARSER_DEBUGGER_BREAKPOINT_APPENDED))
+   {
+     /* Always provide at least one breakpoint. */
+-    parser_emit_cbc (context_p, CBC_BREAKPOINT_DISABLED);
++    parser_emit_cbc (context_p, CBC_BREAKPOINT_ENABLED);
+     parser_flush_cbc (context_p);
+ 
+     parser_append_breakpoint_info (context_p, JERRY_DEBUGGER_BREAKPOINT_LIST, context_p->token.line);
+@@ -1782,7 +1782,7 @@ parser_post_processing (parser_context_t *context_p) /**< context */
+     flags = cbc_flags[opcode];
+ 
+ #ifdef JERRY_DEBUGGER
+-    if (opcode == CBC_BREAKPOINT_DISABLED)
++    if (opcode == CBC_BREAKPOINT_ENABLED)
+     {
+       uint32_t bp_offset = (uint32_t) (((uint8_t *) dst_p) - ((uint8_t *) compiled_code_p) - 1);
+       parser_append_breakpoint_info (context_p, JERRY_DEBUGGER_BREAKPOINT_OFFSET_LIST, bp_offset);

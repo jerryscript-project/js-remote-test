@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from API.common import reporter, utils
+from API.common import paths, reporter, utils
 from API.testrunner import devices
 from API.testrunner.skiplist import Skiplist
 
@@ -60,6 +60,20 @@ class TestRunner(object):
             self.run_testset(testset, tests)
 
         reporter.report_final(self.results)
+
+
+        if self.env['info']['coverage']:
+            device = self.env['info']['device']
+            app_name = self.env['info']['app']
+
+            if device == 'artik053' and app_name == 'iotjs':
+                iotjs = self.env['modules']['iotjs']
+                commit_info = utils.last_commit_info(iotjs['src'])
+                result_name = 'cov-%s-%s.json' % (commit_info['commit'], commit_info['date'])
+                result_dir =  utils.join(paths.RESULT_PATH, '%s/%s/' % (app_name, device))
+                result_path = utils.join(result_dir, result_name)
+
+                reporter.report_coverage(result_path)
 
     def run_testset(self, testset, tests):
         '''

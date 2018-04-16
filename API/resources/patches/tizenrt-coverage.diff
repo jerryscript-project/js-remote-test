@@ -1,0 +1,38 @@
+diff --git a/os/FlatLibs.mk b/os/FlatLibs.mk
+index b68dd05..1fb130e 100644
+--- a/os/FlatLibs.mk
++++ b/os/FlatLibs.mk
+@@ -149,6 +149,7 @@ TINYARALIBS += $(LIBRARIES_DIR)$(DELIM)libiotjs$(LIBEXT)
+ TINYARALIBS += $(LIBRARIES_DIR)$(DELIM)libjerry-core$(LIBEXT)
+ TINYARALIBS += $(LIBRARIES_DIR)$(DELIM)libtuv$(LIBEXT)
+ TINYARALIBS += $(LIBRARIES_DIR)$(DELIM)libjerry-libm$(LIBEXT)
++TINYARALIBS += $(LIBRARIES_DIR)$(DELIM)libjerry-port-default$(LIBEXT)
+ endif
+ 
+ # Export all libraries
+diff --git a/os/LibTargets.mk b/os/LibTargets.mk
+index 6633428..cdaae4a 100644
+--- a/os/LibTargets.mk
++++ b/os/LibTargets.mk
+@@ -233,6 +233,9 @@ $(LIBRARIES_DIR)$(DELIM)libtuv$(LIBEXT): $(IOTJS_LIB_DIR)$(DELIM)libtuv$(LIBEXT)
+ 
+ $(LIBRARIES_DIR)$(DELIM)libjerry-libm$(LIBEXT): $(IOTJS_LIB_DIR)$(DELIM)libjerry-libm$(LIBEXT)
+ 	$(Q) install $(IOTJS_LIB_DIR)$(DELIM)libjerry-libm$(LIBEXT) $(LIBRARIES_DIR)$(DELIM)libjerry-libm$(LIBEXT)
++
++$(LIBRARIES_DIR)$(DELIM)libjerry-port-default$(LIBEXT): $(IOTJS_LIB_DIR)$(DELIM)libjerry-port-default$(LIBEXT)
++	$(Q) install $(IOTJS_LIB_DIR)$(DELIM)libjerry-port-default$(LIBEXT) $(LIBRARIES_DIR)$(DELIM)libjerry-port-default$(LIBEXT)
+ endif
+ 
+ # Possible non-kernel builds
+diff --git a/os/ProtectedLibs.mk b/os/ProtectedLibs.mk
+index 874b809..8341513 100644
+--- a/os/ProtectedLibs.mk
++++ b/os/ProtectedLibs.mk
+@@ -147,6 +147,7 @@ USERLIBS += $(LIBRARIES_DIR)$(DELIM)libiotjs$(LIBEXT)
+ USERLIBS += $(LIBRARIES_DIR)$(DELIM)libjerry-core$(LIBEXT)
+ USERLIBS += $(LIBRARIES_DIR)$(DELIM)libtuv$(LIBEXT)
+ USERLIBS += $(LIBRARIES_DIR)$(DELIM)libjerry-libm$(LIBEXT)
++USERLIBS += $(LIBRARIES_DIR)$(DELIM)libjerry-port-default$(LIBEXT)
+ endif
+ 
+ EXPORTLIBS = $(USERLIBS)

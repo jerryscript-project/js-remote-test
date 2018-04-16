@@ -65,6 +65,10 @@ def parse_options():
                         metavar='SEC', default=180, type=int,
                         help='specify the timeout (default: %(default)s sec)')
 
+    parser.add_argument('--coverage',
+                        metavar='SERVER_ADDRESS(HOST:PORT)',
+                        help='use jerry-debugger to calculate the JS source code coverage')
+
     group = parser.add_argument_group("Secure Shell communication")
 
     group.add_argument('--username',

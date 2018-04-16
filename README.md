@@ -152,6 +152,9 @@ $ python driver.py
 --no-test
   Do not test.
 
+--coverage
+  Defines the server address for the jerry-debugger to calculate the JS source code.
+
 SSH communication:
 
 --username
@@ -194,3 +197,19 @@ All the results are written into JSON files that are found in a `results` folder
 ```
 
 Every JSON file contain information about the test results (status, output, memory usage), environments (used hashes, commit messages) and the main section sizes of the application (iotjs or jerryscript) binary.
+
+### Run iotjs tests with coverage measurement on Artik053
+
+You are able to run coverage measurement on ARTIK053. A modified jerry-debugger is used to calculate the covered JS source lines, so it needs to specify a unique network address for the connection with the `coverage` option. ARTIK053 uses wifi for the communication, so it also needs to set the following environment variables:
+
+```
+export ARTIK_COV_WIFI_NAME=your_wifi_name
+export ARTIK_COV_WIFI_PWD=your_wifi_password
+```
+
+To run tests with coverage:
+
+```
+$python driver.py --device artik053 --app iotjs --device-id /dev/ARTIK053 --baud 115200 --coverage=DEVICE_IP:DEVICE_PORT
+
+ +```

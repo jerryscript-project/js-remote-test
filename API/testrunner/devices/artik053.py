@@ -14,9 +14,9 @@
 
 import time
 
-from API.common import console, utils
+from API.common import console, paths, utils
 from API.testrunner.devices.connections.serialcom import SerialConnection
-
+from threading import Thread
 
 class ARTIK053Device(object):
     '''
@@ -79,6 +79,16 @@ class ARTIK053Device(object):
             self.channel.exec_command('\n\n')
             self.channel.exec_command('cd /rom')
 
+            if self.env['info']['coverage'] and self.app == 'iotjs':
+                # Set up the wifi connection.
+                wifi_name = utils.get_environment('ARTIK_COV_WIFI_NAME')
+                wifi_pwd =  utils.get_environment('ARTIK_COV_WIFI_PWD')
+
+                self.channel.exec_command('wifi startsta')
+                self.channel.exec_command('wifi join %s %s' % (wifi_name, wifi_pwd))
+                self.channel.exec_command('ifconfig wl1 dhcp')
+
+
         except Exception as e:
             console.fail(str(e))
 
@@ -87,6 +97,25 @@ class ARTIK053Device(object):
         Logout from the device.
         '''
         self.channel.close()
+
+
+    def _run_coverage_script(self):
+        '''
+        Start the client script.
+        '''
+        address = self.env['info']['coverage']
+        iotjs = self.env['modules']['iotjs']
+        coverage_client = iotjs['paths']['coverage-client']
+
+        commit_info = utils.last_commit_info(iotjs['src'])
+        result_name = 'cov-%s-%s.json' % (commit_info['commit'], commit_info['date'])
+        result_dir =  utils.join(paths.RESULT_PATH, 'iotjs/artik053/')
+        result_path = utils.join(result_dir, result_name)
+
+        utils.mkdir(result_dir)
+        utils.execute(paths.PROJECT_ROOT, coverage_client, ['--non-interactive',
+                                                            '--coverage-output=%s' % result_path,
+                                                            address])
 
     def execute(self, testset, test):
         '''
@@ -98,8 +127,15 @@ class ARTIK053Device(object):
         # Absolute path to the test file on the device.
         testfile = '/rom/%s/%s' % (testset, test['name'])
 
+        iotjs_args = ['--mem-stats']
+
+        if self.env['info']['coverage']:
+            iotjs_args.append('--start-debug-server')
+            port = utils.read_port_from_url(self.env['info']['coverage'])
+            iotjs_args.append('--debug-port %s' % port)
+
         command = {
-            'iotjs': 'iotjs --mem-stats %s\n' % testfile,
+            'iotjs': 'iotjs %s %s\n' % (' '.join(iotjs_args), testfile),
             'jerryscript': 'jerry %s --mem-stats\n' % testfile
         }
 
@@ -107,13 +143,18 @@ class ARTIK053Device(object):
         self.channel.putc(command[self.app])
         self.channel.readline()
 
+        if self.env['info']['coverage'] and self.app == 'iotjs':
+            # Start the client script on a different thread for coverage.
+            client_thread = Thread(target = self._run_coverage_script)
+            client_thread.daemon = True
+            client_thread.start()
+
         message, output = self.channel.read_until('arm_dataabort', 'TASH>>')
 
         if message == 'arm_dataabort':
             output += self.channel.readline().replace('\r\n', '')
 
         stdout, memstat, exitcode = utils.process_output(output)
-
         self.logout()
 
         return {

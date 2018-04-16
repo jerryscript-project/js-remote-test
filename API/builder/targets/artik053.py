@@ -98,6 +98,13 @@ class ARTIK053Builder(builder.BuilderBase):
             'target': iotjs['paths']['tizenrt-profile']
         }
 
+        if extra_flags and self.env['info']['coverage']:
+            tizenrt = self.env['modules']['tizenrt']
+            extra_flags.append('--jerry-cmake-param=-DJERRY_PORT_DEFAULT=ON')
+            extra_flags.append('--jerry-debugger')
+            extra_flags.append('--no-snapshot')
+            extra_flags.append('--compile-flag="-isystem %s"' % tizenrt['paths']['include'])
+
         build_flags = [
             '--clean',
             '--no-parallel-build',

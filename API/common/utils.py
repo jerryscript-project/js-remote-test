@@ -518,3 +518,17 @@ def read_objects_from_libs(libpath, liblist):
         objlist.extend(output.splitlines())
 
     return objlist
+
+
+def read_port_from_url(url):
+    '''
+    Parse URL and return with the port number
+    '''
+    pattern = '(?:http.*://)?(?P<host>[^:/ ]+).?(?P<port>[0-9]*).*'
+
+    match = re.search(pattern, url)
+
+    if not match:
+        console.fail('Invalid URL: %s' % url)
+
+    return match.group('port')
