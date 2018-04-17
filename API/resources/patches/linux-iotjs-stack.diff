@@ -1,5 +1,5 @@
 diff --git a/src/iotjs.c b/src/iotjs.c
-index e204f59..01347ab 100644
+index 87fcdca..f17bf5f 100644
 --- a/src/iotjs.c
 +++ b/src/iotjs.c
 @@ -28,6 +28,7 @@
@@ -10,9 +10,9 @@ index e204f59..01347ab 100644
  #include <string.h>
  
  
-@@ -186,7 +187,11 @@ static jerry_value_t dummy_wait_for_client_source_cb() {
-   return jerry_create_undefined();
+@@ -220,7 +221,11 @@ void iotjs_conf_console_out(int (*out)(int lv, const char* fmt, ...)) {
  }
+ 
  
 -int iotjs_entry(int argc, char** argv) {
 +static int argc;
@@ -20,10 +20,10 @@ index e204f59..01347ab 100644
 +
 +static int __attribute__ ((noinline))
 +iotjs_entry_main(void) {
-   int ret_code = 0;
- 
-   // Initialize IoT.js
-@@ -252,3 +257,62 @@ terminate:;
+   iotjs_environment_t* env = iotjs_environment_get();
+   if (!iotjs_environment_parse_command_line_arguments(env, (uint32_t)argc,
+                                                       argv)) {
+@@ -252,3 +257,62 @@ int iotjs_entry(int argc, char** argv) {
    }
    return ret_code;
  }
