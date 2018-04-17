@@ -127,7 +127,8 @@
         "linker-map": "%{iotjs}/build/%{target}/%{build-type}/iotjs.map",
         "libdir": "%{iotjs}/build/%{target}/%{build-type}/lib",
         "image": "%{iotjs}/build/%{target}/%{build-type}/bin/iotjs",
-        "coverage-client": "%{iotjs}/deps/jerry/jerry-debugger/jerry-client-ws.py"
+        "coverage-client": "%{iotjs}/deps/jerry/jerry-debugger/jerry-client-ws.py",
+        "dynamic-module-test": "%{iotjs}/build/%{target}/%{build-type}/test"
       },
       "patches": [
         { "deps": ["artik053"], "file": "%{patches}/tizenrt-iotjs-stack.diff" },

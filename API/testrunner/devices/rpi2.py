@@ -69,7 +69,7 @@ class RPi2Device(object):
         build_path = self.env['paths']['build']
 
         test_src = target_app['paths']['tests']
-        test_dst = utils.join(build_path, 'test')
+        test_dst = utils.join(build_path, 'tests')
 
         # Copy all the tests into the build folder.
         utils.copy(test_src, test_dst)
@@ -116,7 +116,7 @@ class RPi2Device(object):
 
         template = 'python %s/tester.py --cwd %s --cmd %s --testfile %s'
         # Absolute path to the test folder.
-        testdir = '%s/test' % self.workdir
+        testdir = '%s/tests' % self.workdir
         # Absolute path to the test file.
         testfile = '%s/%s/%s' % (testdir, testset, test['name'])
         # Absolute path to the application.

@@ -156,6 +156,8 @@ def run_iotjs(options):
         options.testfile
     ]
 
+    # The test_module_dynamicload.js file requires to define the dynamic module test path.
+    os.environ['IOTJS_PATH'] = os.path.join(REMOTE_TESTRUNNER_PATH, 'test')
     # 1. Run IoT.js without Freya to get its output and exit value.
     output, exitcode = execute(options.cwd, options.cmd, ['--mem-stats', options.testfile])
 

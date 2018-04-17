@@ -68,7 +68,7 @@ class ARTIK530Device(object):
         build_path = self.env['paths']['build']
 
         test_src = target_app['paths']['tests']
-        test_dst = utils.join(build_path, 'test')
+        test_dst = utils.join(build_path, 'tests')
 
         # 1. Copy all the necessary files.
         # Copy applicaiton RPM package file.
@@ -125,7 +125,7 @@ class ARTIK530Device(object):
 
         template = 'python3 %s/tester.py --cwd %s --cmd %s --testfile %s'
         # Absolute path to the test folder.
-        testdir = '%s/test' % self.workdir
+        testdir = '%s/tests' % self.workdir
         # Absolute path to the test file.
         testfile = '%s/%s/%s' % (testdir, testset, test['name'])
         # Absolute path to the application.
