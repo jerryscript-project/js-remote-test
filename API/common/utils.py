@@ -126,6 +126,9 @@ def copy(src, dst):
     '''
     Copy src to dst.
     '''
+    if not exists(src):
+        return
+
     if os.path.isdir(src):
         # Remove dst folder because copytree function
         # fails when is already exists.
@@ -147,6 +150,9 @@ def move(src, dst):
     '''
     Move a file or directory to another location.
     '''
+    if not exists(src):
+        return
+
     shutil.move(src, dst)
 
 
