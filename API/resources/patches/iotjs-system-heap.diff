@@ -1,17 +1,17 @@
 diff --git a/src/iotjs.c b/src/iotjs.c
-index dedc92a..43c7818 100644
+index ef2be53..b490b36 100644
 --- a/src/iotjs.c
 +++ b/src/iotjs.c
-@@ -229,6 +229,9 @@ terminate:;
+@@ -251,6 +251,9 @@ exit:
+     iotjs_environment_release();
+     iotjs_debuglog_release();
  
-   iotjs_debuglog_release();
- 
-+  // Print mem-stat info.
-+  print_mem_stat();
++    // Print mem-stat info.
++    print_mem_stat();
 +
-   if (context_reset) {
      return iotjs_entry(argc, argv);
    }
+
 diff --git a/src/iotjs_util.c b/src/iotjs_util.c
 index 3f9d248..0b47d40 100644
 --- a/src/iotjs_util.c
