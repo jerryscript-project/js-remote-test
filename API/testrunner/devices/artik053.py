@@ -87,7 +87,7 @@ class ARTIK053Device(object):
                 self.channel.exec_command('wifi startsta')
                 self.channel.exec_command('wifi join %s %s' % (wifi_name, wifi_pwd))
                 self.channel.exec_command('ifconfig wl1 dhcp')
-
+                time.sleep(1)
 
         except Exception as e:
             console.fail(str(e))
@@ -145,6 +145,7 @@ class ARTIK053Device(object):
 
         if self.env['info']['coverage'] and self.app == 'iotjs':
             # Start the client script on a different thread for coverage.
+            time.sleep(1)
             client_thread = Thread(target = self._run_coverage_script)
             client_thread.daemon = True
             client_thread.start()
@@ -155,6 +156,7 @@ class ARTIK053Device(object):
             output += self.channel.readline().replace('\r\n', '')
 
         stdout, memstat, exitcode = utils.process_output(output)
+
         self.logout()
 
         return {

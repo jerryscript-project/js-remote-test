@@ -80,50 +80,19 @@ def report_final(testresults):
     console.log('  SKIP:    %d' % results['skip'], console.TERMINAL_YELLOW)
 
 
-def report_coverage(coverage_output):
-    with open(coverage_output) as output_file:
-        json_data = json.load(output_file)
+def report_coverage(coverage_info):
+    console.log()
+    console.log('Finished with the coverage measurement:', console.TERMINAL_BLUE)
+    for src_name, value in coverage_info.iteritems():
+        # Check that the number of inspected rows are greater than zero.
+        if value['coverage'][1] > 0:
+            # Calculate the percentage and show the covered line information.
+            percentage = round(float(value['coverage'][0]) / value['coverage'][1], 2) * 100
 
-        covered_lines = 0
-        all_lines = 0
-        functions = {}
-
-        for key in json_data:
-            ignore = ['run_pass', 'run_fail', 'node', 'tools']
-            skip = False
-            for element in ignore:
-                if element in key:
-                    skip = True
-                    break
-
-            if not skip and key:
-                func_lines = 0
-                covered_func_lines = 0
-                for line in json_data[key]:
-                    if json_data[key][line] is True:
-                        covered_lines += 1
-                        covered_func_lines += 1
-                    all_lines += 1
-                    func_lines += 1
-
-                functions[key] = (covered_func_lines, func_lines)
-
-        if all_lines:
-            avg = float(covered_lines) / all_lines
-
-            result = "{}%, Lines {} / {} are covered".format(round(avg,2) * 100,
-                                                             covered_lines,
-                                                             all_lines)
-
-            console.log()
-            console.log('Finished with the coverage measurement:', console.TERMINAL_BLUE)
-
-            console.log(result, console.TERMINAL_GREEN)
-
-            for key in functions:
-                func_avg = float(functions[key][0]) / functions[key][1]
-                result = "{} : {}%, Lines {} / {} are covered".format(key,
-                                                                      round(func_avg,2) * 100,
-                                                                      functions[key][0],
-                                                                      functions[key][1])
-                console.log(result, console.TERMINAL_YELLOW)
+            console.log("\t {} : {}%, Lines {} / {} are covered".format(src_name + '.js',
+                                                                        percentage,
+                                                                        value['coverage'][0],
+                                                                        value['coverage'][1]),
+                        console.TERMINAL_GREEN)
+        else:
+            console.log("\t %s.js was not reached by the tests" % src_name, console.TERMINAL_YELLOW)

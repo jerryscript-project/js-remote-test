@@ -213,3 +213,5 @@ To run tests with coverage:
 $python driver.py --device artik053 --app iotjs --device-id /dev/ARTIK053 --baud 115200 --coverage=DEVICE_IP:DEVICE_PORT
 
  +```
+
+**Note**: If coverage is enabled then the memory measurement data will not be processed. However, it is shown as an information.

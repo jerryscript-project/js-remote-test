@@ -405,11 +405,19 @@ def upload_data_to_firebase(env, test_info):
     database = firebase.database()
     authentication = firebase.auth()
 
-    # Identify the place where the data should be stored.
-    database_path = '%s/%s' % (info['app'], info['device'])
-
     user = authentication.sign_in_with_email_and_password(email, password)
+
+    if env['info']['coverage']:
+        # Identify the place where the data should be stored.
+        database_path = 'coverage/%s/%s' % (info['app'], info['device'])
+        database.child(database_path).remove(user['idToken'])
+    else:
+        database_path = '%s/%s' % (info['app'], info['device'])
+
     database.child(database_path).push(test_info, user['idToken'])
+
+    if env['info']['coverage']:
+        return
 
     # Update the status images.
     status = 'passed'
@@ -538,3 +546,61 @@ def read_port_from_url(url):
         console.fail('Invalid URL: %s' % url)
 
     return match.group('port')
+
+
+def parse_coverage_info(env, coverage_output):
+    '''
+    Parse and create coverage information
+    '''
+    coverage_info = {}
+
+    iotjs = env['modules']['iotjs']
+    js_folder = iotjs['paths']['js-sources']
+
+    # Store line information from the JS sources.
+    for js_file in os.listdir(js_folder):
+        filename, _ = os.path.splitext(js_file)
+
+        coverage_info[filename] = {}
+        coverage_info[filename]['lines'] = []
+        coverage_info[filename]['coverage'] = [0, 0]
+
+        js_file_path = join(js_folder, js_file)
+
+        with open(js_file_path, "r") as js_source:
+            lines = js_source.readlines()
+
+            for line in lines:
+                # '0' indicates that the line has not been reached yet.
+                coverage_info[filename]['lines'].append([line, '0'])
+
+    with open(coverage_output, 'r') as cov_p:
+        raw_data = json.load(cov_p)
+
+        ignore_list = ['run_pass', 'run_fail', 'node', 'tools']
+
+        for js_name in raw_data:
+            # Skip empty key value.
+            if not js_name:
+                continue
+
+            # Ignore test and tool files.
+            if any(ignored_name in js_name for ignored_name in ignore_list):
+                continue
+
+            filename, _ = os.path.splitext(js_name)
+
+            # Iterate reached js files.
+            for line_number, line_value in raw_data[js_name].iteritems():
+                if line_value:
+                    # Increase covered lines.
+                    coverage_info[filename]['coverage'][0] += 1
+                    # '2' indicates that the line has been covered.
+                    coverage_info[filename]['lines'][int(line_number)-1][1] = '2'
+                else:
+                     # '1' indicates that the line has not been covered.
+                    coverage_info[filename]['lines'][int(line_number)-1][1] = '1'
+
+                coverage_info[filename]['coverage'][1] += 1
+
+    return coverage_info

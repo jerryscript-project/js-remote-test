@@ -43,6 +43,7 @@ class TestRunner(object):
         self.device = devices.create_device(environment)
         self.skiplist = Skiplist(environment, self.device.os)
         self.results = []
+        self.coverage_info = {}
 
         # Flash the device to be able to run the tests.
         self.device.initialize()
@@ -59,8 +60,6 @@ class TestRunner(object):
         for testset, tests in read_testsets(self.env).items():
             self.run_testset(testset, tests)
 
-        reporter.report_final(self.results)
-
 
         if self.env['info']['coverage']:
             device = self.env['info']['device']
@@ -73,7 +72,11 @@ class TestRunner(object):
                 result_dir =  utils.join(paths.RESULT_PATH, '%s/%s/' % (app_name, device))
                 result_path = utils.join(result_dir, result_name)
 
-                reporter.report_coverage(result_path)
+            self.coverage_info = utils.parse_coverage_info(self.env, result_path)
+
+            reporter.report_coverage(self.coverage_info)
+
+        reporter.report_final(self.results)
 
     def run_testset(self, testset, tests):
         '''
@@ -135,18 +138,27 @@ class TestRunner(object):
         build_file = self.env['paths']['build-json']
         build_info = utils.read_json_file(build_file)
 
-        # Merge the build information and the test results.
+        # Add the build information.
         test_info = {
-            'date': build_info['last-commit-date'],
-            'bin': build_info['bin'],
-            'submodules': build_info['submodules'],
-            'tests': self.results
+                'date': build_info['last-commit-date'],
+                'bin': build_info['bin'],
+                'submodules': build_info['submodules']
         }
 
-        # Save the results into a date named file.
+        # Specify a date named results file.
         result_dir = self.env['paths']['result']
         filename = utils.join(result_dir, build_info['build-date'])
 
+        if self.env['info']['coverage']:
+            # Add the coverage information.
+            test_info['coverage_info'] = self.coverage_info
+            filename += '_coverage'
+        else:
+            # Add the test results.
+            test_info['tests'] = self.result
+
+        # Save the results into the date named file.
         utils.write_json_file(filename + '.json', test_info)
+
         # Publish the results if necessary.
         utils.upload_data_to_firebase(self.env, test_info)
