@@ -155,7 +155,7 @@ class TestRunner(object):
             filename += '_coverage'
         else:
             # Add the test results.
-            test_info['tests'] = self.result
+            test_info['tests'] = self.results
 
         # Save the results into the date named file.
         utils.write_json_file(filename + '.json', test_info)
