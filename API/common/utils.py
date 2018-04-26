@@ -20,7 +20,7 @@ import subprocess
 import time
 import pyrebase
 
-from API.common import console, lumpy
+from API.common import console, lumpy, paths
 
 
 class TimeoutException(Exception):
@@ -604,3 +604,27 @@ def parse_coverage_info(env, coverage_output):
                 coverage_info[filename]['coverage'][1] += 1
 
     return coverage_info
+
+
+def run_coverage_script(env):
+    '''
+    Start the client script.
+    '''
+    # Add latency because the start up of the debug server needs time.
+    time.sleep(2)
+
+    address = env['info']['coverage']
+    iotjs = env['modules']['iotjs']
+    coverage_client = iotjs['paths']['coverage-client']
+    device = env['info']['device']
+    app_name = env['info']['app']
+
+    commit_info = last_commit_info(iotjs['src'])
+    result_name = 'cov-%s-%s.json' % (commit_info['commit'], commit_info['date'])
+    result_dir = join(paths.RESULT_PATH, '%s/%s/' % (app_name, device))
+    result_path = join(result_dir, result_name)
+
+    mkdir(result_dir)
+    execute(paths.PROJECT_ROOT, coverage_client, ['--non-interactive',
+                                                  '--coverage-output=%s' % result_path,
+                                                   address])

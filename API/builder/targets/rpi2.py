@@ -110,6 +110,10 @@ class RPi2Builder(builder.BuilderBase):
             'target': iotjs['paths']['rpi2-profile']
         }
 
+        if extra_flags and self.env['info']['coverage']:
+            extra_flags.append('--jerry-debugger')
+            extra_flags.append('--no-snapshot')
+
         build_flags = [
             '--clean',
             '--no-parallel-build',

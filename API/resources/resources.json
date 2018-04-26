@@ -136,8 +136,8 @@
         { "deps": ["stm32f4dis", "artik053"], "file": "%{patches}/iotjs-system-heap.diff" },
         { "deps": ["stm32f4dis", "artik053"], "file": "%{patches}/libtuv-system-heap.diff", "submodule": "%{iotjs}/deps/libtuv/" },
         { "deps": ["stm32f4dis", "artik053", "rpi2", "artik530"], "file": "%{patches}/jerryscript-jerry-heap.diff", "submodule": "%{iotjs}/deps/jerry/" },
-        { "deps": ["stm32f4dis", "artik053", "rpi2", "artik530"], "file": "%{patches}/jerryscript-coverage.diff", "submodule": "%{iotjs}/deps/jerry/" },
-        { "deps": ["stm32f4dis", "artik053", "rpi2", "artik530"], "file": "%{patches}/coverage-client.diff", "submodule": "%{iotjs}/deps/jerry/", "revert": false },
+        { "deps": ["artik053", "rpi2"], "file": "%{patches}/jerryscript-coverage.diff", "submodule": "%{iotjs}/deps/jerry/" },
+        { "deps": ["artik053", "rpi2"], "file": "%{patches}/coverage-client.diff", "submodule": "%{iotjs}/deps/jerry/", "revert": false },
         { "deps": ["rpi2", "artik530"], "file": "%{patches}/linux-iotjs-stack.diff" }
       ]
     },
