@@ -123,7 +123,7 @@ class ARTIK530Device(object):
         '''
         self.login()
 
-        template = 'python3 %s/tester.py --cwd %s --cmd %s --testfile %s'
+        template = 'python %s/tester.py --cwd %s --cmd %s --testfile %s'
         # Absolute path to the test folder.
         testdir = '%s/tests' % self.workdir
         # Absolute path to the test file.
