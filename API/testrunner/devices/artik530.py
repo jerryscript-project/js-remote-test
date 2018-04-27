@@ -16,6 +16,7 @@ import json
 
 from API.common import console, utils, paths
 from API.testrunner.devices.connections.sshcom import SSHConnection
+from threading import Thread
 
 
 class ARTIK530Device(object):
@@ -133,6 +134,14 @@ class ARTIK530Device(object):
 
         # Create the command that the device will execute.
         command = template % (self.workdir, testdir, iotjs, testfile)
+
+        if self.env['info']['coverage'] and self.app == 'iotjs':
+            command += ' --coverage-port %s' % utils.read_port_from_url(self.env['info']['coverage'])
+
+            # Start the client script on a different thread for coverage.
+            client_thread = Thread(target=utils.run_coverage_script, kwargs={'env': self.env})
+            client_thread.daemon = True
+            client_thread.start()
 
         stdout = self.channel.exec_command(command)
 

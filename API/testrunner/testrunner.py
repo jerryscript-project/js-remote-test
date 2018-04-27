@@ -65,7 +65,7 @@ class TestRunner(object):
             device = self.env['info']['device']
             app_name = self.env['info']['app']
 
-            if device in ['artik053', 'rpi2'] and app_name == 'iotjs':
+            if device in ['artik053', 'artik530', 'rpi2'] and app_name == 'iotjs':
                 iotjs = self.env['modules']['iotjs']
                 commit_info = utils.last_commit_info(iotjs['src'])
                 result_name = 'cov-%s-%s.json' % (commit_info['commit'], commit_info['date'])
