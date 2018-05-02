@@ -422,7 +422,7 @@ def upload_data_to_firebase(env, test_info):
     # Update the status images.
     status = 'passed'
     for test in test_info['tests']:
-        if test['result'] == 'fail':
+        if test['result'] in ['fail', 'timeout']:
             status = 'failed'
             break
 
