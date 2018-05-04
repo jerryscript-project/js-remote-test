@@ -1,12 +1,16 @@
 {
     "rpi2": {
-        "testsets": [],
+        "testsets": [
+            { "name": "es5.1", "reason": "es5.1 profile is not enabled." }
+        ],
         "testfiles": [
             { "name": "N.compact-profile-error.js", "reason": "Compact profile is not enabled." }
         ]
     },
     "stm32f4dis": {
-        "testsets": [],
+        "testsets": [
+            { "name": "es5.1", "reason": "es5.1 profile is not enabled." }
+        ],
         "testfiles": [
             { "name": "parser-oom.js", "reason": "Requires exactly 512KB memory." },
             { "name": "N.compact-profile-error.js", "reason": "Compact profile is not enabled." },
@@ -16,6 +20,7 @@
     },
     "artik053": {
         "testsets": [
+            { "name": "es5.1", "reason": "es5.1 profile is not enabled." }
         ],
         "testfiles": [
             { "name": "parser-oom.js", "reason": "Requires exactly 512KB memory." },
