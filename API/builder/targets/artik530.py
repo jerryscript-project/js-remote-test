@@ -112,7 +112,12 @@ class ARTIK530Builder(builder.BuilderBase):
         #       it will compile the IoT.js itself.
         utils.define_environment('IOTJS_BUILD_OPTION', iotjs_build_options)
 
-        utils.execute(iotjs['src'], 'config/tizen/gbsbuild.sh', ['--clean'])
+        args = ['--clean']
+
+        if self.env['info']['buildtype'] == 'debug':
+            args.append('--debug')
+
+        utils.execute(iotjs['src'], 'config/tizen/gbsbuild.sh', args)
 
         tizen_build_dir = utils.join(paths.GBS_IOTJS_PATH, 'build')
         iotjs_build_dir = utils.join(iotjs['src'], 'build')

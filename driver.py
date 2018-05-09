@@ -106,6 +106,16 @@ def main():
     '''
     options = parse_options()
 
+    if options.coverage:
+        if options.app != 'iotjs':
+            print('Warning! Coverage measurement is only supported with IoT.js!')
+            options.coverage = None
+        elif options.buildtype != 'debug':
+            print('Warning! Coverage measurement is only supported with debug build type!')
+            # Overwrite the buildtype option to debug.
+            # In IoT.js the code is minimized in release mode, which will mess up the line numbers.
+            options.buildtype = 'debug'
+
     # Get an environment object that holds all the necessary
     # information for the build and the test.
     env = API.load_testing_environment(options)
