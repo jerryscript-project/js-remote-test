@@ -156,9 +156,6 @@ def run_iotjs(options):
         options.testfile
     ]
 
-    # The test_module_dynamicload.js file requires to define the dynamic module test path.
-    os.environ['IOTJS_PATH'] = os.path.join(REMOTE_TESTRUNNER_PATH, 'test')
-
     args = ['--mem-stats']
 
     if options.coverage_port:

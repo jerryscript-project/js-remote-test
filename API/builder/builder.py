@@ -91,12 +91,7 @@ class BuilderBase(object):
 
         linker_map = utils.join(builddir, 'linker.map')
         lib_folder = utils.join(builddir, 'libs')
-        dynamic_folder = utils.join(builddir, 'test')
 
         utils.copy(application['paths']['libdir'], lib_folder)
-
-        if application == 'iotjs':
-            utils.copy(application['paths']['dynamic-module-test'], dynamic_folder)
-
         utils.copy(target_module['paths']['linker-map'], linker_map)
         utils.copy(target_module['paths']['image'], builddir)
