@@ -124,7 +124,7 @@ class STM32F4Builder(builder.BuilderBase):
             '--target-arch=arm',
             '--target-os=nuttx',
             '--target-board=stm32f4dis',
-            '--jerry-heaplimit=56',
+            '--jerry-heaplimit=64',
             '--profile=%s' % profiles[profile],
             '--buildtype=%s' % self.env['info']['buildtype'],
             '--nuttx-home=%s' % nuttx['src']
