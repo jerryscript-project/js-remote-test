@@ -487,6 +487,11 @@ def process_output(output):
         'stack': 'n/a'
     }
 
+    match = re.search(r'(IoT.js|JerryScript) [Rr]esult: (\d+)', output)
+
+    if match:
+        exitcode = match.group(2)
+
     if output.find('Heap stats:') != -1:
         # Process jerry-memstat output.
         match = re.search(r'Peak allocated = (\d+) bytes', output)
@@ -505,11 +510,6 @@ def process_output(output):
 
         if match:
             memstat['stack'] = int(match.group(1))
-
-        match = re.search(r'(IoT.js|JerryScript) [Rr]esult: (\d+)', output)
-
-        if match:
-            exitcode = match.group(2)
 
         # Remove memstat from the output.
         output, _ = output.split('Heap stats:', 1)
