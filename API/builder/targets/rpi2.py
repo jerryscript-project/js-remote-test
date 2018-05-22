@@ -30,7 +30,9 @@ class RPi2Builder(builder.BuilderBase):
         application = self.env['modules']['app']
 
         self._build_application(profile, use_extra_flags)
-        self._build_freya()
+
+        if not self.env['info']['no_memstat']:
+            self._build_freya()
 
         self._copy_build_files(application, builddir)
 
@@ -109,10 +111,6 @@ class RPi2Builder(builder.BuilderBase):
             'minimal': iotjs['paths']['minimal-profile'],
             'target': iotjs['paths']['rpi2-profile']
         }
-
-        if extra_flags and self.env['info']['coverage']:
-            extra_flags.append('--jerry-debugger')
-            extra_flags.append('--no-snapshot')
 
         build_flags = [
             '--clean',

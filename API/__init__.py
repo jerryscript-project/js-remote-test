@@ -114,7 +114,9 @@ def _replacer(string, env):
         'build-path': paths.BUILD_PATH,
         'patches': paths.PATCHES_PATH,
         'config': paths.CONFIG_PATH,
-        'home': paths.HOME
+        'home': paths.HOME,
+        'memstat': not env['info']['no_memstat'],
+        'coverage': bool(env['info']['coverage'])
     }
 
     for symbol in re.findall('%{(.*?)}', string):
@@ -123,12 +125,12 @@ def _replacer(string, env):
 
         # If the symbol is not found, but that is a valid module name in
         # resources.json, resolve the symbol as a path to the module.
-        if not value and symbol in env['modules']:
+        if value == None and symbol in env['modules']:
             value = env['modules'][symbol]['src']
 
-        if not value:
+        if value == None:
             continue
 
-        string = string.replace('%%{%s}' % symbol, value)
+        string = string.replace('%%{%s}' % symbol, str(value))
 
     return string

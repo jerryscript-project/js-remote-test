@@ -127,16 +127,18 @@ class ARTIK053Device(object):
         # Absolute path to the test file on the device.
         testfile = '/rom/%s/%s' % (testset, test['name'])
 
-        iotjs_args = ['--mem-stats']
+        args = []
+        if not self.env['info']['no_memstat']:
+            args = ['--mem-stats']
 
         if self.env['info']['coverage']:
-            iotjs_args.append('--start-debug-server')
+            args.append('--start-debug-server')
             port = utils.read_port_from_url(self.env['info']['coverage'])
-            iotjs_args.append('--debug-port %s' % port)
+            args.append('--debug-port %s' % port)
 
         command = {
-            'iotjs': 'iotjs %s %s\n' % (' '.join(iotjs_args), testfile),
-            'jerryscript': 'jerry %s --mem-stats\n' % testfile
+            'iotjs': 'iotjs %s %s\n' % (' '.join(args), testfile),
+            'jerryscript': 'jerry %s %s\n' % (testfile, ' '.join(args))
         }
 
         # Run the test on the device.

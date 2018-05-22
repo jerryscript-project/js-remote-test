@@ -78,13 +78,16 @@ class ARTIK530Device(object):
 
         # Copy all the tests into the build folder.
         utils.copy(test_src, test_dst)
-        utils.copy(paths.FREYA_CONFIG, build_path)
+
         utils.copy(paths.FREYA_TESTER, build_path)
 
-        # Resolve the iotjs-dirname macro in the Freya configuration file.
-        basename = utils.basename(paths.GBS_IOTJS_PATH)
-        sed_flags = ['-i', 's/%%{iotjs-dirname}/%s/g' % basename, 'iotjs-freya.config']
-        utils.execute(build_path, 'sed', sed_flags)
+        if not self.env['info']['no_memstat']:
+            utils.copy(paths.FREYA_CONFIG, build_path)
+
+            # Resolve the iotjs-dirname macro in the Freya configuration file.
+            basename = utils.basename(paths.GBS_IOTJS_PATH)
+            sed_flags = ['-i', 's/%%{iotjs-dirname}/%s/g' % basename, 'iotjs-freya.config']
+            utils.execute(build_path, 'sed', sed_flags)
 
         # 2. Deploy the build folder to the device.
         self.login()
@@ -134,6 +137,9 @@ class ARTIK530Device(object):
 
         # Create the command that the device will execute.
         command = template % (self.workdir, testdir, iotjs, testfile)
+
+        if self.env['info']['no_memstat']:
+            command += ' --no-memstat'
 
         if self.env['info']['coverage'] and self.app == 'iotjs':
             command += ' --coverage-port %s' % utils.read_port_from_url(self.env['info']['coverage'])

@@ -102,9 +102,13 @@ class STM32F4Device(object):
         # Absolute path to the test file on the device.
         testfile = '/test/%s/%s' % (testset, test['name'])
 
+        args = []
+        if not self.env['info']['no_memstat']:
+            args = ['--mem-stats']
+
         command = {
-            'iotjs': 'iotjs --mem-stats %s' % testfile,
-            'jerryscript': 'jerry %s --mem-stats' % testfile
+            'iotjs': 'iotjs %s %s' % (' '.join(args), testfile),
+            'jerryscript': 'jerry %s %s' % (testfile, ' '.join(args))
         }
 
         # Run the test on the device.

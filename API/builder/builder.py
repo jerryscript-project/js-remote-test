@@ -55,7 +55,7 @@ class BuilderBase(object):
         if info['no_build']:
             return
 
-        # Apply memory measurement patches.
+        # Apply patches.
         resources.patch_modules(self.env)
 
         self._build('target', paths['build'], use_extra_flags=True)
@@ -78,7 +78,12 @@ class BuilderBase(object):
         extra_flags = []
         # Append extra-flags that are defined in the resources.json file.
         if use_extra_flags:
-            extra_flags = application['extra-build-flags'][device]
+            if not self.env['info']['no_memstat']:
+                extra_flags = application['extra-build-flags'][device]
+
+            if self.env['info']['coverage']:
+                extra_flags.append('--jerry-debugger')
+                extra_flags.append('--no-snapshot')
 
         builder = builders.get(application['name'])
         builder(profile, extra_flags)

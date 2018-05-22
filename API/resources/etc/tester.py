@@ -56,10 +56,10 @@ def check_tools(options):
     '''
     Checking resources before testing.
     '''
-    if not is_executable(FREYA_BIN):
+    if not options.no_memstat and not is_executable(FREYA_BIN):
         sys.exit('The Freya tool is not suitable for testing!')
 
-    if not is_readable(FREYA_CONFIG):
+    if not options.no_memstat and not is_readable(FREYA_CONFIG):
         sys.exit('The Freya config file is not available!')
 
     if not is_executable(options.cmd):
@@ -69,7 +69,7 @@ def check_tools(options):
         sys.exit('Testfile is not readable!')
 
     # Remove the last Freya log file.
-    if os.path.exists(FREYA_LOG):
+#    if not options.no_memstat and os.path.exists(FREYA_LOG):
         os.remove(FREYA_LOG)
 
 
@@ -112,7 +112,12 @@ def run_jerry(options):
     '''
     Run JerryScript with memcheck.
     '''
-    output, exitcode = execute(options.cwd, options.cmd, [options.testfile, '--mem-stats'])
+
+    args = [options.testfile]
+    if not options.no_memstat:
+        args.append('--mem-stats')
+
+    output, exitcode = execute(options.cwd, options.cmd, args)
 
     mempeak = 'n/a'
     stack = 'n/a'
@@ -146,17 +151,12 @@ def run_jerry(options):
 
 def run_iotjs(options):
     '''
-    Run IoT.js with Freya.
+    Run IoT.js
     '''
-    valgrind_options = [
-        '--tool=freya',
-        '--freya-out-file=%s' % FREYA_LOG,
-        '--config=%s' % FREYA_CONFIG,
-        options.cmd,
-        options.testfile
-    ]
+    args = []
 
-    args = ['--mem-stats']
+    if not options.no_memstat:
+        args.append('--mem-stats')
 
     if options.coverage_port:
         args.append('--start-debug-server')
@@ -170,6 +170,7 @@ def run_iotjs(options):
 
     jerry_peak_alloc = 'n/a'
     stack_peak = 'n/a'
+    malloc_peak = 'n/a'
 
     if output.find('Heap stats:') != -1:
         # Process jerry-memstat output.
@@ -187,18 +188,28 @@ def run_iotjs(options):
         # Remove memstat from the output.
         output, _ = output.split("Heap stats:", 1)
 
-    # 2. Update the configuration file of Freya:
-    ldd_output, _ = execute(options.cwd, 'ldd', ['--version'])
-    gnu_libc_version = ldd_output.splitlines()[0].split()[-1]
+    if not options.no_memstat:
+        # Setup the valgrind options
+        valgrind_options = [
+            '--tool=freya',
+            '--freya-out-file=%s' % FREYA_LOG,
+            '--config=%s' % FREYA_CONFIG,
+            options.cmd,
+            options.testfile
+        ]
 
-    sed_options = ['-ie', 's/%%{glibc-version}/%s/g' % gnu_libc_version, 'iotjs-freya.config']
-    execute(REMOTE_TESTRUNNER_PATH, 'sed', sed_options)
+        # 2. Update the configuration file of Freya:
+        ldd_output, _ = execute(options.cwd, 'ldd', ['--version'])
+        gnu_libc_version = ldd_output.splitlines()[0].split()[-1]
 
-    # 3. Run IoT.js with Freya to create a log file with the memory information.
-    execute(options.cwd, FREYA_BIN, valgrind_options)
+        sed_options = ['-ie', 's/%%{glibc-version}/%s/g' % gnu_libc_version, 'iotjs-freya.config']
+        execute(REMOTE_TESTRUNNER_PATH, 'sed', sed_options)
 
-    # 4. Process the created log file to get the peak memory.
-    malloc_peak = process_freya_output()
+        # 3. Run IoT.js with Freya to create a log file with the memory information.
+        execute(options.cwd, FREYA_BIN, valgrind_options)
+
+        # 4. Process the created log file to get the peak memory.
+        malloc_peak = process_freya_output()
 
     return {
         'memstat': {
@@ -229,6 +240,10 @@ def parse_arguments():
     parser.add_argument('--coverage-port',
                         metavar='PORT',
                         help='Specify the PORT for jerry-debugger to calculate the JS source code coverage')
+
+    parser.add_argument('--no-memstat',
+                        action='store_true', default=False,
+                        help='do not measure memory statistics (default: %(default)s)')
 
     return parser.parse_args()
 

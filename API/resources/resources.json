@@ -43,8 +43,14 @@
       ],
       "patches": [
         { "file": "%{patches}/tizenrt-openocd.diff", "revert": false},
-        { "deps": ["jerryscript"], "file": "%{patches}/tizenrt-jerryscript-stack.diff" },
-        { "deps": ["iotjs"], "file": "%{patches}/tizenrt-coverage.diff" }
+        {
+          "cond": "'%{app}' == 'jerryscript' and %{memstat}",
+          "file": "%{patches}/tizenrt-jerryscript-stack.diff"
+        },
+        {
+          "cond": "'%{app}' == 'iotjs' and %{coverage}",
+          "file": "%{patches}/tizenrt-coverage.diff"
+        }
       ]
     },
     "nuttx": {
@@ -77,8 +83,14 @@
         { "deps": ["jerryscript"], "src": "%{jerryscript}/targets/nuttx-stm32f4/", "dst": "%{nuttx-apps}/interpreters/jerryscript/" }
       ],
       "patches": [
-        { "deps": ["iotjs"], "file": "%{patches}/nuttx-iotjs-stack.diff" },
-        { "deps": ["jerryscript"], "file": "%{patches}/nuttx-jerryscript-stack.diff" }
+        {
+          "cond": "'%{app}' == 'iotjs' and %{memstat}",
+          "file": "%{patches}/nuttx-iotjs-stack.diff"
+        },
+        {
+          "cond": "'%{app}' == 'jerryscript' and %{memstat}",
+          "file": "%{patches}/nuttx-jerryscript-stack.diff"
+        }
       ]
     },
     "jerryscript": {
@@ -103,7 +115,10 @@
         "rpi2-toolchain": "%{jerryscript}/cmake/toolchain_linux_armv7l.cmake"
       },
       "patches": [
-        { "deps": ["rpi2"], "file": "%{patches}/linux-jerryscript-stack.diff"}
+        {
+          "cond": "'%{device}' == 'rpi2' and %{memstat}",
+          "file": "%{patches}/linux-jerryscript-stack.diff"
+        }
       ]
     },
     "iotjs": {
@@ -131,13 +146,39 @@
         "js-sources" : "%{iotjs}/src/js/"
       },
       "patches": [
-        { "deps": ["artik053"], "file": "%{patches}/tizenrt-iotjs-stack.diff" },
-        { "deps": ["stm32f4dis", "artik053"], "file": "%{patches}/iotjs-system-heap.diff" },
-        { "deps": ["stm32f4dis", "artik053"], "file": "%{patches}/libtuv-system-heap.diff", "submodule": "%{iotjs}/deps/libtuv/" },
-        { "deps": ["stm32f4dis", "artik053", "rpi2", "artik530"], "file": "%{patches}/jerryscript-jerry-heap.diff", "submodule": "%{iotjs}/deps/jerry/" },
-        { "deps": ["artik053", "artik530", "rpi2"], "file": "%{patches}/jerryscript-coverage.diff", "submodule": "%{iotjs}/deps/jerry/" },
-        { "deps": ["artik053", "artik530", "rpi2"], "file": "%{patches}/coverage-client.diff", "submodule": "%{iotjs}/deps/jerry/", "revert": false },
-        { "deps": ["rpi2", "artik530"], "file": "%{patches}/linux-iotjs-stack.diff" }
+        {
+          "cond": "'%{device}' == 'artik053' and %{memstat}",
+          "file": "%{patches}/tizenrt-iotjs-stack.diff"
+        },
+        {
+          "cond": "'%{device}' in ['stm32f4dis', 'artik053'] and %{memstat}",
+          "file": "%{patches}/iotjs-system-heap.diff"
+        },
+        {
+          "cond": "'%{device}' in ['stm32f4dis', 'artik053'] and %{memstat}",
+          "file": "%{patches}/libtuv-system-heap.diff",
+          "submodule": "%{iotjs}/deps/libtuv/"
+        },
+        {
+          "cond": "'%{device}' in ['stm32f4dis', 'artik053', 'artik530', 'rpi2'] and %{memstat}",
+          "file": "%{patches}/jerryscript-jerry-heap.diff",
+          "submodule": "%{iotjs}/deps/jerry/"
+        },
+        {
+          "cond": "'%{device}' in ['artik053', 'artik530', 'rpi2'] and %{coverage}",
+          "file": "%{patches}/jerryscript-coverage.diff",
+          "submodule": "%{iotjs}/deps/jerry/"
+        },
+        {
+          "cond": "'%{device}' in ['artik053', 'artik530', 'rpi2'] and %{coverage}",
+          "file": "%{patches}/coverage-client.diff",
+          "submodule": "%{iotjs}/deps/jerry/",
+          "revert": false
+        },
+        {
+          "cond": "'%{device}' in ['artik530', 'rpi2'] and %{memstat}",
+          "file": "%{patches}/linux-iotjs-stack.diff"
+        }
       ]
     },
     "freya": {

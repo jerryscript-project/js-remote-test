@@ -73,14 +73,17 @@ class RPi2Device(object):
 
         # Copy all the tests into the build folder.
         utils.copy(test_src, test_dst)
-        # Copy Freya memory measurement files.
-        utils.copy(paths.FREYA_CONFIG, build_path)
+
         utils.copy(paths.FREYA_TESTER, build_path)
 
-        # Resolve the iotjs-dirname macro in the Freya configuration file.
-        basename = utils.basename(target_app['src'])
-        sed_flags = ['-i', 's/%%{iotjs-dirname}/%s/g' % basename, 'iotjs-freya.config']
-        utils.execute(build_path, 'sed', sed_flags)
+        if not self.env['info']['no_memstat']:
+            # Copy Freya memory measurement files.
+            utils.copy(paths.FREYA_CONFIG, build_path)
+
+            # Resolve the iotjs-dirname macro in the Freya configuration file.
+            basename = utils.basename(target_app['src'])
+            sed_flags = ['-i', 's/%%{iotjs-dirname}/%s/g' % basename, 'iotjs-freya.config']
+            utils.execute(build_path, 'sed', sed_flags)
 
         # 2. Deploy the build folder to the device.
         shell_flags = 'ssh -p %s' % self.port
@@ -126,6 +129,9 @@ class RPi2Device(object):
         }
         # Create the command that the device will execute.
         command = template % (self.workdir, testdir, apps[self.app], testfile)
+
+        if self.env['info']['no_memstat']:
+            command += ' --no-memstat'
 
         if self.env['info']['coverage'] and self.app == 'iotjs':
             command += ' --coverage-port %s' % utils.read_port_from_url(self.env['info']['coverage'])

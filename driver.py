@@ -65,6 +65,10 @@ def parse_options():
                         metavar='SEC', default=180, type=int,
                         help='specify the timeout (default: %(default)s sec)')
 
+    parser.add_argument('--no-memstat',
+                        action='store_true', default=False,
+                        help='do not measure memory statistics (default: %(default)s)')
+
     parser.add_argument('--coverage',
                         metavar='SERVER_ADDRESS(HOST:PORT)',
                         help='use jerry-debugger to calculate the JS source code coverage')

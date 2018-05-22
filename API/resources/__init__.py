@@ -60,22 +60,13 @@ def patch_modules(env, revert=False):
     '''
     modules = env['modules']
 
-    is_coverage_enabled = env['info']['coverage'] and env['info']['app'] == 'iotjs'
-    coverage_files = ['jerryscript-coverage.diff', 'coverage-client.diff', 'tizenrt-coverage.diff']
-
     for module in modules.values():
         for patch in module.get('patches', []):
             # Do not patch if target device is not
             # in the content of deps.
-            deps = patch.get('deps', [])
-            device = env['info']['device']
+            cond = patch.get('cond', [])
 
-            # Note: Always configure in case of empty deps list.
-            if deps and not any(i in modules.keys() + [device] for i in deps):
-                continue
-
-            # Do not apply coverage patches if it not necessary.
-            if not is_coverage_enabled and utils.basename(patch['file']) in coverage_files:
+            if cond and not eval(cond):
                 continue
 
             revertable = patch.get('revert', True)
