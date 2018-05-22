@@ -98,25 +98,6 @@ class ARTIK053Device(object):
         '''
         self.channel.close()
 
-
-    def _run_coverage_script(self):
-        '''
-        Start the client script.
-        '''
-        address = self.env['info']['coverage']
-        iotjs = self.env['modules']['iotjs']
-        coverage_client = iotjs['paths']['coverage-client']
-
-        commit_info = utils.last_commit_info(iotjs['src'])
-        result_name = 'cov-%s-%s.json' % (commit_info['commit'], commit_info['date'])
-        result_dir =  utils.join(paths.RESULT_PATH, 'iotjs/artik053/')
-        result_path = utils.join(result_dir, result_name)
-
-        utils.mkdir(result_dir)
-        utils.execute(paths.PROJECT_ROOT, coverage_client, ['--non-interactive',
-                                                            '--coverage-output=%s' % result_path,
-                                                            address])
-
     def execute(self, testset, test):
         '''
         Execute the given test.
@@ -147,8 +128,7 @@ class ARTIK053Device(object):
 
         if self.env['info']['coverage'] and self.app == 'iotjs':
             # Start the client script on a different thread for coverage.
-            time.sleep(1)
-            client_thread = Thread(target = self._run_coverage_script)
+            client_thread = Thread(target=utils.run_coverage_script, kwargs={'env': self.env})
             client_thread.daemon = True
             client_thread.start()
 
