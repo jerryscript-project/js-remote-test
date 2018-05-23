@@ -42,13 +42,10 @@ def config_modules(env):
 
     for module in modules.values():
         for config in module.get('config', []):
-            # Do not configure if the contents of deps
-            # are not in the modules list.
-            deps = config.get('deps', [])
+            # Do not configure if the result of the condition is false.
+            condition = config.get('condition', 'True')
 
-            device = env['info']['device']
-            # Note: Always configure in case of empty deps list.
-            if deps and not any(i in modules.keys() + [device] for i in deps):
+            if not eval(condition):
                 continue
 
             utils.copy(config['src'], config['dst'])
@@ -62,11 +59,10 @@ def patch_modules(env, revert=False):
 
     for module in modules.values():
         for patch in module.get('patches', []):
-            # Do not patch if target device is not
-            # in the content of deps.
-            cond = patch.get('cond', [])
+            # Do not patch if the result of the condition is false.
+            condition = patch.get('condition', 'True')
 
-            if cond and not eval(cond):
+            if not eval(condition):
                 continue
 
             revertable = patch.get('revert', True)
