@@ -1,5 +1,5 @@
 diff --git a/apps/system/jerryscript/jerry_main.c b/apps/system/jerryscript/jerry_main.c
-index 80d16f5..a39c601 100644
+index dc590d8..4d39537 100644
 --- a/apps/system/jerryscript/jerry_main.c
 +++ b/apps/system/jerryscript/jerry_main.c
 @@ -42,6 +42,11 @@
@@ -14,7 +14,7 @@ index 80d16f5..a39c601 100644
   * Print usage and available options
   */
  static void
-@@ -436,8 +441,49 @@ jerry_cmd_main (int argc, char *argv[])
+@@ -438,11 +443,49 @@ jerry_cmd_main (int argc, char *argv[])
  static int
  jerry(int argc, char *argv[])
  {
@@ -52,6 +52,9 @@ index 80d16f5..a39c601 100644
 +
    int ret_code = jerry_cmd_main(argc, argv);
  
+-#ifdef CONFIG_DEBUG_VERBOSE
+-  jerry_port_log(JERRY_LOG_LEVEL_DEBUG, "JerryScript result: %d\n", ret_code);
+-#endif
 +  /* Check max stack usage */
 +  uint8_t *stack_p = end;
 +
@@ -60,7 +63,7 @@ index 80d16f5..a39c601 100644
 +  }
 +
 +  printf ("Stack usage: %d\n", (int) (base - (unsigned long)stack_p));
-+
- #ifdef CONFIG_DEBUG_VERBOSE
-   jerry_port_log(JERRY_LOG_LEVEL_DEBUG, "JerryScript result: %d\n", ret_code);
- #endif
++  printf( "JerryScript result: %d\n", ret_code);
+ 
+   return ret_code;
+ } /* jerry */

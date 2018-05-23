@@ -37,11 +37,6 @@
       },
       "config": [
         {
-          "condition": "'%{app}' == 'iotjs'",
-          "src": "%{config}/tizenrt-iotjs.config",
-          "dst": "%{tizenrt}/build/configs/artik053/iotjs/defconfig"
-        },
-        {
           "condition": "'%{app}' == 'jerryscript'",
           "src": "%{jerryscript}/targets/tizenrt-artik053/apps/jerryscript/",
           "dst": "%{tizenrt}/apps/system/jerryscript/"
@@ -52,10 +47,8 @@
           "dst": "%{tizenrt}/build/configs/artik053/jerryscript/"
         },
         {
-          "condition": "'%{app}' == 'jerryscript'",
-          "src": "%{config}/tizenrt-jerryscript.config",
-          "dst": "%{tizenrt}/build/configs/artik053/jerryscript/defconfig"
-
+          "src": "%{config}/tizenrt-%{app}-%{build-type}.config",
+          "dst": "%{tizenrt}/build/configs/artik053/%{app}/defconfig"
         }
       ],
       "patches": [

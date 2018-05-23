@@ -82,6 +82,9 @@ class ARTIK053Builder(builder.BuilderBase):
             '--compile-flag=-isystem %s' % tizenrt['paths']['include']
         ] + extra_flags
 
+        if self.env['info']['buildtype'] == 'debug':
+            build_flags.append('--debug')
+
         # TizenRT requires the path of the used JerryScript folder.
         utils.define_environment('JERRYSCRIPT_ROOT_DIR', jerry['src'])
 
