@@ -14,25 +14,20 @@
 
 import json
 
+from API.testrunner.devices.device_base import RemoteDevice
 from API.common import console, utils, paths
 from API.testrunner.devices.connections.sshcom import SSHConnection
 from threading import Thread
 
-class RPi2Device(object):
+class RPi2Device(RemoteDevice):
     '''
     Device of the Raspberry Pi 2 target.
     '''
     def __init__(self, env):
         self.os = 'linux'
-        self.app = env['info']['app']
-        self.user = env['info']['username']
-        self.ip = env['info']['ip']
-        self.port = env['info']['port']
         self.workdir = env['info']['remote_workdir']
-        self.env = env
 
-        # Check the members before testing.
-        self.check_args()
+        RemoteDevice.__init__(self, env)
 
         data = {
             'username': self.user,
@@ -42,20 +37,6 @@ class RPi2Device(object):
         }
 
         self.channel = SSHConnection(data)
-
-    def check_args(self):
-        '''
-        Check that all the arguments are established.
-        '''
-        if not self.workdir:
-            console.fail('Please use --remote-workdir for the device.')
-        if not self.ip:
-            console.fail('Please define the IP address of the device.')
-        if not self.user:
-            console.fail('Please define the username of the device.')
-
-        if self.workdir is '/':
-            console.fail('Please do not use the root folder as test folder.')
 
     def initialize(self):
         '''
@@ -95,18 +76,6 @@ class RPi2Device(object):
         dst = '%s@%s:%s' % (self.user, self.ip, self.workdir)
 
         utils.execute('.', 'rsync', rsync_flags + [src, dst])
-
-    def login(self):
-        '''
-        Login to the device.
-        '''
-        self.channel.open()
-
-    def logout(self):
-        '''
-        Logout from the device.
-        '''
-        self.channel.close()
 
     def execute(self, testset, test):
         '''

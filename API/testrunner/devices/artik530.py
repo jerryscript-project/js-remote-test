@@ -14,26 +14,21 @@
 
 import json
 
+from API.testrunner.devices.device_base import RemoteDevice
 from API.common import console, utils, paths
 from API.testrunner.devices.connections.sshcom import SSHConnection
 from threading import Thread
 
 
-class ARTIK530Device(object):
+class ARTIK530Device(RemoteDevice):
     '''
     Device of the ARTIK530 target.
     '''
     def __init__(self, env):
         self.os = 'tizen'
-        self.app = env['info']['app']
-        self.user = env['info']['username']
-        self.ip = env['info']['ip']
-        self.port = env['info']['port']
         self.workdir = env['info']['remote_workdir']
-        self.env = env
 
-        # Check the members before testing.
-        self.check_args()
+        RemoteDevice.__init__(self, env)
 
         data = {
             'username': self.user,
@@ -43,20 +38,6 @@ class ARTIK530Device(object):
         }
 
         self.channel = SSHConnection(data)
-
-    def check_args(self):
-        '''
-        Check that all the arguments are established.
-        '''
-        if not self.workdir:
-            console.fail('Please use --remote-workdir for the device.')
-        if not self.ip:
-            console.fail('Please define the IP address of the device.')
-        if not self.user:
-            console.fail('Please define the username of the device.')
-
-        if self.workdir is '/':
-            console.fail('Please do not use the root folder as test folder.')
 
     def initialize(self):
         '''
@@ -108,18 +89,6 @@ class ARTIK530Device(object):
         self.channel.exec_command(template % (self.workdir, self.app))
 
         self.logout()
-
-    def login(self):
-        '''
-        Login to the device.
-        '''
-        self.channel.open()
-
-    def logout(self):
-        '''
-        Logout from the device.
-        '''
-        self.channel.close()
 
     def execute(self, testset, test):
         '''
