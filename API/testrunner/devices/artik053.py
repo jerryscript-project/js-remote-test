@@ -66,7 +66,7 @@ class ARTIK053Device(RemoteDevice):
         self.login()
 
         # Absolute path to the test file on the device.
-        testfile = '/rom/%s/%s' % (testset, test['name'])
+        testfile = '/test/%s/%s' % (testset, test['name'])
 
         args = []
         if not self.env['info']['no_memstat']:

@@ -64,7 +64,7 @@ class RemoteDevice(object):
                 # Press enters to start the serial communication and
                 # go to the test folder because some tests require resources.
                 self.channel.exec_command('\n\n')
-                self.channel.exec_command('cd /rom')
+                self.channel.exec_command('cd /test')
 
                 if self.env['info']['coverage'] and self.app == 'iotjs':
                     # Set up the wifi connection.
