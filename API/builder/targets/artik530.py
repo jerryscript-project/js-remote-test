@@ -40,6 +40,19 @@ class ARTIK530Builder(builder.BuilderBase):
         '''
         Cross-compile Valgrind and its Freya tool.
         '''
+        build_dir = utils.join(self.env['paths']['build'], 'valgrind_freya')
+        valgrind_files = [
+            'vg-in-place',
+            'coregrind/valgrind',
+            '.in_place/freya-arm-linux',
+            '.in_place/vgpreload_core-arm-linux.so',
+            '.in_place/vgpreload_freya-arm-linux.so'
+        ]
+
+        # Check if a Freya build already exists, if yes, skip the build.
+        if utils.exist_files(build_dir, valgrind_files):
+            return
+
         freya = self.env['modules']['freya']
 
         utils.define_environment('LD', 'arm-linux-gnueabi-ld')
@@ -61,16 +74,7 @@ class ARTIK530Builder(builder.BuilderBase):
         utils.unset_environment('CPP')
         utils.unset_environment('CXX')
 
-        build_dir = utils.join(self.env['paths']['build'], 'valgrind_freya')
         # Copy necessary files into the output directory.
-        valgrind_files = [
-            'vg-in-place',
-            'coregrind/valgrind',
-            '.in_place/freya-arm-linux',
-            '.in_place/vgpreload_core-arm-linux.so',
-            '.in_place/vgpreload_freya-arm-linux.so'
-        ]
-
         for valgrind_file in valgrind_files:
             src = utils.join(freya['src'], valgrind_file)
             dst = utils.join(build_dir, valgrind_file)

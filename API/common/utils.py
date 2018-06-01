@@ -200,6 +200,15 @@ def exists(path):
     '''
     return os.path.exists(path)
 
+def exist_files(path, files):
+    '''
+    Checks that all files in the list exist relative to the given path.
+    '''
+    for f in files:
+        if not exists(join(path, f)):
+            return False
+
+    return True
 
 def size(binary):
     '''
