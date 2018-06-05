@@ -19,10 +19,16 @@ class Skiplist(object):
     '''
     Skiplist class for IoT.js and JerryScript.
     '''
-    def __init__(self, env, os):
-        self.os = os
+    def __init__(self, env, device):
+        self.device = device
         self.app = env['info']['app']
-        self.device = env['info']['device']
+        self.device_type = env['info']['device']
+
+        if self.app == 'iotjs':
+            buildinfo = self.device.iotjs_build_info()
+            self.builtin_modules = buildinfo[0]
+            self.builtin_features = buildinfo[1]
+            self.stability = buildinfo[2]
 
         # Read the local skiplist.
         self.skiplist = self._read_skiplist()
@@ -37,8 +43,38 @@ class Skiplist(object):
         # of the local skiplist.
         if result and 'reason' in result:
             test['reason'] = result['reason']
+            return True
 
-        return bool(result)
+        # In case of iotjs, check if the test has to be skipped
+        # based on the required modules and features.
+        if self.app == 'iotjs':
+            return self._skip_iotjs_test(test)
+
+        return False
+
+    def _skip_iotjs_test(self, test):
+        '''
+        Determine if an iotjs test has to be skipped.
+        '''
+        required_modules = set(test.get('required-modules', []))
+        required_features = set(test.get('required-features', []))
+
+        unsupported_modules = required_modules - self.builtin_modules
+        unsupported_features = required_features - self.builtin_features
+
+        # Skip the test if it requires a module which is not in iotjs.
+        if unsupported_modules:
+            test['reason'] = 'Required module(s) unsupported by iotjs build: '
+            test['reason'] += ', '.join(sorted(unsupported_modules))
+            return True
+
+        # Skip the test if it uses features which are not in iotjs.
+        if unsupported_features:
+            test['reason'] = 'Required feature(s) unsupported by iotjs build: '
+            test['reason'] += ', '.join(sorted(unsupported_features))
+            return True
+
+        return False
 
     def _read_skiplist(self):
         '''
@@ -52,7 +88,7 @@ class Skiplist(object):
         skipfile = utils.join(paths.TESTRUNNER_PATH, skiplists[self.app])
         skiplist = utils.read_json_file(skipfile)
 
-        return skiplist[self.device]
+        return skiplist[self.device_type]
 
     def _find_in_skiplist(self, testset, test):
         '''
@@ -68,7 +104,7 @@ class Skiplist(object):
 
         # IoT.js tests have skip information in the
         # official testsets.json file.
-        for i in ['all', 'stable', self.os]:
+        for i in ['all', self.stability, self.device.os]:
             if i in test.get('skip', []):
                 return test
 

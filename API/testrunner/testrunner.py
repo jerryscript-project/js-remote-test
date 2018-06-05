@@ -41,12 +41,12 @@ class TestRunner(object):
         self.env = environment
 
         self.device = devices.create_device(environment)
-        self.skiplist = Skiplist(environment, self.device.os)
         self.results = []
         self.coverage_info = {}
 
         # Flash the device to be able to run the tests.
         self.device.initialize()
+        self.skiplist = Skiplist(environment, self.device)
 
     def run(self):
         '''

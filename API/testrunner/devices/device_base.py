@@ -84,3 +84,35 @@ class RemoteDevice(object):
         Logout from the device.
         '''
         self.channel.close()
+
+    def iotjs_build_info(self):
+        '''
+        Get buildinfo from iotjs.
+        '''
+        if self.device in ['rpi2', 'artik530']:
+            iotjs = '%s/iotjs' % self.workdir
+            buildinfo = '%s/tests/tools/iotjs_build_info.js' % self.workdir
+            command = ' '.join([iotjs, buildinfo])
+
+        elif self.device in ['artik053', 'stm32f4dis']:
+            command = 'iotjs /test/tools/iotjs_build_info.js'
+
+        self.login()
+
+        output = self.channel.exec_command(command)
+
+        # Process the output to get the json string and the exitcode.
+        build_info, _, exitcode = utils.process_output(output)
+
+        if exitcode != 0:
+            console.fail('%s returned with exitcode %d' % (buildinfo, exitcode))
+
+        info = json.loads(build_info)
+
+        builtins = set(info['builtins'])
+        features = set(info['features'])
+        stability = info['stability']
+
+        self.logout()
+
+        return builtins, features, stability
