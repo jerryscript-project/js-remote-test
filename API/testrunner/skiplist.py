@@ -102,6 +102,9 @@ class Skiplist(object):
             if obj['name'] == test['name']:
                 return obj
 
+        if self.app != 'iotjs':
+            return None
+
         # IoT.js tests have skip information in the
         # official testsets.json file.
         for i in ['all', self.stability, self.device.os]:

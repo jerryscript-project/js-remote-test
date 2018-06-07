@@ -92,15 +92,15 @@ class RemoteDevice(object):
         if self.device in ['rpi2', 'artik530']:
             iotjs = '%s/iotjs' % self.workdir
             buildinfo = '%s/tests/tools/iotjs_build_info.js' % self.workdir
-            command = ' '.join([iotjs, buildinfo])
+            command = '%s %s' % (iotjs, buildinfo)
 
         elif self.device in ['artik053', 'stm32f4dis']:
-            command = 'iotjs /test/tools/iotjs_build_info.js'
+            buildinfo = '/test/tools/iotjs_build_info.js'
+            command = 'iotjs %s' % buildinfo
 
         self.login()
 
         output = self.channel.exec_command(command)
-
         # Process the output to get the json string and the exitcode.
         build_info, _, exitcode = utils.process_output(output)
 

@@ -499,7 +499,7 @@ def process_output(output):
     match = re.search(r'(IoT.js|JerryScript) [Rr]esult: (\d+)', output)
 
     if match:
-        exitcode = match.group(2)
+        exitcode = int(match.group(2))
 
     if output.find('Heap stats:') != -1:
         # Process jerry-memstat output.
