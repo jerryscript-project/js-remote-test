@@ -42,6 +42,7 @@ class ARTIK053Builder(builder.BuilderBase):
         tizenrt = self.env['modules']['tizenrt']
         config = 'artik053/%s' % self.env['info']['app']
 
+        utils.execute(tizenrt['paths']['os'], 'make', ['distclean'])
         utils.execute(tizenrt['paths']['tools'], './configure.sh', [config])
         utils.execute(tizenrt['paths']['os'], 'make', ['clean'])
         utils.execute(tizenrt['paths']['os'], 'make', ['context'])

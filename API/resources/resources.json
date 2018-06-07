@@ -26,7 +26,7 @@
     "tizenrt": {
       "url": "https://github.com/Samsung/TizenRT.git",
       "src": "%{js-remote-test}/deps/tizenrt",
-      "version": "1.1_Public_Release",
+      "version": "766372ee7bacfc8d2e0a072c7db559927d3d5026",
       "paths": {
         "os": "%{tizenrt}/os/",
         "tools": "%{tizenrt}/os/tools/",
@@ -43,7 +43,7 @@
         },
         {
           "condition": "'%{app}' == 'jerryscript'",
-          "src": "%{jerryscript}/targets/tizenrt-artik053/configs/jerryscript/",
+          "src": "%{config}/tizenrt-artik053/jerryscript/",
           "dst": "%{tizenrt}/build/configs/artik053/jerryscript/"
         },
         {
