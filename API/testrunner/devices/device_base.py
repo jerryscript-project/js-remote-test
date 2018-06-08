@@ -13,6 +13,7 @@
 # limitations under the License.
 
 import json
+import time
 
 from API.common import console, utils, paths
 from threading import Thread
@@ -98,6 +99,7 @@ class RemoteDevice(object):
             buildinfo = '/test/tools/iotjs_build_info.js'
             command = 'iotjs %s' % buildinfo
 
+        self.reset()
         self.login()
 
         output = self.channel.exec_command(command)
