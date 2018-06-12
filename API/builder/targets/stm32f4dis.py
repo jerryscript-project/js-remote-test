@@ -54,7 +54,7 @@ class STM32F4Builder(builder.BuilderBase):
         nuttx = self.env['modules']['nuttx']
         buildtype = self.env['info']['buildtype']
 
-        utils.define_environment('R', int(buildtype is 'release'))
+        utils.define_environment('R', int(buildtype == 'release'))
         utils.define_environment('EXTRA_LIBS', '-Map=nuttx.map')
 
         # Provide test files as ROMFS content.
