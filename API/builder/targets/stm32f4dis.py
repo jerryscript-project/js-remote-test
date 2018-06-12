@@ -43,6 +43,7 @@ class STM32F4Builder(builder.BuilderBase):
         nuttx = self.env['modules']['nuttx']
         config = ['stm32f4discovery/usbnsh']
 
+        utils.execute(nuttx['src'], 'make', ['distclean'])
         utils.execute(nuttx['paths']['tools'], './configure.sh', config)
         utils.execute(nuttx['src'], 'make', ['clean'])
         utils.execute(nuttx['src'], 'make', ['context'])
