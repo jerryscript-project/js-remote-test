@@ -99,7 +99,9 @@ class RemoteDevice(object):
             buildinfo = '/test/tools/iotjs_build_info.js'
             command = 'iotjs %s' % buildinfo
 
-        self.reset()
+        # Wait a moment to boot the device.
+        time.sleep(2)
+
         self.login()
 
         output = self.channel.exec_command(command)

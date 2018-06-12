@@ -1,16 +1,8 @@
 diff --git a/src/iotjs.c b/src/iotjs.c
-index ef2be53..1c2fe52 100644
+index c0a5237..c348732 100644
 --- a/src/iotjs.c
 +++ b/src/iotjs.c
-@@ -28,6 +28,7 @@
- #include "jerryscript.h"
- 
- #include <stdio.h>
-+#include <stdlib.h>
- #include <string.h>
- 
- 
-@@ -215,7 +216,11 @@ void iotjs_conf_console_out(int (*out)(int lv, const char* fmt, ...)) {
+@@ -216,7 +216,11 @@ void iotjs_conf_console_out(int (*out)(int lv, const char* fmt, ...)) {
    iotjs_set_console_out(out);
  }
  
@@ -23,7 +15,7 @@ index ef2be53..1c2fe52 100644
    int ret_code = 0;
  
    // Initialize debug log and environments
-@@ -258,3 +263,62 @@ exit:
+@@ -260,3 +264,62 @@ exit:
    iotjs_debuglog_release();
    return ret_code;
  }
