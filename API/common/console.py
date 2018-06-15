@@ -13,7 +13,7 @@
 # limitations under the License.
 
 from __future__ import print_function
-
+import sys
 
 TERMINAL_RED = '\033[1;31m'
 TERMINAL_BLUE = '\033[1;34m'
@@ -43,4 +43,4 @@ def fail(msg):
     print()
     print('%s%s%s' % (TERMINAL_RED, msg, TERMINAL_EMPTY))
     print()
-    exit(1)
+    sys.exit(1)

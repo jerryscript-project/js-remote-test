@@ -131,9 +131,12 @@ def main():
     builder.create_test_build()
 
     # Run all the tests.
-    testrunner = API.testrunner.TestRunner(env)
-    testrunner.run()
-    testrunner.save()
+    # FIXME this will have to remain in an if block until
+    # dummy devices are created for the Travis jobs.
+    if not env['info']['no_test']:
+        testrunner = API.testrunner.TestRunner(env)
+        testrunner.run()
+        testrunner.save()
 
 
 if __name__ == '__main__':

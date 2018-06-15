@@ -15,7 +15,7 @@
 # limitations under the License.
 
 # Todo: eliminate unneccesary dependencies (e.g. genfs, libusb)
-ubuntu_ver=$(lsb_release -r | cut -d ':' -f 2 | tr -d '[:space:]')
+ubuntu_ver=$(lsb_release -rs)
 if [ "$ubuntu_ver" = "14.04" ]; then
   echo "Ubuntu 14.04 is not supported"
   exit
