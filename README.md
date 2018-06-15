@@ -198,8 +198,8 @@ Every JSON file contain information about the test results (status, output, memo
 You are able to run coverage measurement on ARTIK053. A modified jerry-debugger is used to calculate the covered JS source lines, so it needs to specify a unique network address for the connection with the `coverage` option. ARTIK053 uses wifi for the communication, so it also needs to set the following environment variables:
 
 ```
-export ARTIK_COV_WIFI_NAME=your_wifi_name
-export ARTIK_COV_WIFI_PWD=your_wifi_password
+export ARTIK_WIFI_NAME=your_wifi_name
+export ARTIK_WIFI_PWD=your_wifi_password
 ```
 
 To run tests with coverage:

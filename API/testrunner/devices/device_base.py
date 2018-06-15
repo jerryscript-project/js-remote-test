@@ -67,10 +67,10 @@ class RemoteDevice(object):
                 self.channel.exec_command('\n\n')
                 self.channel.exec_command('cd /test')
 
-                if self.env['info']['coverage'] and self.app == 'iotjs':
+                if self.device == 'artik053' and self.app == 'iotjs':
                     # Set up the wifi connection.
-                    wifi_name = utils.get_environment('ARTIK_COV_WIFI_NAME')
-                    wifi_pwd =  utils.get_environment('ARTIK_COV_WIFI_PWD')
+                    wifi_name = utils.get_environment('ARTIK_WIFI_NAME')
+                    wifi_pwd =  utils.get_environment('ARTIK_WIFI_PWD')
 
                     self.channel.exec_command('wifi startsta')
                     self.channel.exec_command('wifi join %s %s' % (wifi_name, wifi_pwd))
