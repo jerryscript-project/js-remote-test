@@ -26,5 +26,6 @@ sudo apt-get install -y libsgutils2-dev gcc-arm-none-eabi minicom
 sudo apt-get install -y python-pip pkg-config libssl-dev
 sudo apt-get install -y gcc-arm-linux-gnueabihf gcc-arm-linux-gnueabi
 sudo apt-get install -y binutils-arm-linux-gnueabi
+sudo apt-get install -y mosquitto
 
 sudo pip install paramiko pyserial pyrebase

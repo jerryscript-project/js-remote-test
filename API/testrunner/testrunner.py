@@ -47,6 +47,8 @@ class TestRunner(object):
         # Flash the device to be able to run the tests.
         self.device.initialize()
         self.skiplist = Skiplist(environment, self.device)
+        
+        utils.execute('.', 'mosquitto', ['-d'])
 
     def run(self):
         '''
