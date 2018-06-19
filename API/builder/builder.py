@@ -14,6 +14,7 @@
 
 from API import resources
 from API.common import utils
+from API.builder import utils as builderUtils
 
 
 class BuilderBase(object):
@@ -43,7 +44,7 @@ class BuilderBase(object):
         self._build('minimal', paths['build-minimal'])
         self._build('target', paths['build-target'])
 
-        utils.create_build_info(self.env)
+        builderUtils.create_build_info(self.env)
 
     def create_test_build(self):
         '''
