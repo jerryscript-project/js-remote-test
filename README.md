@@ -83,12 +83,12 @@ Source:
 
 In case of the ARTIK 530 devices, the communication happens over `SSH`, like in case of RP2. You need to check a few things before starting remote-test.
 
-First, you must install rpm packages which are `openssh`, `python`, `rsync` on the remote target. 
+First, you must install rpm packages which are `openssh`, `python`, `rsync` on the remote target.
 To install them, you need sdb tool which is contained within tizen-studio. For more details, please refer to [this link](https://developer.tizen.org/development/tizen-studio/). After you have the sdb tool, install the packages with the commands below.
 
 ```sh
 # The ARTIK530 board doesn't need to execute 'sdb connect` command.
-user@desktop $ ~/tizen-studio/tools/sdb connect <your-device-ip> 
+user@desktop $ ~/tizen-studio/tools/sdb connect <your-device-ip>
 user@desktop $ ./tools/install_tizen_packages.sh
 ```
 
@@ -176,12 +176,12 @@ Serial communication:
 ### Examples to run tests
 
 ```
-$ python driver.py --device stm32f4dis --app iotjs --port /dev/STM32F4 --baud 115200
-$ python driver.py --device stm32f4dis --app jerryscript --port /dev/STM32F4 --baud 115200
+$ python driver.py --device stm32f4dis --app iotjs --device-id /dev/STM32F4 --baud 115200
+$ python driver.py --device stm32f4dis --app jerryscript --device-id /dev/STM32F4 --baud 115200
 $ python driver.py --device rpi2 --app iotjs --ip a.b.c.d --username pi --remote-workdir /home/pi/testrunner
 $ python driver.py --device rpi2 --app jerryscript --ip a.b.c.d --username pi --remote-workdir /home/pi/testrunner
-$ python driver.py --device artik053 --app iotjs --port /dev/ARTIK053 --baud 115200
-$ python driver.py --device artik053 --app jerryscript --port /dev/ARTIK053 --baud 115200
+$ python driver.py --device artik053 --app iotjs --device-id /dev/ARTIK053 --baud 115200
+$ python driver.py --device artik053 --app jerryscript --device-id /dev/ARTIK053 --baud 115200
 $ python driver.py --device artik530 --app iotjs --ip a.b.c.d --username root --remote-workdir /root/testrunner
 ```
 
