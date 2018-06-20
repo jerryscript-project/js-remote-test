@@ -15,6 +15,7 @@
 # limitations under the License.
 
 import argparse
+import os
 
 import API
 
@@ -73,6 +74,10 @@ def parse_options():
                         metavar='SERVER_ADDRESS(HOST:PORT)',
                         help='use jerry-debugger to calculate the JS source code coverage')
 
+    parser.add_argument('--quiet',
+                        action='store_true', default=False,
+                        help='display less verbose output')
+
     group = parser.add_argument_group("Secure Shell communication")
 
     group.add_argument('--username',
@@ -123,6 +128,12 @@ def main():
     # Get an environment object that holds all the necessary
     # information for the build and the test.
     env = API.load_testing_environment(options)
+
+    if env['info']['quiet']:
+        os.environ['QUIET'] = '1'
+
+    if os.environ.get('VERBOSE', '') and env['info']['quiet']:
+        print('\n\033[1;33mWarning: --quiet option disables VERBOSE output!\033[0m\n')
 
     # Initialize the testing environment by building all the
     # required modules to be ready to run tests.

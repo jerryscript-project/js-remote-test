@@ -150,6 +150,9 @@ $ python driver.py
 --coverage
   Defines the server address for the jerry-debugger to calculate the JS source code.
 
+--quiet
+  Make the output less verbose.
+
 SSH communication:
 
 --username

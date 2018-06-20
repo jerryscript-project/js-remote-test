@@ -35,7 +35,7 @@ DOCKER_JSREMOTE_PATH = DOCKER_ROOT_PATH + '/js-remote-test/'
 BASE_COMMAND = ['python', '-u', DOCKER_JSREMOTE_PATH + 'driver.py']
 RELEASE_ARG = ['--buildtype', 'release']
 DEBUG_ARG = ['--buildtype', 'debug']
-COMMON_ARGS = ['--no-flash', '--no-test', '--no-memstat']
+COMMON_ARGS = ['--no-flash', '--no-test', '--no-memstat', '--quiet']
 
 DEVICES = ['rpi2', 'artik530', 'artik053', 'stm32f4dis']
 
@@ -59,8 +59,8 @@ def build_app(option):
 
     # Redirect stdout to /dev/null to decrease log size.
     # FIXME make some kind of quiet option in driver.py to do this.
-    release_command = BASE_COMMAND + app_arg + RELEASE_ARG + device_arg + COMMON_ARGS + ['1>/dev/null']
-    debug_command = BASE_COMMAND + app_arg + DEBUG_ARG + device_arg + COMMON_ARGS + ['1>/dev/null']
+    release_command = BASE_COMMAND + app_arg + RELEASE_ARG + device_arg + COMMON_ARGS
+    debug_command = BASE_COMMAND + app_arg + DEBUG_ARG + device_arg + COMMON_ARGS
 
     exec_docker(release_command)
     exec_docker(debug_command)

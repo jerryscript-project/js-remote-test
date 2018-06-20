@@ -30,7 +30,7 @@ class TimeoutException(Exception):
     pass
 
 
-def execute(cwd, cmd, args=None, quiet=False):
+def execute(cwd, cmd, args=None, quiet=False, strict=True):
     '''
     Run the given command.
     '''
@@ -41,7 +41,9 @@ def execute(cwd, cmd, args=None, quiet=False):
     stdout = None
     stderr = None
 
-    if quiet:
+    console.info("Run: %s %s (%s)\n" % (cmd, ' '.join(args), cwd))
+
+    if quiet or os.environ.get('QUIET', ''):
         stdout = subprocess.PIPE
         stderr = subprocess.STDOUT
 
@@ -52,7 +54,7 @@ def execute(cwd, cmd, args=None, quiet=False):
         output = process.communicate()[0]
         exitcode = process.returncode
 
-        if exitcode:
+        if strict and exitcode:
             raise Exception('Non-zero exit value.')
 
         return output, exitcode
@@ -65,23 +67,25 @@ def patch(project, patch, revert=False):
     '''
     Apply the given patch to the given project.
     '''
-    patch_cmd = ['patch', '-p1', '-d', project]
+    patch_options = ['-p1', '-d', project]
     dry_options = ['--dry-run', '-R', '-f', '-s', '-i']
 
     if not os.path.exists(patch):
         console.fail(patch + ' does not exist.')
 
     # First check if the patch can be applied to the project.
-    patch_applicable = subprocess.call(patch_cmd + dry_options + [patch])
+    _, patch_applicable = execute('.', 'patch', patch_options + dry_options + [patch], strict=False)
 
     # Apply the patch if project is clean and revert flag is not set.
     if not revert and patch_applicable:
-        if subprocess.call(patch_cmd + ['-i', patch]):
+        _, exitcode = execute('.', 'patch', patch_options + ['-i', patch], strict=False)
+        if exitcode:
             console.fail('Failed to apply ' + patch)
 
     # Revert the patch if the project already contains the modifications.
     if revert and not patch_applicable:
-        if subprocess.call(patch_cmd + ['-i', patch, '-R']):
+        _, exitcode = execute('.', 'patch', patch_options + ['-i', patch, '-R'], strict=False)
+        if exitcode:
             console.fail('Failed to revert ' + patch)
 
 
