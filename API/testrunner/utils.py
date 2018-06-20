@@ -126,7 +126,7 @@ def parse_coverage_info(env, coverage_output):
         coverage_info[filename]['lines'] = []
         coverage_info[filename]['coverage'] = [0, 0]
 
-        js_file_path = join(js_folder, js_file)
+        js_file_path = utils.join(js_folder, js_file)
 
         with open(js_file_path, "r") as js_source:
             lines = js_source.readlines()
