@@ -111,7 +111,8 @@ class ARTIK530Device(RemoteDevice):
             command += ' --no-memstat'
 
         if self.env['info']['coverage'] and self.app == 'iotjs':
-            command += ' --coverage-port %s' % utils.read_port_from_url(self.env['info']['coverage'])
+            port = utils.read_port_from_url(self.env['info']['coverage'])
+            command += ' --coverage-port %s' % port
 
             # Start the client script on a different thread for coverage.
             client_thread = Thread(target=utils.run_coverage_script, kwargs={'env': self.env})

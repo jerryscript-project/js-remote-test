@@ -239,7 +239,8 @@ def parse_arguments():
 
     parser.add_argument('--coverage-port',
                         metavar='PORT',
-                        help='Specify the PORT for jerry-debugger to calculate the JS source code coverage')
+                        help='Specify the PORT for jerry-debugger to'
+                             ' calculate the JS source code coverage')
 
     parser.add_argument('--no-memstat',
                         action='store_true', default=False,

@@ -55,7 +55,8 @@ def parse_options():
                         help='do not test the application (default: %(default)s)')
 
     parser.add_argument('--device',
-                        choices=['stm32f4dis', 'rpi2', 'artik053', 'artik530'], default='stm32f4dis',
+                        choices=['stm32f4dis', 'rpi2', 'artik053', 'artik530'],
+                        default='stm32f4dis',
                         help='specify the target device (default: %(default)s)')
 
     parser.add_argument('--public',
