@@ -42,7 +42,7 @@ class SerialConnection(object):
         '''
         self.serial.close()
 
-    def getc(self, size, timeout=1):
+    def getc(self, size):
         '''
         Receive data from the serial port.
         '''
@@ -50,7 +50,7 @@ class SerialConnection(object):
 
         return self.serial.read(size) or None
 
-    def putc(self, data, timeout=1):
+    def putc(self, data):
         '''
         Send data to the serial port.
         '''

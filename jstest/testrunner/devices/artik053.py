@@ -13,11 +13,11 @@
 # limitations under the License.
 
 import time
+from threading import Thread
 
 from jstest.testrunner.devices.device_base import RemoteDevice
-from jstest.common import console, paths, utils
+from jstest.common import utils
 from jstest.testrunner.devices.connections.serialcom import SerialConnection
-from threading import Thread
 
 class ARTIK053Device(RemoteDevice):
     '''

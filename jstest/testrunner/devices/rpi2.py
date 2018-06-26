@@ -13,11 +13,11 @@
 # limitations under the License.
 
 import json
+from threading import Thread
 
 from jstest.testrunner.devices.device_base import RemoteDevice
-from jstest.common import console, utils, paths
+from jstest.common import utils, paths
 from jstest.testrunner.devices.connections.sshcom import SSHConnection
-from threading import Thread
 
 class RPi2Device(RemoteDevice):
     '''

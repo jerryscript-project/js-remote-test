@@ -15,8 +15,7 @@
 import json
 import time
 
-from jstest.common import console, utils, paths
-from threading import Thread
+from jstest.common import console, utils
 
 class RemoteDevice(object):
     '''

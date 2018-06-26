@@ -206,7 +206,7 @@ def try_match_entry(idx, data, line):
 _re_symbol = r"^\s+(?P<address>0x[\da-fA-F]+)\s+(?P<symbol_name>.+)"
 
 
-def try_match_symbol(idx, data, line):
+def try_match_symbol(line):
     match_symbol = re.match(_re_symbol, line)
     if not match_symbol:
         return False, False
@@ -231,7 +231,7 @@ def try_match_symbol(idx, data, line):
 _re_fill_entry = r"^ \*fill\*\s+(?P<address>0x[\da-fA-F]+)\s+(?P<size>0x[\da-fA-F]+)"
 
 
-def try_match_fill(idx, data, line):
+def try_match_fill(line):
     match_fill = re.match(_re_fill_entry, line)
     if not match_fill:
         return False, False
@@ -266,7 +266,7 @@ def parse_to_sections(data):
         entry, skip_next = try_match_entry(i, data, line)
         if not entry:
             # check if we have a *fill* entry
-            entry, skip_next = try_match_fill(i, data, line)
+            entry, skip_next = try_match_fill(line)
 
         if entry:
             last_contents = sections[-1]["contents"]
@@ -301,7 +301,7 @@ def parse_to_sections(data):
             continue
 
         # match address and symbol pairs
-        symbol, skip_next = try_match_symbol(i, data, line)
+        symbol, skip_next = try_match_symbol(line)
         if symbol:
             # try to connect the symbol to the last object file
             if sections and sections[-1]["contents"]:

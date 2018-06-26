@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from jstest.common import utils, console, paths
+from jstest.common import utils
 
 def create_build_info(env):
     '''

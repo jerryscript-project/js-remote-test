@@ -14,7 +14,7 @@
 
 import time
 
-from jstest.common import console, utils
+from jstest.common import utils
 from jstest.testrunner.devices.device_base import RemoteDevice
 from jstest.testrunner.devices.connections.serialcom import SerialConnection
 

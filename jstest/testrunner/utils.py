@@ -17,7 +17,7 @@ import json
 import os
 import pyrebase
 
-from jstest.common import utils, console, paths
+from jstest.common import utils
 
 def upload_data_to_firebase(env, test_info):
     '''
@@ -88,7 +88,7 @@ def read_test_files(env):
     app = env['modules']['app']
     testpath = app['paths']['tests']
 
-    for root, dirs, files in os.walk(testpath):
+    for root, _, files in os.walk(testpath):
         # The name of the testset is always the folder name.
         testset = utils.relpath(root, testpath)
 

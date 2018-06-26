@@ -18,7 +18,6 @@ import re
 import shutil
 import subprocess
 import time
-import pyrebase
 
 from jstest.common import console, paths
 from jstest.builder import lumpy
