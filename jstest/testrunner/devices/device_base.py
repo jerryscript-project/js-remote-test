@@ -74,6 +74,12 @@ class RemoteDevice(object):
                     self.channel.exec_command('wifi startsta')
                     self.channel.exec_command('wifi join %s %s' % (wifi_name, wifi_pwd))
                     self.channel.exec_command('ifconfig wl1 dhcp')
+
+                    # Set the current date and time on the device.
+                    # Note: test_tls_ca.js requires the current datetime.
+                    datetime = utils.current_date('%b %d %H:%M:%S %Y')
+                    self.channel.exec_command('date -s %s' % datetime)
+
                     time.sleep(1)
 
         except Exception as e:

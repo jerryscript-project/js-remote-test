@@ -354,11 +354,11 @@ def last_commit_info(gitpath):
     return info
 
 
-def get_standardized_date():
+def current_date(format):
     '''
-    Get the current date in standardized format.
+    Format the current datetime by the given pattern.
     '''
-    return time.strftime('%Y-%m-%dT%H.%M.%SZ')
+    return time.strftime(format)
 
 
 def process_output(output):

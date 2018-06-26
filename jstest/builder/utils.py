@@ -42,7 +42,7 @@ def create_build_info(env):
 
     # Merge the collected values into a result object.
     build_info = {
-        'build-date': utils.get_standardized_date(),
+        'build-date': utils.current_date('%Y-%m-%dT%H.%M.%SZ'),
         'last-commit-date': submodules[app_name]['date'],
         'bin': bin_sizes,
         'submodules': submodules
