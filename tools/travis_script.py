@@ -24,7 +24,7 @@ from common_py.system.executor import Executor as ex
 
 TRAVIS_BUILD_PATH = os.environ['TRAVIS_BUILD_DIR']
 
-DOCKER_IMAGE_NAME = 'iotjs/js_remote_test:0.2'
+DOCKER_IMAGE_NAME = 'iotjs/js_remote_test:0.3'
 DOCKER_NAME = 'jsremote_docker'
 DOCKER_ROOT_PATH = '/root'
 
@@ -32,7 +32,7 @@ DOCKER_ROOT_PATH = '/root'
 DOCKER_JSREMOTE_PATH = DOCKER_ROOT_PATH + '/js-remote-test/'
 
 # Commonly used commands and arguments.
-BASE_COMMAND = ['python', '-u', DOCKER_JSREMOTE_PATH + 'driver.py']
+BASE_COMMAND = ['python', '-m', 'jstest']
 RELEASE_ARG = ['--buildtype', 'release']
 DEBUG_ARG = ['--buildtype', 'debug']
 COMMON_ARGS = ['--no-flash', '--no-test', '--no-memstat', '--quiet']
@@ -72,6 +72,7 @@ def run_docker():
     ex.check_run_cmd('docker', ['run', '-dit', '--privileged',
                                 '--name', DOCKER_NAME,
                                 '-v', '%s:%s' % (TRAVIS_BUILD_PATH, DOCKER_JSREMOTE_PATH),
+                                '--env', 'PYTHONPATH=%s:$PYTHONPATH' % DOCKER_JSREMOTE_PATH,
                                 DOCKER_IMAGE_NAME])
 
 def exec_docker(cmd):

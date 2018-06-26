@@ -102,11 +102,17 @@ user@desktop $ ssh-copy-id root@address
 
 ### Start testrunner
 
-On the host side, it is enough to run the `driver.py` file.
+On the host side, it is enough to run the `jstest` module.
 
 ```sh
 # Assuming you are in the remote testrunner folder.
-$ python driver.py
+$ python -m jstest
+```
+
+If you add the path of js-remote-test to the `PYTHONPATH` environment variable, you will be able to run js-remote-test from any other directory.
+
+```sh
+$ export PYTHONPATH=/path/to/js-remote-test:$PYTHONPATH
 ```
 
 ### Testrunner parameters:
@@ -179,13 +185,13 @@ Serial communication:
 ### Examples to run tests
 
 ```
-$ python driver.py --device stm32f4dis --app iotjs --device-id /dev/STM32F4 --baud 115200
-$ python driver.py --device stm32f4dis --app jerryscript --device-id /dev/STM32F4 --baud 115200
-$ python driver.py --device rpi2 --app iotjs --ip a.b.c.d --username pi --remote-workdir /home/pi/testrunner
-$ python driver.py --device rpi2 --app jerryscript --ip a.b.c.d --username pi --remote-workdir /home/pi/testrunner
-$ python driver.py --device artik053 --app iotjs --device-id /dev/ARTIK053 --baud 115200
-$ python driver.py --device artik053 --app jerryscript --device-id /dev/ARTIK053 --baud 115200
-$ python driver.py --device artik530 --app iotjs --ip a.b.c.d --username root --remote-workdir /root/testrunner
+$ python -m jstest --device stm32f4dis --app iotjs --device-id /dev/STM32F4 --baud 115200
+$ python -m jstest --device stm32f4dis --app jerryscript --device-id /dev/STM32F4 --baud 115200
+$ python -m jstest --device rpi2 --app iotjs --ip a.b.c.d --username pi --remote-workdir /home/pi/testrunner
+$ python -m jstest --device rpi2 --app jerryscript --ip a.b.c.d --username pi --remote-workdir /home/pi/testrunner
+$ python -m jstest --device artik053 --app iotjs --device-id /dev/ARTIK053 --baud 115200
+$ python -m jstest --device artik053 --app jerryscript --device-id /dev/ARTIK053 --baud 115200
+$ python -m jstest --device artik530 --app iotjs --ip a.b.c.d --username root --remote-workdir /root/testrunner
 ```
 
 All the results are written into JSON files that are found in a `results` folder. Name of the output files are datetime with the following format:
@@ -208,7 +214,7 @@ export ARTIK_WIFI_PWD=your_wifi_password
 To run tests with coverage:
 
 ```
-$ python driver.py --device artik053 --app iotjs --device-id /dev/ARTIK053 --baud 115200 --coverage=DEVICE_IP:DEVICE_PORT
+$ python -m jstest --device artik053 --app iotjs --device-id /dev/ARTIK053 --baud 115200 --coverage=DEVICE_IP:DEVICE_PORT
 
 ```
 
