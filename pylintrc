@@ -13,7 +13,7 @@
 # limitations under the License.
 
 [MESSAGES CONTROL]
-disable=missing-docstring
+disable=missing-docstring, anomalous-backslash-in-string, attribute-defined-outside-init, import-error, broad-except, redefined-variable-type, superfluous-parens, bad-continuation
 
 
 [REPORTS]
@@ -40,62 +40,51 @@ ignore-imports=no
 
 [BASIC]
 
-# Include a hint for the correct naming format with invalid-name
 include-naming-hint=yes
 
-# Regular expression matching correct function names
-function-rgx=[a-z_][a-z0-9_]+$
+# Regular expression matching correct variable names.
+variable-rgx=[a-z_][a-z0-9_]*$
 
-# Naming hint for function names
-function-name-hint=[a-z_][a-z0-9_]+$
+# Naming hint for correct variable names.
+variable-name-hint=[a-z_][a-z0-9_]*$
 
-# Regular expression matching correct variable names
-variable-rgx=_?[a-z_][a-z0-9_]+$
+# Regular expression matching correct constant names.
+const-rgx=[A-Z_][A-Z0-9_]*$
 
-# Naming hint for variable names
-variable-name-hint=_?[a-z_][a-z0-9_]+$
+# Naming hint for correct constant names.
+const-name-hint=[A-Z_][A-Z0-9_]*$
 
-# Regular expression matching correct constant names
-const-rgx=(_?[a-z0-9_]+|[A-Z0-9_]{2,})$
+# Naming style for function names.
+function-naming-style=snake_case
 
-# Naming hint for constant names
-const-name-hint=(_?[a-z0-9_]+|[A-Z0-9_]{2,})$
+# Naming style for argument names.
+argument-naming-style=snake_case
 
-# Regular expression matching correct attribute names
-attr-rgx=[a-z_][a-z0-9_]+$
+# Regular expression matching correct attribute names.
+attr-rgx=[a-z_][a-z0-9_]*$
 
-# Naming hint for attribute names
-attr-name-hint=[a-z_][a-z0-9_]+$
+# Naming hint for correct attribute names.
+attr-name-hint=[a-z_][a-z0-9_]*$
 
-# Regular expression matching correct argument names
-argument-rgx=[a-z_][a-z0-9_]+$
+# Naming style for class names.
+class-naming-style=PascalCase
 
-# Naming hint for argument names
-argument-name-hint=[a-z_][a-z0-9_]+$
+# Regular expression matching correct class attribute names.
+class-attribute-rgx=[a-zA-Z_][a-zA-Z0-9_]*$
 
-# Regular expression matching correct class attribute names
-class-attribute-rgx=([A-Za-z_][A-Za-z0-9_]+|(__.*__))$
+# Naming hint for correct class attribute names.
+class-attribute-name-hint=[a-zA-Z_][a-zA-Z0-9_]*$
 
-# Naming hint for class attribute names
-class-attribute-name-hint=([A-Za-z0-9_][A-Za-z0-9_]+|(__.*__))$
+# Naming style for module names.
+module-naming-style=snake_case
 
-# Regular expression matching correct class names
-class-rgx=[A-Z_][a-zA-Z0-9]+$
+# Naming style for method names.
+method-naming-style=snake_case
 
-# Naming hint for class names
-class-name-hint=[A-Z_][a-zA-Z0-9]+$
 
-# Regular expression matching correct module names
-module-rgx=(([a-z_][a-z0-9_]*)|([A-Z][a-zA-Z0-9]+))$
-
-# Naming hint for module names
-module-name-hint=(([a-z_][a-z0-9_]*)|([A-Z][a-zA-Z0-9]+))$
-
-# Regular expression matching correct method names
-method-rgx=[a-z_][a-z0-9_]*$
-
-# Naming hint for method names
-method-name-hint=[a-z_][a-z0-9_]*$
+[DESIGN]
+max-locals=20
+min-public-methods=0
 
 
 [FORMAT]
@@ -109,9 +98,6 @@ single-line-if-stmt=no
 
 # String used as indentation unit.
 indent-string='    '
-
-# Number of spaces of indent required inside a hanging  or continued line.
-indent-after-paren=4
 
 # Expected format of line ending, e.g. empty (any line ending), LF or CRLF.
 expected-line-ending-format=LF
