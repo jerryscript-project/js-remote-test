@@ -25,11 +25,14 @@ class Executor(object):
     _TERM_EMPTY = "\033[0m"
 
     @staticmethod
-    def cmd_line(cmd, args=[]):
+    def cmd_line(cmd, args=None):
+        if args is None:
+            args = []
+
         return ' '.join([cmd] + args)
 
     @staticmethod
-    def print_cmd_line(cmd, args=[]):
+    def print_cmd_line(cmd, args=None):
         print("%s%s%s" % (Executor._TERM_BLUE, Executor.cmd_line(cmd, args),
                           Executor._TERM_EMPTY))
         print()
@@ -42,7 +45,10 @@ class Executor(object):
         exit(1)
 
     @staticmethod
-    def run_cmd(cmd, args=[], quiet=False):
+    def run_cmd(cmd, args=None, quiet=False):
+        if args is None:
+            args = []
+
         if not quiet:
             Executor.print_cmd_line(cmd, args)
         try:
@@ -51,7 +57,10 @@ class Executor(object):
             Executor.fail("[Failed - %s] %s" % (cmd, e.strerror))
 
     @staticmethod
-    def run_cmd_output(cmd, args=[], quiet=False):
+    def run_cmd_output(cmd, args=None, quiet=False):
+        if args is None:
+            args = []
+
         if not quiet:
             Executor.print_cmd_line(cmd, args)
         try:
@@ -60,7 +69,7 @@ class Executor(object):
             Executor.fail("[Failed - %s] %s" % (cmd, e.strerror))
 
     @staticmethod
-    def check_run_cmd(cmd, args=[], quiet=False):
+    def check_run_cmd(cmd, args=None, quiet=False):
         retcode = Executor.run_cmd(cmd, args, quiet)
         if retcode != 0:
             Executor.fail("[Failed - %d] %s" % (retcode,

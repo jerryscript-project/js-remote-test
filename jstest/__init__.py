@@ -89,7 +89,7 @@ def _resolve(node, env):
 
 
 # Device - OS mapping.
-_targets = {
+_TARGETS = {
     'stm32f4dis': 'arm-nuttx',
     'artik053': 'arm-tizenrt',
     'rpi2': 'arm-linux',
@@ -108,7 +108,7 @@ def _replacer(string, env):
         'app': env['info']['app'],
         'device': env['info']['device'],
         'build-type': env['info']['buildtype'],
-        'target': _targets.get(env['info']['device']),
+        'target': _TARGETS.get(env['info']['device']),
         'js-remote-test': paths.PROJECT_ROOT,
         'result-path': paths.RESULT_PATH,
         'build-path': paths.BUILD_PATH,

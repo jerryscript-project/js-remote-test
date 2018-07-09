@@ -45,7 +45,7 @@ import re
 import sys
 
 logging.basicConfig(level=logging.ERROR)
-log = logging.getLogger(__name__)
+LOG = logging.getLogger(__name__)
 
 
 def load_map_data(filepath):
@@ -59,7 +59,7 @@ def get_memory_map_lines(data):
         if not map_started:
             if line.startswith("Linker script and memory map"):
                 map_started = True
-                log.debug("Found memory map start at line %d", i + 1)
+                LOG.debug("Found memory map start at line %d", i + 1)
             continue
 
         yield i, line.rstrip()
@@ -68,11 +68,11 @@ def get_memory_map_lines(data):
 def hoist_section(sections, from_section, to_section):
     matching_sections = [sec for sec in sections if sec["name"] == from_section]
     if not matching_sections:
-        log.warning("Skipping '%s' section hoisting from '%s' as it was not found",
+        LOG.warning("Skipping '%s' section hoisting from '%s' as it was not found",
                     to_section, from_section)
         return
     if len(matching_sections) > 1:
-        log.warning("Matched multiple sections for '%s', using only the first one", from_section)
+        LOG.warning("Matched multiple sections for '%s', using only the first one", from_section)
 
     start_idx = -1
     end_idx = 0
@@ -84,10 +84,10 @@ def hoist_section(sections, from_section, to_section):
             end_idx = idx
 
     if start_idx == -1:
-        log.debug("Section '%s' not found in '%s'", to_section, from_section)
+        LOG.debug("Section '%s' not found in '%s'", to_section, from_section)
         return False
 
-    log.debug("Found '%s' section in '%s' in range [%d; %d]",
+    LOG.debug("Found '%s' section in '%s' in range [%d; %d]",
               to_section, from_section, start_idx, end_idx + 1)
 
     # construct the new section
@@ -113,24 +113,24 @@ def hoist_section(sections, from_section, to_section):
 
 
 # match top level sections in format: <dot><any non-whitespace charater>
-_re_section_name = r"^(?P<name>\.\S+)"
+_RE_SECTION_NAME = r"^(?P<name>\.\S+)"
 
 
 def try_match_section(idx, data, line):
     skip_next = False
-    match_section_start = re.match(_re_section_name, line)
+    match_section_start = re.match(_RE_SECTION_NAME, line)
     if not match_section_start:
         # match failed
         return False, False
 
     section_name = match_section_start.group('name')
-    log.debug("Found section '%s'", section_name)
+    LOG.debug("Found section '%s'", section_name)
 
     if len(section_name) >= 14:
-        log.debug("Section name too long. Maybe there is a wrapping")
+        LOG.debug("Section name too long. Maybe there is a wrapping")
         next_line = data[idx + 1]
         if next_line.startswith("  "):
-            log.debug(" 99.0%% sure that there is wrapping")
+            LOG.debug(" 99.0%% sure that there is wrapping")
             line += data[idx + 1]
             skip_next = True
 
@@ -154,38 +154,38 @@ def try_match_section(idx, data, line):
         "extra_info": " ".join(extra_info),
         "contents": [],
     }
-    log.debug("Section parsed: %s", section)
+    LOG.debug("Section parsed: %s", section)
     return section, skip_next
 
 
 # match entry in format: <dot><space><any non-whitespace charater>
-_re_part_name = r"(?P<name>(\.\S+|COMMON))"
-_re_part_entry = r"\s+(?P<address>0x[\da-fA-F]+)\s+(?P<size>0x[\da-fA-F]+)\s+(?P<path>.+)"
-_re_entry_name = r"^ {}".format(_re_part_name)
-_re_wrapped_entry_data = r"^  {}".format(_re_part_entry)
-_re_entry_data = r"^ {}{}".format(_re_part_name, _re_part_entry)
+_RE_PART_NAME = r"(?P<name>(\.\S+|COMMON))"
+_RE_PART_ENRTY = r"\s+(?P<address>0x[\da-fA-F]+)\s+(?P<size>0x[\da-fA-F]+)\s+(?P<path>.+)"
+_RE_ENTRY_NAME = r"^ {}".format(_RE_PART_NAME)
+_RE_WRAPPED_ENTRY_DATA = r"^  {}".format(_RE_PART_ENRTY)
+_RE_ENTRY_DATA = r"^ {}{}".format(_RE_PART_NAME, _RE_PART_ENRTY)
 
 
 def try_match_entry(idx, data, line):
     skip_next = False
-    match_entry_start = re.match(_re_entry_name, line)
+    match_entry_start = re.match(_RE_ENTRY_NAME, line)
     if not match_entry_start:
         return False, False
 
     section_name = match_entry_start.group("name")
-    log.debug("Found entry for '%s'", section_name)
+    LOG.debug("Found entry for '%s'", section_name)
     if len(section_name) >= 14:
-        log.debug("Possible wrapped entry found")
+        LOG.debug("Possible wrapped entry found")
         # It is possible that the ountents are wrapped, reading next line
         next_line = data[idx + 1]
         # if the next line starts with at least two spaces and an address
         # it is really just a wrapped line, we'll merge it to the current line
-        match_entry = re.match(_re_wrapped_entry_data, next_line)
+        match_entry = re.match(_RE_WRAPPED_ENTRY_DATA, next_line)
         if match_entry:
-            log.debug(" Verified, entry was indeed wrapped")
+            LOG.debug(" Verified, entry was indeed wrapped")
             skip_next = True
     else:
-        match_entry = re.match(_re_entry_data, line)
+        match_entry = re.match(_RE_ENTRY_DATA, line)
 
     if not match_entry:
         return False, False
@@ -197,27 +197,27 @@ def try_match_entry(idx, data, line):
         "path": match_entry.group("path"),
         "symbols": [],
     }
-    log.debug("Entry parsed: %s", entry)
+    LOG.debug("Entry parsed: %s", entry)
 
     return entry, skip_next
 
 
 # match symbols, format: <lots of spaces> <address> <symbol_name>
-_re_symbol = r"^\s+(?P<address>0x[\da-fA-F]+)\s+(?P<symbol_name>.+)"
+_RE_SYMBOL = r"^\s+(?P<address>0x[\da-fA-F]+)\s+(?P<symbol_name>.+)"
 
 
 def try_match_symbol(line):
-    match_symbol = re.match(_re_symbol, line)
+    match_symbol = re.match(_RE_SYMBOL, line)
     if not match_symbol:
         return False, False
 
     address = match_symbol.group("address")
     symbol_name = match_symbol.group("symbol_name")
-    log.debug("Found symbol '%s'", symbol_name)
+    LOG.debug("Found symbol '%s'", symbol_name)
 
     if symbol_name == "(size before relaxing)":
         # this is not a true symbol, skipping
-        log.debug("Skipping original size")
+        LOG.debug("Skipping original size")
         return False, False
 
     symbol = {
@@ -228,22 +228,22 @@ def try_match_symbol(line):
     return symbol, False
 
 
-_re_fill_entry = r"^ \*fill\*\s+(?P<address>0x[\da-fA-F]+)\s+(?P<size>0x[\da-fA-F]+)"
+_RE_FILL_ENTRY = r"^ \*fill\*\s+(?P<address>0x[\da-fA-F]+)\s+(?P<size>0x[\da-fA-F]+)"
 
 
 def try_match_fill(line):
-    match_fill = re.match(_re_fill_entry, line)
+    match_fill = re.match(_RE_FILL_ENTRY, line)
     if not match_fill:
         return False, False
 
-    log.debug("Found a fill entry:' %s'", line)
+    LOG.debug("Found a fill entry:' %s'", line)
     entry = {
         "section_name": "*fill*",
         "address": match_fill.group("address"),
         "size": int(match_fill.group("size"), base=16),
         "path": "",
     }
-    log.debug("Fill entry parsed: %s", entry)
+    LOG.debug("Fill entry parsed: %s", entry)
     return entry, False
 
 
@@ -273,16 +273,16 @@ def parse_to_sections(data):
             if last_contents:
                 last_entry = last_contents[-1]
                 if entry["address"] == last_entry["address"]:
-                    log.debug("Detected same address for entry")
+                    LOG.debug("Detected same address for entry")
                     """
                     start_idx = -1
                     for idx in range(len(last_contents) - 1):
                         if entry["address"] == last_contents[-idx]["address"]:
                             start_idx = -idx
 
-                    log.debug("Detected same address for entries [%d:]:", start_idx)
+                    LOG.debug("Detected same address for entries [%d:]:", start_idx)
                     for idx, prev_entry in enumerate(last_contents[start_idx:]):
-                        log.debug(" %d prev entry: %s", idx + 1, prev_entry)
+                        LOG.debug(" %d prev entry: %s", idx + 1, prev_entry)
 
                         if not prev_entry["size"]:
                             continue
@@ -294,7 +294,7 @@ def parse_to_sections(data):
                         corrected_entry["size_original"] = corrected_entry["size"]
                         corrected_entry["size"] = 0
 
-                    log.debug(" entry: %s", entry)
+                    LOG.debug(" entry: %s", entry)
                     """
 
             sections[-1]["contents"].append(entry)
@@ -308,9 +308,9 @@ def parse_to_sections(data):
                 if "symbols" in sections[-1]["contents"][-1]:
                     sections[-1]["contents"][-1]["symbols"].append(symbol)
                 else:
-                    log.warning("Tried to connect a smybol to a *fill* entry: '%s'", symbol)
+                    LOG.warning("Tried to connect a smybol to a *fill* entry: '%s'", symbol)
             else:
-                log.warning("Unable to connect symbol to object: '%s'", symbol)
+                LOG.warning("Unable to connect symbol to object: '%s'", symbol)
             continue
 
     return sections
@@ -327,7 +327,7 @@ def dump_section_table(sections):
               .format(calculated_size=size, size_diff=section["size"] - size, **section))
 
 
-if __name__ == "__main__":
+def main():
     parser = argparse.ArgumentParser(description="LuMPy - Linker Map Parser")
     parser.add_argument("-o", "--output",
                         help="Output path for the JSON file (default: <input>.json) "
@@ -350,12 +350,12 @@ if __name__ == "__main__":
         2: logging.DEBUG,
     }
     if args.verbose:
-        log.setLevel(verbose_levels.get(args.verbose, logging.DEBUG))
+        LOG.setLevel(verbose_levels.get(args.verbose, logging.DEBUG))
 
-    log.info("Loading map file '%s'", args.mapfile)
+    LOG.info("Loading map file '%s'", args.mapfile)
 
     data = load_map_data(args.mapfile)
-    log.info("Loaded %d lines", len(data))
+    LOG.info("Loaded %d lines", len(data))
 
     sections = parse_to_sections(data)
     # extract .rodata section from the .text section
@@ -374,4 +374,7 @@ if __name__ == "__main__":
 
         with open(output_path, "w") as fp:
             json.dump(sections, fp, indent=2)
-        log.info("JSON saved to '%s'", output_path)
+        LOG.info("JSON saved to '%s'", output_path)
+
+if __name__ == "__main__":
+    main()

@@ -62,30 +62,31 @@ def execute(cwd, cmd, args=None, quiet=False, strict=True):
         console.fail('[Failed - %s %s] %s' % (cmd, ' '.join(args), str(e)))
 
 
-def patch(project, patch, revert=False):
+def patch(project, patch_file, revert=False):
     '''
     Apply the given patch to the given project.
     '''
     patch_options = ['-p1', '-d', project]
     dry_options = ['--dry-run', '-R', '-f', '-s', '-i']
 
-    if not os.path.exists(patch):
-        console.fail(patch + ' does not exist.')
+    if not os.path.exists(patch_file):
+        console.fail(patch_file + ' does not exist.')
 
     # First check if the patch can be applied to the project.
-    _, patch_applicable = execute('.', 'patch', patch_options + dry_options + [patch], strict=False)
+    patch_cmd_args = patch_options + dry_options + [patch_file]
+    _, patch_applicable = execute('.', 'patch', patch_cmd_args, strict=False)
 
     # Apply the patch if project is clean and revert flag is not set.
     if not revert and patch_applicable:
-        _, exitcode = execute('.', 'patch', patch_options + ['-i', patch], strict=False)
+        _, exitcode = execute('.', 'patch', patch_options + ['-i', patch_file], strict=False)
         if exitcode:
-            console.fail('Failed to apply ' + patch)
+            console.fail('Failed to apply ' + patch_file)
 
     # Revert the patch if the project already contains the modifications.
     if revert and not patch_applicable:
-        _, exitcode = execute('.', 'patch', patch_options + ['-i', patch, '-R'], strict=False)
+        _, exitcode = execute('.', 'patch', patch_options + ['-i', patch_file, '-R'], strict=False)
         if exitcode:
-            console.fail('Failed to revert ' + patch)
+            console.fail('Failed to revert ' + patch_file)
 
 
 def generate_romfs(src, dst):
@@ -220,11 +221,11 @@ def size(binary):
     return os.path.getsize(binary)
 
 
-def join(path, *paths):
+def join(path, *paths_to_join):
     '''
     Join one or more path components intelligently.
     '''
-    return os.path.join(path, *paths)
+    return os.path.join(path, *paths_to_join)
 
 
 def dirname(file_path):
@@ -273,7 +274,7 @@ def remove_file(filename):
         pass
 
 
-_liblist = [
+_LIBLIST = [
     'libhttpparser.a',
     'libiotjs.a',
     'libjerry-core.a',
@@ -303,7 +304,7 @@ def calculate_section_sizes(builddir):
 
     # Get the names of the object files that the static
     # libraries (libjerry-core.a, ...) have.
-    objlist = read_objects_from_libs(libdir, _liblist)
+    objlist = read_objects_from_libs(libdir, _LIBLIST)
 
     raw_data = lumpy.load_map_data(mapfile)
     sections = lumpy.parse_to_sections(raw_data)
@@ -354,11 +355,11 @@ def last_commit_info(gitpath):
     return info
 
 
-def current_date(format):
+def current_date(date_format):
     '''
     Format the current datetime by the given pattern.
     '''
-    return time.strftime(format)
+    return time.strftime(date_format)
 
 
 def process_output(output):

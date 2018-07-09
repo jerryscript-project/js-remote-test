@@ -81,7 +81,7 @@ def exec_docker(cmd):
     exec_cmd = ' '.join(cmd)
     ex.check_run_cmd('docker', ['exec', '-it', DOCKER_NAME, '/bin/bash', '-c', exec_cmd])
 
-if __name__ == '__main__':
+def main():
     option = parse_option()
 
     if option.check_signoff:
@@ -93,3 +93,6 @@ if __name__ == '__main__':
     if option.app and option.device:
         run_docker()
         build_app(option)
+
+if __name__ == "__main__":
+    main()

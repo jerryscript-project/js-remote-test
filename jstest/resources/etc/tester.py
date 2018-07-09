@@ -73,10 +73,13 @@ def check_tools(options):
         os.remove(FREYA_LOG)
 
 
-def execute(cwd, cmd, args=[]):
+def execute(cwd, cmd, args=None):
     '''
     Run the given command and return its output.
     '''
+    if args is None:
+        args = []
+
     stdout = subprocess.PIPE
     stderr = subprocess.STDOUT
 
