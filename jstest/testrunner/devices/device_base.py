@@ -29,6 +29,9 @@ class RemoteDevice(object):
         self.device = env['info']['device']
         self.env = env
 
+        self.workdir = None
+        self.channel = None
+
         self.check_args()
 
     def check_args(self):

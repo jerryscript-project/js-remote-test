@@ -12,6 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from abc import ABCMeta, abstractmethod
+
 from jstest import resources
 from jstest.common import utils
 from jstest.builder import utils as builderUtils
@@ -21,6 +23,8 @@ class BuilderBase(object):
     '''
     This class holds all the common properties of the targets.
     '''
+    __metaclass__ = ABCMeta
+
     def __init__(self, env):
         # Get all the information about of the modules.
         self.env = env
@@ -28,6 +32,27 @@ class BuilderBase(object):
         # Download all the projects.
         resources.fetch_modules(self.env)
         resources.config_modules(self.env)
+
+    @abstractmethod
+    def _build(self, profile, builddir, use_extra_flags=False):
+        '''
+        Dummy function.
+        '''
+        pass
+
+    @abstractmethod
+    def _build_iotjs(self, profile, extra_flags):
+        '''
+        Dummy function.
+        '''
+        pass
+
+    @abstractmethod
+    def _build_jerryscript(self, profile, extra_flags):
+        '''
+        Dummy function.
+        '''
+        pass
 
     def create_profile_builds(self):
         '''
