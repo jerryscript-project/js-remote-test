@@ -20,9 +20,6 @@ class STM32F4Builder(builder.BuilderBase):
     '''
     Build all modules for the STM32F4-Discovery target.
     '''
-    def __init__(self, options):
-        super(self.__class__, self).__init__(options)
-
     def _build(self, profile, builddir, use_extra_flags=False):
         '''
         Main method to build all the dependencies of the target.

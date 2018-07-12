@@ -20,9 +20,6 @@ class ARTIK053Builder(builder.BuilderBase):
     '''
     Build all modules for the Artik053 target.
     '''
-    def __init__(self, options):
-        super(self.__class__, self).__init__(options)
-
     def _build(self, profile, builddir, use_extra_flags=False):
         '''
         Main method to build the target.

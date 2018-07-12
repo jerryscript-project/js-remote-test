@@ -56,8 +56,6 @@ def build_app(option):
     app_arg = ['--app', option.app[0]]
     device_arg = ['--device', option.device[0]]
 
-    # Redirect stdout to /dev/null to decrease log size.
-    # FIXME make some kind of quiet option in driver.py to do this.
     release_command = BASE_COMMAND + app_arg + RELEASE_ARG + device_arg + COMMON_ARGS
     debug_command = BASE_COMMAND + app_arg + DEBUG_ARG + device_arg + COMMON_ARGS
 

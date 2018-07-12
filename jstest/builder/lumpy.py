@@ -70,7 +70,7 @@ def hoist_section(sections, from_section, to_section):
     if not matching_sections:
         LOG.warning("Skipping '%s' section hoisting from '%s' as it was not found",
                     to_section, from_section)
-        return
+        return None
     if len(matching_sections) > 1:
         LOG.warning("Matched multiple sections for '%s', using only the first one", from_section)
 
@@ -274,28 +274,6 @@ def parse_to_sections(data):
                 last_entry = last_contents[-1]
                 if entry["address"] == last_entry["address"]:
                     LOG.debug("Detected same address for entry")
-                    """
-                    start_idx = -1
-                    for idx in range(len(last_contents) - 1):
-                        if entry["address"] == last_contents[-idx]["address"]:
-                            start_idx = -idx
-
-                    LOG.debug("Detected same address for entries [%d:]:", start_idx)
-                    for idx, prev_entry in enumerate(last_contents[start_idx:]):
-                        LOG.debug(" %d prev entry: %s", idx + 1, prev_entry)
-
-                        if not prev_entry["size"]:
-                            continue
-                        if entry["size"] >= prev_entry["size"]:
-                            corrected_entry = prev_entry
-                        else:
-                            corrected_entry = entry
-
-                        corrected_entry["size_original"] = corrected_entry["size"]
-                        corrected_entry["size"] = 0
-
-                    LOG.debug(" entry: %s", entry)
-                    """
 
             sections[-1]["contents"].append(entry)
             continue

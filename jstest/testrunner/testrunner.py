@@ -48,7 +48,7 @@ class TestRunner(object):
         # Flash the device to be able to run the tests.
         self.device.initialize()
         self.skiplist = Skiplist(environment, self.device)
-        
+
         utils.execute('.', 'mosquitto', ['-d'])
 
     def run(self):
@@ -72,7 +72,7 @@ class TestRunner(object):
                 iotjs = self.env['modules']['iotjs']
                 commit_info = utils.last_commit_info(iotjs['src'])
                 result_name = 'cov-%s-%s.json' % (commit_info['commit'], commit_info['date'])
-                result_dir =  utils.join(paths.RESULT_PATH, '%s/%s/' % (app_name, device))
+                result_dir = utils.join(paths.RESULT_PATH, '%s/%s/' % (app_name, device))
                 result_path = utils.join(result_dir, result_name)
 
             self.coverage_info = testrunnerUtils.parse_coverage_info(self.env, result_path)

@@ -46,7 +46,7 @@ class RemoteDevice(object):
             if not self.user:
                 console.fail('Please define the username of the device.')
 
-            if self.workdir is '/':
+            if self.workdir == '/':
                 console.fail('Please do not use the root folder as test folder.')
 
         elif self.device in ['artik053', 'stm32f4dis']:
@@ -72,7 +72,7 @@ class RemoteDevice(object):
                 if self.device == 'artik053' and self.app == 'iotjs':
                     # Set up the wifi connection.
                     wifi_name = utils.get_environment('ARTIK_WIFI_NAME')
-                    wifi_pwd =  utils.get_environment('ARTIK_WIFI_PWD')
+                    wifi_pwd = utils.get_environment('ARTIK_WIFI_PWD')
 
                     self.channel.exec_command('wifi startsta')
                     self.channel.exec_command('wifi join %s %s' % (wifi_name, wifi_pwd))

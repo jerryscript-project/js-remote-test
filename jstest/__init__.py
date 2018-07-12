@@ -82,7 +82,7 @@ def _resolve(node, env):
             for obj in value:
                 ret.append(_resolve(obj, env))
             node[key] = ret
-        elif isinstance(value, str) or isinstance(value, unicode):
+        elif isinstance(value, (str, unicode)):
             node[key] = _replacer(value, env)
 
     return node
@@ -125,10 +125,10 @@ def _replacer(string, env):
 
         # If the symbol is not found, but that is a valid module name in
         # resources.json, resolve the symbol as a path to the module.
-        if value == None and symbol in env['modules']:
+        if value is None and symbol in env['modules']:
             value = env['modules'][symbol]['src']
 
-        if value == None:
+        if value is None:
             continue
 
         string = string.replace('%%{%s}' % symbol, str(value))
