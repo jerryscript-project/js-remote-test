@@ -22,6 +22,7 @@ import time
 from jstest.common import console, paths
 from jstest.builder import lumpy
 
+
 class TimeoutException(Exception):
     '''
     Custom exception in case of timeout.
@@ -33,18 +34,18 @@ def execute(cwd, cmd, args=None, quiet=False, strict=True):
     '''
     Run the given command.
     '''
-
     if args is None:
         args = []
 
     stdout = None
     stderr = None
 
-    console.info("Run: %s %s (%s)\n" % (cmd, ' '.join(args), cwd))
-
     if quiet or os.environ.get('QUIET', ''):
         stdout = subprocess.PIPE
         stderr = subprocess.STDOUT
+
+    if not quiet and os.environ.get('QUIET', ''):
+        print_command(cwd, cmd, args)
 
     try:
         process = subprocess.Popen([cmd] + args, stdout=stdout,
@@ -62,6 +63,24 @@ def execute(cwd, cmd, args=None, quiet=False, strict=True):
         console.fail('[Failed - %s %s] %s' % (cmd, ' '.join(args), str(e)))
 
 
+def print_command(cwd, cmd, args):
+    '''
+    Helper function to print commands.
+    '''
+    rpath = relpath(cwd, paths.PROJECT_ROOT)
+    # Resolve the current folder character to the appropriate folder name.
+    if rpath == os.curdir:
+        rpath = basename(abspath(os.curdir))
+
+    cmd_info = [
+        '%s[%s]' % (console.TERMINAL_YELLOW, rpath),
+        '%s%s' % (console.TERMINAL_GREEN, cmd),
+        '%s%s' % (console.TERMINAL_EMPTY, ' '.join(args))
+    ]
+
+    console.log(' '.join(cmd_info))
+
+
 def patch(project, patch_file, revert=False):
     '''
     Apply the given patch to the given project.
@@ -74,17 +93,19 @@ def patch(project, patch_file, revert=False):
 
     # First check if the patch can be applied to the project.
     patch_cmd_args = patch_options + dry_options + [patch_file]
-    _, patch_applicable = execute('.', 'patch', patch_cmd_args, strict=False)
+    _, patch_applicable = execute('.', 'patch', patch_cmd_args, strict=False, quiet=True)
 
     # Apply the patch if project is clean and revert flag is not set.
     if not revert and patch_applicable:
-        _, exitcode = execute('.', 'patch', patch_options + ['-i', patch_file], strict=False)
+        patch_cmd_args = patch_options + ['-i', patch_file]
+        _, exitcode = execute('.', 'patch', patch_cmd_args, strict=False, quiet=True)
         if exitcode:
             console.fail('Failed to apply ' + patch_file)
 
     # Revert the patch if the project already contains the modifications.
     if revert and not patch_applicable:
-        _, exitcode = execute('.', 'patch', patch_options + ['-i', patch_file, '-R'], strict=False)
+        patch_cmd_args = patch_options + ['-i', patch_file, '-R']
+        _, exitcode = execute('.', 'patch', patch_cmd_args, strict=False, quiet=True)
         if exitcode:
             console.fail('Failed to revert ' + patch_file)
 
@@ -204,6 +225,7 @@ def exists(path):
     '''
     return os.path.exists(path)
 
+
 def exist_files(path, files):
     '''
     Checks that all files in the list exist relative to the given path.
@@ -213,6 +235,7 @@ def exist_files(path, files):
             return False
 
     return True
+
 
 def size(binary):
     '''
