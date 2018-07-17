@@ -26,7 +26,6 @@ class RPi2Device(RemoteDevice):
     '''
     def __init__(self, env):
         self.os = 'linux'
-        self.workdir = env['info']['remote_workdir']
 
         RemoteDevice.__init__(self, env)
 

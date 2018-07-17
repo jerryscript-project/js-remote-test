@@ -26,7 +26,6 @@ class ARTIK530Device(RemoteDevice):
     '''
     def __init__(self, env):
         self.os = 'tizen'
-        self.workdir = env['info']['remote_workdir']
 
         RemoteDevice.__init__(self, env)
 

@@ -23,14 +23,13 @@ class RemoteDevice(object):
     Base class of all the device classes.
     '''
     def __init__(self, env):
+        self.env = env
         self.app = env['info']['app']
         self.user = env['info']['username']
         self.ip = env['info']['ip']
         self.port = env['info']['port']
         self.device = env['info']['device']
-        self.env = env
-
-        self.workdir = None
+        self.workdir = env['info']['remote_workdir']
         self.channel = None
 
         self.check_args()
