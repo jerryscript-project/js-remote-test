@@ -15,6 +15,7 @@
 import time
 
 from jstest.common import utils
+from jstest.testrunner import utils as testrunner_utils
 from jstest.testrunner.devices.device_base import RemoteDevice
 from jstest.testrunner.devices.connections.serialcom import SerialConnection
 
@@ -83,7 +84,7 @@ class STM32F4Device(RemoteDevice):
         # Run the test on the device.
         output = self.channel.exec_command(command[self.app])
 
-        stdout, memstat, _ = utils.process_output(output)
+        stdout, memstat, _ = testrunner_utils.process_output(output)
         # Process the exitcode of the last command.
         exitcode = self.channel.exec_command('echo $?')
 

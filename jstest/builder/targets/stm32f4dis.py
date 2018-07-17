@@ -14,7 +14,7 @@
 
 from jstest.builder import builder
 from jstest.common import utils
-
+from jstest.builder import utils as builder_utils
 
 class STM32F4Builder(builder.BuilderBase):
     '''
@@ -143,4 +143,4 @@ class STM32F4Builder(builder.BuilderBase):
         tests = target_app['paths']['tests']
         romfs = nuttx_apps['paths']['romfs']
         # Override the default ROMFS file of NuttX.
-        utils.generate_romfs(tests, romfs)
+        builder_utils.generate_romfs(tests, romfs)

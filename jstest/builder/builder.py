@@ -16,7 +16,7 @@ from abc import ABCMeta, abstractmethod
 
 from jstest import resources
 from jstest.common import utils
-from jstest.builder import utils as builderUtils
+from jstest.builder import utils as builder_utils
 
 
 class BuilderBase(object):
@@ -69,7 +69,7 @@ class BuilderBase(object):
         self._build('minimal', paths['build-minimal'])
         self._build('target', paths['build-target'])
 
-        builderUtils.create_build_info(self.env)
+        builder_utils.create_build_info(self.env)
 
     def create_test_build(self):
         '''

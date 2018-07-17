@@ -17,6 +17,7 @@ from threading import Thread
 
 from jstest.testrunner.devices.device_base import RemoteDevice
 from jstest.common import utils, paths
+from jstest.testrunner import utils as testrunner_utils
 from jstest.testrunner.devices.connections.sshcom import SSHConnection
 
 class ARTIK530Device(RemoteDevice):
@@ -110,11 +111,11 @@ class ARTIK530Device(RemoteDevice):
             command += ' --no-memstat'
 
         if self.env['info']['coverage'] and self.app == 'iotjs':
-            port = utils.read_port_from_url(self.env['info']['coverage'])
+            port = testrunner_utils.read_port_from_url(self.env['info']['coverage'])
             command += ' --coverage-port %s' % port
 
             # Start the client script on a different thread for coverage.
-            client_thread = Thread(target=utils.run_coverage_script, kwargs={'env': self.env})
+            client_thread = Thread(target=testrunner_utils.run_coverage_script, kwargs={'env': self.env})
             client_thread.daemon = True
             client_thread.start()
 

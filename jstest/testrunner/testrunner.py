@@ -13,7 +13,7 @@
 # limitations under the License.
 
 from jstest.common import paths, reporter, utils
-from jstest.testrunner import utils as testrunnerUtils
+from jstest.testrunner import utils as testrunner_utils
 from jstest.testrunner import devices
 from jstest.testrunner.skiplist import Skiplist
 
@@ -27,7 +27,7 @@ def read_testsets(env):
     # Since JerryScript doesn't have testset descriptor file,
     # simply read the file contents from the test folder.
     if application['name'] == 'jerryscript':
-        testsets = testrunnerUtils.read_test_files(env)
+        testsets = testrunner_utils.read_test_files(env)
     else:
         testsets = utils.read_json_file(application['paths']['testfiles'])
 
@@ -75,7 +75,7 @@ class TestRunner(object):
                 result_dir = utils.join(paths.RESULT_PATH, '%s/%s/' % (app_name, device))
                 result_path = utils.join(result_dir, result_name)
 
-            self.coverage_info = testrunnerUtils.parse_coverage_info(self.env, result_path)
+            self.coverage_info = testrunner_utils.parse_coverage_info(self.env, result_path)
 
             reporter.report_coverage(self.coverage_info)
 
@@ -164,4 +164,4 @@ class TestRunner(object):
         utils.write_json_file(filename + '.json', test_info)
 
         # Publish the results if necessary.
-        testrunnerUtils.upload_data_to_firebase(self.env, test_info)
+        testrunner_utils.upload_data_to_firebase(self.env, test_info)

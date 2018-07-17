@@ -18,6 +18,7 @@ from threading import Thread
 from jstest.testrunner.devices.device_base import RemoteDevice
 from jstest.common import utils
 from jstest.testrunner.devices.connections.serialcom import SerialConnection
+from jstest.testrunner import utils as testrunner_utils
 
 class ARTIK053Device(RemoteDevice):
     '''
@@ -74,7 +75,7 @@ class ARTIK053Device(RemoteDevice):
 
         if self.env['info']['coverage']:
             args.append('--start-debug-server')
-            port = utils.read_port_from_url(self.env['info']['coverage'])
+            port = testrunner_utils.read_port_from_url(self.env['info']['coverage'])
             args.append('--debug-port %s' % port)
 
         command = {
@@ -88,7 +89,7 @@ class ARTIK053Device(RemoteDevice):
 
         if self.env['info']['coverage'] and self.app == 'iotjs':
             # Start the client script on a different thread for coverage.
-            client_thread = Thread(target=utils.run_coverage_script, kwargs={'env': self.env})
+            client_thread = Thread(target=testrunner_utils.run_coverage_script, kwargs={'env': self.env})
             client_thread.daemon = True
             client_thread.start()
 
@@ -97,7 +98,7 @@ class ARTIK053Device(RemoteDevice):
         if message == 'arm_dataabort':
             output += self.channel.readline().replace('\r\n', '')
 
-        stdout, memstat, exitcode = utils.process_output(output)
+        stdout, memstat, exitcode = testrunner_utils.process_output(output)
 
         self.logout()
 

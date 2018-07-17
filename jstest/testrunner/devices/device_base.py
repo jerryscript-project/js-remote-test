@@ -16,6 +16,7 @@ import json
 import time
 
 from jstest.common import console, utils
+from jstest.testrunner import utils as testrunner_utils
 
 class RemoteDevice(object):
     '''
@@ -114,7 +115,7 @@ class RemoteDevice(object):
 
         output = self.channel.exec_command(command)
         # Process the output to get the json string and the exitcode.
-        build_info, _, exitcode = utils.process_output(output)
+        build_info, _, exitcode = testrunner_utils.process_output(output)
 
         if exitcode != 0:
             console.fail('%s returned with exitcode %d' % (buildinfo, exitcode))

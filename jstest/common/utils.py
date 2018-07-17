@@ -22,7 +22,6 @@ import time
 from jstest.common import console, paths
 from jstest.builder import lumpy
 
-
 class TimeoutException(Exception):
     '''
     Custom exception in case of timeout.
@@ -34,11 +33,14 @@ def execute(cwd, cmd, args=None, quiet=False, strict=True):
     '''
     Run the given command.
     '''
+
     if args is None:
         args = []
 
     stdout = None
     stderr = None
+
+    console.info("Run: %s %s (%s)\n" % (cmd, ' '.join(args), cwd))
 
     if quiet or os.environ.get('QUIET', ''):
         stdout = subprocess.PIPE
@@ -225,7 +227,6 @@ def exists(path):
     '''
     return os.path.exists(path)
 
-
 def exist_files(path, files):
     '''
     Checks that all files in the list exist relative to the given path.
@@ -235,7 +236,6 @@ def exist_files(path, files):
             return False
 
     return True
-
 
 def size(binary):
     '''
@@ -297,7 +297,7 @@ def remove_file(filename):
         pass
 
 
-_LIBLIST = [
+_liblist = [
     'libhttpparser.a',
     'libiotjs.a',
     'libjerry-core.a',
@@ -327,7 +327,7 @@ def calculate_section_sizes(builddir):
 
     # Get the names of the object files that the static
     # libraries (libjerry-core.a, ...) have.
-    objlist = read_objects_from_libs(libdir, _LIBLIST)
+    objlist = read_objects_from_libs(libdir, _liblist)
 
     raw_data = lumpy.load_map_data(mapfile)
     sections = lumpy.parse_to_sections(raw_data)
@@ -378,11 +378,11 @@ def last_commit_info(gitpath):
     return info
 
 
-def current_date(date_format):
+def current_date(format):
     '''
     Format the current datetime by the given pattern.
     '''
-    return time.strftime(date_format)
+    return time.strftime(format)
 
 
 def process_output(output):

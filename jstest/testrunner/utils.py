@@ -15,9 +15,11 @@
 
 import json
 import os
+import re
+import time
 import pyrebase
 
-from jstest.common import utils
+from jstest.common import console, paths, utils
 
 def upload_data_to_firebase(env, test_info):
     '''
@@ -165,3 +167,82 @@ def parse_coverage_info(env, coverage_output):
                 coverage_info[filename]['coverage'][1] += 1
 
     return coverage_info
+
+
+def process_output(output):
+    '''
+    Extract the runtime memory information from the output of the test.
+    '''
+    exitcode = 0
+    memstat = {
+        'heap-jerry': 'n/a',
+        'heap-system': 'n/a',
+        'stack': 'n/a'
+    }
+
+    match = re.search(r'(IoT.js|JerryScript) [Rr]esult: (\d+)', output)
+
+    if match:
+        exitcode = int(match.group(2))
+
+    if output.find('Heap stats:') != -1:
+        # Process jerry-memstat output.
+        match = re.search(r'Peak allocated = (\d+) bytes', output)
+
+        if match:
+            memstat['heap-jerry'] = int(match.group(1))
+
+        # Process malloc peak output.
+        match = re.search(r'Malloc peak allocated: (\d+) bytes', output)
+
+        if match:
+            memstat['heap-system'] = int(match.group(1))
+
+        # Process stack usage output.
+        match = re.search(r'Stack usage: (\d+)', output)
+
+        if match:
+            memstat['stack'] = int(match.group(1))
+
+        # Remove memstat from the output.
+        output, _ = output.split('Heap stats:', 1)
+
+    return output, memstat, exitcode
+
+
+def run_coverage_script(env):
+    '''
+    Start the client script.
+    '''
+    # Add latency because the start up of the debug server needs time.
+    time.sleep(2)
+
+    address = env['info']['coverage']
+    iotjs = env['modules']['iotjs']
+    coverage_client = iotjs['paths']['coverage-client']
+    device = env['info']['device']
+    app_name = env['info']['app']
+
+    commit_info = utils.last_commit_info(iotjs['src'])
+    result_name = 'cov-%s-%s.json' % (commit_info['commit'], commit_info['date'])
+    result_dir = utils.join(paths.RESULT_PATH, '%s/%s/' % (app_name, device))
+    result_path = utils.join(result_dir, result_name)
+
+    utils.mkdir(result_dir)
+    utils.execute(paths.PROJECT_ROOT, coverage_client, ['--non-interactive',
+                                                        '--coverage-output=%s' % result_path,
+                                                        address])
+
+
+def read_port_from_url(url):
+    '''
+    Parse URL and return with the port number
+    '''
+    pattern = '(?:http.*://)?(?P<host>[^:/ ]+).?(?P<port>[0-9]*).*'
+
+    match = re.search(pattern, url)
+
+    if not match:
+        console.fail('Invalid URL: %s' % url)
+
+    return match.group('port')
