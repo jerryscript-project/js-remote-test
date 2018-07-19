@@ -43,6 +43,7 @@ def parse_option():
          description='JS-remote-test Travis script.')
 
     parser.add_argument('--check-signoff', action='store_true')
+    parser.add_argument('--check-pylint', action='store_true')
     parser.add_argument('--device', choices=DEVICES, action='append')
     parser.add_argument('--app', choices=['iotjs', 'jerryscript'], action='append')
 
@@ -87,6 +88,9 @@ def main():
         if os.getenv('TRAVIS') is not None:
             args = ['--travis']
         ex.check_run_cmd('tools/check_signed_off.sh', args)
+
+    if option.check_pylint:
+        ex.check_run_cmd('python', ['tools/check_pylint.py'])
 
     if option.app and option.device:
         run_docker()

@@ -8,13 +8,17 @@ services:
   - docker
 
 before_install:
-  - if [[ "$RUN_DOCKER" == "yes" ]]; then docker pull iotjs/js_remote_test:0.3; fi
+  - if [[ "$RUN_DOCKER" == "yes" ]]; then docker pull iotjs/js_remote_test:0.4; fi
+
+install:
+  - pip install pylint
 
 script: "tools/travis_script.py $OPTS"
 
 env:
   matrix:
     - OPTS="--check-signoff"
+    - OPTS="--check-pylint"
     - OPTS="--device=rpi2 --app=iotjs" RUN_DOCKER=yes
     - OPTS="--device=rpi2 --app=jerryscript" RUN_DOCKER=yes
     - OPTS="--device=artik530 --app=iotjs" RUN_DOCKER=yes
