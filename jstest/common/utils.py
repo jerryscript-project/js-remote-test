@@ -14,13 +14,12 @@
 
 import json
 import os
-import re
 import shutil
 import subprocess
 import time
 
 from jstest.common import console, paths
-from jstest.builder import lumpy
+
 
 class TimeoutException(Exception):
     '''
@@ -33,14 +32,11 @@ def execute(cwd, cmd, args=None, quiet=False, strict=True):
     '''
     Run the given command.
     '''
-
     if args is None:
         args = []
 
     stdout = None
     stderr = None
-
-    console.info("Run: %s %s (%s)\n" % (cmd, ' '.join(args), cwd))
 
     if quiet or os.environ.get('QUIET', ''):
         stdout = subprocess.PIPE
@@ -110,22 +106,6 @@ def patch(project, patch_file, revert=False):
         _, exitcode = execute('.', 'patch', patch_cmd_args, strict=False, quiet=True)
         if exitcode:
             console.fail('Failed to revert ' + patch_file)
-
-
-def generate_romfs(src, dst):
-    '''
-    Create a romfs_img from the source directory that is
-    converted to a header (byte array) file. Finally, add
-    a `const` modifier to the byte array to be the data
-    in the Read Only Memory.
-    '''
-    romfs_img = join(os.curdir, 'romfs_img')
-
-    execute(os.curdir, 'genromfs', ['-f', romfs_img, '-d', src])
-    execute(os.curdir, 'xxd', ['-i', 'romfs_img', dst])
-    execute(os.curdir, 'sed', ['-i', 's/unsigned/const\ unsigned/g', dst])
-
-    os.remove(romfs_img)
 
 
 def write_json_file(filename, data):
@@ -227,6 +207,7 @@ def exists(path):
     '''
     return os.path.exists(path)
 
+
 def exist_files(path, files):
     '''
     Checks that all files in the list exist relative to the given path.
@@ -236,6 +217,7 @@ def exist_files(path, files):
             return False
 
     return True
+
 
 def size(binary):
     '''
@@ -297,56 +279,6 @@ def remove_file(filename):
         pass
 
 
-_liblist = [
-    'libhttpparser.a',
-    'libiotjs.a',
-    'libjerry-core.a',
-    'libjerry-ext.a',
-    'libjerry-port-default.a',
-    'libjerry-port-default-minimal.a',
-    'libtuv.a'
-]
-
-
-def calculate_section_sizes(builddir):
-    '''
-    Return the sizes of the main sections.
-    '''
-    section_sizes = {
-        'bss': 0,
-        'text': 0,
-        'data': 0,
-        'rodata': 0
-    }
-
-    mapfile = join(builddir, 'linker.map')
-    libdir = join(builddir, 'libs')
-
-    if not (exists(mapfile) and exists(libdir)):
-        return section_sizes
-
-    # Get the names of the object files that the static
-    # libraries (libjerry-core.a, ...) have.
-    objlist = read_objects_from_libs(libdir, _liblist)
-
-    raw_data = lumpy.load_map_data(mapfile)
-    sections = lumpy.parse_to_sections(raw_data)
-    # Extract .rodata section from the .text section.
-    lumpy.hoist_section(sections, '.text', '.rodata')
-
-    for section in sections:
-        section_name = section['name'][1:]
-        # Skip sections that are not relevant.
-        if section_name not in section_sizes.keys():
-            continue
-
-        for entry in section['contents']:
-            if any(obj in entry['path'] for obj in objlist):
-                section_sizes[section_name] += entry['size']
-
-    return section_sizes
-
-
 def last_commit_info(gitpath):
     '''
     Get last commit information about the submodules.
@@ -378,104 +310,8 @@ def last_commit_info(gitpath):
     return info
 
 
-def current_date(format):
+def current_date(date_format):
     '''
     Format the current datetime by the given pattern.
     '''
-    return time.strftime(format)
-
-
-def process_output(output):
-    '''
-    Extract the runtime memory information from the output of the test.
-    '''
-    exitcode = 0
-    memstat = {
-        'heap-jerry': 'n/a',
-        'heap-system': 'n/a',
-        'stack': 'n/a'
-    }
-
-    match = re.search(r'(IoT.js|JerryScript) [Rr]esult: (\d+)', output)
-
-    if match:
-        exitcode = int(match.group(2))
-
-    if output.find('Heap stats:') != -1:
-        # Process jerry-memstat output.
-        match = re.search(r'Peak allocated = (\d+) bytes', output)
-
-        if match:
-            memstat['heap-jerry'] = int(match.group(1))
-
-        # Process malloc peak output.
-        match = re.search(r'Malloc peak allocated: (\d+) bytes', output)
-
-        if match:
-            memstat['heap-system'] = int(match.group(1))
-
-        # Process stack usage output.
-        match = re.search(r'Stack usage: (\d+)', output)
-
-        if match:
-            memstat['stack'] = int(match.group(1))
-
-        # Remove memstat from the output.
-        output, _ = output.split('Heap stats:', 1)
-
-    return output, memstat, exitcode
-
-
-def read_objects_from_libs(libpath, liblist):
-    '''
-    Read all the names of the object files that are
-    located in the archive files.
-    '''
-    objlist = []
-
-    for object_file in os.listdir(libpath):
-        if object_file not in liblist:
-            continue
-
-        output, _ = execute(libpath, 'ar', ['t', object_file], quiet=True)
-        objlist.extend(output.splitlines())
-
-    return objlist
-
-
-def read_port_from_url(url):
-    '''
-    Parse URL and return with the port number
-    '''
-    pattern = '(?:http.*://)?(?P<host>[^:/ ]+).?(?P<port>[0-9]*).*'
-
-    match = re.search(pattern, url)
-
-    if not match:
-        console.fail('Invalid URL: %s' % url)
-
-    return match.group('port')
-
-
-def run_coverage_script(env):
-    '''
-    Start the client script.
-    '''
-    # Add latency because the start up of the debug server needs time.
-    time.sleep(2)
-
-    address = env['info']['coverage']
-    iotjs = env['modules']['iotjs']
-    coverage_client = iotjs['paths']['coverage-client']
-    device = env['info']['device']
-    app_name = env['info']['app']
-
-    commit_info = last_commit_info(iotjs['src'])
-    result_name = 'cov-%s-%s.json' % (commit_info['commit'], commit_info['date'])
-    result_dir = join(paths.RESULT_PATH, '%s/%s/' % (app_name, device))
-    result_path = join(result_dir, result_name)
-
-    mkdir(result_dir)
-    execute(paths.PROJECT_ROOT, coverage_client, ['--non-interactive',
-                                                  '--coverage-output=%s' % result_path,
-                                                   address])
+    return time.strftime(date_format)

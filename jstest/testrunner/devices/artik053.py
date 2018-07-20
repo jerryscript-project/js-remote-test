@@ -89,7 +89,8 @@ class ARTIK053Device(RemoteDevice):
 
         if self.env['info']['coverage'] and self.app == 'iotjs':
             # Start the client script on a different thread for coverage.
-            client_thread = Thread(target=testrunner_utils.run_coverage_script, kwargs={'env': self.env})
+            client_thread = Thread(target=testrunner_utils.run_coverage_script,
+                                   kwargs={'env': self.env})
             client_thread.daemon = True
             client_thread.start()
 

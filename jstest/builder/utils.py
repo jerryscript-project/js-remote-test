@@ -14,8 +14,8 @@
 
 import os
 
-from jstest.common import utils
 from jstest.builder import lumpy
+from jstest.common import utils
 
 
 _LIBLIST = [

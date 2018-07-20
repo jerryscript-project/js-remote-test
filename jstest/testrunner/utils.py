@@ -21,6 +21,7 @@ import pyrebase
 
 from jstest.common import console, paths, utils
 
+
 def upload_data_to_firebase(env, test_info):
     '''
     Upload the results of the testrunner to the Firebase database.

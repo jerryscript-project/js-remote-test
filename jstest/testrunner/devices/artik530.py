@@ -114,7 +114,8 @@ class ARTIK530Device(RemoteDevice):
             command += ' --coverage-port %s' % port
 
             # Start the client script on a different thread for coverage.
-            client_thread = Thread(target=testrunner_utils.run_coverage_script, kwargs={'env': self.env})
+            client_thread = Thread(target=testrunner_utils.run_coverage_script,
+                                   kwargs={'env': self.env})
             client_thread.daemon = True
             client_thread.start()
 
