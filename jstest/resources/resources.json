@@ -54,10 +54,6 @@
       "patches": [
         { "file": "%{patches}/tizenrt-openocd.diff", "revert": false},
         {
-          "condition": "'%{app}' == 'jerryscript' and %{memstat}",
-          "file": "%{patches}/tizenrt-jerryscript-stack.diff"
-        },
-        {
           "condition": "'%{app}' == 'iotjs' and %{coverage}",
           "file": "%{patches}/tizenrt-coverage.diff"
         }
@@ -108,14 +104,6 @@
         }
       ],
       "patches": [
-        {
-          "condition": "'%{app}' == 'iotjs' and %{memstat}",
-          "file": "%{patches}/nuttx-iotjs-stack.diff"
-        },
-        {
-          "condition": "'%{app}' == 'jerryscript' and %{memstat}",
-          "file": "%{patches}/nuttx-jerryscript-stack.diff"
-        }
       ]
     },
     "jerryscript": {
@@ -143,6 +131,14 @@
         {
           "condition": "'%{device}' == 'rpi2' and %{memstat}",
           "file": "%{patches}/linux-jerryscript-stack.diff"
+        },
+        {
+          "condition": "'%{device}' == 'stm32f4' and %{memstat}",
+          "file": "%{patches}/nuttx-jerryscript-stack.diff"
+        },
+        {
+          "condition": "'%{device}' == 'artik053' and %{memstat}",
+          "file": "%{patches}/tizenrt-jerryscript-stack.diff"
         }
       ]
     },
@@ -171,6 +167,10 @@
         "js-sources" : "%{iotjs}/src/js/"
       },
       "patches": [
+        {
+          "condition": "'%{device}' == 'stm32f4dis' and %{memstat}",
+          "file": "%{patches}/nuttx-iotjs-stack.diff"
+        },
         {
           "condition": "'%{device}' == 'artik053' and %{memstat}",
           "file": "%{patches}/tizenrt-iotjs-stack.diff"

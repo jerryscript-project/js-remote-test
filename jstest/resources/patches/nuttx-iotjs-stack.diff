@@ -1,16 +1,16 @@
-diff --git a/system/iotjs/iotjs_main.c b/system/iotjs/iotjs_main.c
-index 966945e..4f0c411 100644
---- a/system/iotjs/iotjs_main.c
-+++ b/system/iotjs/iotjs_main.c
-@@ -63,14 +63,59 @@
+diff --git a/config/nuttx/stm32f4dis/app/iotjs_main.c b/config/nuttx/stm32f4dis/app/iotjs_main.c
+index 966945e..87399ca 100644
+--- a/config/nuttx/stm32f4dis/app/iotjs_main.c
++++ b/config/nuttx/stm32f4dis/app/iotjs_main.c
+@@ -62,6 +62,7 @@
+ 
  extern int iotjs_entry(int argc, char *argv[]);
  extern int tuv_cleanup(void);
- 
 +#define PATTERN (0xfe)
-+
+ 
  #ifdef CONFIG_BUILD_KERNEL
  extern int main(int argc, FAR char *argv[])
- #else
+@@ -69,8 +70,51 @@ extern int main(int argc, FAR char *argv[])
  extern int iotjs_main(int argc, char *argv[])
  #endif
  {
@@ -48,7 +48,6 @@ index 966945e..4f0c411 100644
 +  asm("mov %0, sp" : "=r" (stack_ptr));
 +  memset(end, PATTERN, stack_ptr - (long int)end);
 +
-+  /* Run IoT.js */
    ret = iotjs_entry(argc, argv);
    tuv_cleanup();
 +
@@ -60,5 +59,6 @@ index 966945e..4f0c411 100644
 +  }
 +
 +  printf ("Stack usage: %d\n", (int) (base - (long int)stack_p));
++
    return ret;
  }

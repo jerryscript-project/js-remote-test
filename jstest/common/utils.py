@@ -315,3 +315,26 @@ def current_date(date_format):
     Format the current datetime by the given pattern.
     '''
     return time.strftime(date_format)
+
+
+def symlink(src, dst):
+    '''
+    Create a symlink at dst pointing to src
+    '''
+    if not exists(src):
+        return
+
+    # Normalizing path for symlink.
+    src = os.path.normpath(src)
+    dst = os.path.normpath(dst)
+
+    # Existing dst needs to be deleted, since symlink requires non-existing dst.
+    if exists(dst):
+        if os.path.islink(dst):
+            os.unlink(dst)
+        elif os.path.isfile(dst):
+            remove_file(dst)
+        else:
+            rmtree(dst)
+
+    os.symlink(src, dst)

@@ -48,7 +48,7 @@ def config_modules(env):
             if not eval(condition):
                 continue
 
-            utils.copy(config['src'], config['dst'])
+            utils.symlink(config['src'], config['dst'])
 
 
 def patch_modules(env, revert=False):
