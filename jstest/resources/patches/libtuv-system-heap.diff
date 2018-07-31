@@ -12,18 +12,18 @@ index a9b1531..0a99f69 100644
          uv__req_unregister(loop, req);                                        \
          return -ENOMEM;                                                       \
 diff --git a/src/uv-common.c b/src/uv-common.c
-index cab7232..be86795 100644
+index 5c12d82..f73b1fc 100644
 --- a/src/uv-common.c
 +++ b/src/uv-common.c
 @@ -67,7 +67,6 @@ static uv__allocator_t uv__allocator = {
    free,
  };
  
--#if defined(__APPLE__) || defined(_WIN32)
+-#if defined(__APPLE__) || defined(_WIN32) || defined(TUV_FEATURE_PIPE)
  char* uv__strdup(const char* s) {
    size_t len = strlen(s) + 1;
    char* m = uv__malloc(len);
-@@ -75,15 +74,65 @@ char* uv__strdup(const char* s) {
+@@ -75,15 +74,66 @@ char* uv__strdup(const char* s) {
      return NULL;
    return memcpy(m, s, len);
  }
@@ -58,14 +58,15 @@ index cab7232..be86795 100644
 +#define SIZEOF_MM_ALLOCNODE 16
 +#else
 +#define SIZEOF_MM_ALLOCNODE 8
- #endif
++#endif
 +#else
 +#error "Undefined memory allocation chunk size."
-+#endif
-+
+ #endif
+ 
 +extern void mem_stat_alloc(size_t size);
 +extern void mem_stat_free(size_t size);
- 
++
++
  void* uv__malloc(size_t size) {
 -  return uv__allocator.local_malloc(size);
 +  char* ptr = (char*)uv__allocator.local_malloc(size);
@@ -78,7 +79,7 @@ index cab7232..be86795 100644
  }
  
  void uv__free(void* ptr) {
--  int saved_errno;
+   int saved_errno;
  
 +  if (ptr == NULL)
 +    return;
@@ -87,11 +88,10 @@ index cab7232..be86795 100644
 +  memcpy(&size, (char*)ptr - SIZEOF_MM_ALLOCNODE, sizeof(size_t));
 +  mem_stat_free(size);
 +
-+  int saved_errno;
    /* Libuv expects that free() does not clobber errno.  The system allocator
     * honors that assumption but custom allocators may not be so careful.
     */
-@@ -93,11 +142,31 @@ void uv__free(void* ptr) {
+@@ -93,11 +143,31 @@ void uv__free(void* ptr) {
  }
  
  void* uv__calloc(size_t count, size_t size) {
@@ -126,14 +126,14 @@ index cab7232..be86795 100644
  
  uv_buf_t uv_buf_init(char* base, unsigned int len) {
 diff --git a/src/uv-common.h b/src/uv-common.h
-index 069b5af..a24de69 100644
+index e52b529..a24de69 100644
 --- a/src/uv-common.h
 +++ b/src/uv-common.h
 @@ -239,9 +239,7 @@ void uv__fs_scandir_cleanup(uv_fs_t* req);
  
  /* Allocator prototypes */
  void *uv__calloc(size_t count, size_t size);
--#if defined(__APPLE__)
+-#if defined(__APPLE__) || defined(_WIN32) || defined(TUV_FEATURE_PIPE)
  char *uv__strdup(const char* s);
 -#endif
  void* uv__malloc(size_t size);
