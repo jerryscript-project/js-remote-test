@@ -53,6 +53,9 @@ class ARTIK053Device(RemoteDevice):
         '''
         Reset the device to create clean environment.
         '''
+        if self.env['info']['emulate']:
+            return
+
         flags = ['download', 'reset']
 
         utils.execute(self.tizenrt['paths']['os'], 'make', flags, quiet=True)

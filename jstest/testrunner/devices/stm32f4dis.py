@@ -56,6 +56,9 @@ class STM32F4Device(RemoteDevice):
         '''
         Reset the device to create clean environment.
         '''
+        if self.env['info']['emulate']:
+            return
+
         flasher = self.stlink['paths']['st-flash']
 
         utils.execute('.', flasher, ['reset'], quiet=True)

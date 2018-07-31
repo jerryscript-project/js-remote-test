@@ -38,6 +38,9 @@ class RemoteDevice(object):
         '''
         Check that all the arguments are established.
         '''
+        if self.env['info']['emulate']:
+            return
+
         if self.device in ['rpi2', 'artik530']:
             if not self.workdir:
                 console.fail('Please use --remote-workdir for the device.')

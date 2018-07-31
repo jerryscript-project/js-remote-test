@@ -23,7 +23,7 @@ from common_py.system.executor import Executor as ex
 
 TRAVIS_BUILD_PATH = os.environ['TRAVIS_BUILD_DIR']
 
-DOCKER_IMAGE_NAME = 'iotjs/js_remote_test:0.3'
+DOCKER_IMAGE_NAME = 'iotjs/js_remote_test:0.4'
 DOCKER_NAME = 'jsremote_docker'
 DOCKER_ROOT_PATH = '/root'
 
@@ -34,7 +34,7 @@ DOCKER_JSREMOTE_PATH = DOCKER_ROOT_PATH + '/js-remote-test/'
 BASE_COMMAND = ['python', '-m', 'jstest']
 RELEASE_ARG = ['--buildtype', 'release']
 DEBUG_ARG = ['--buildtype', 'debug']
-COMMON_ARGS = ['--no-flash', '--no-test', '--no-memstat', '--quiet']
+COMMON_ARGS = ['--emulate', '--no-memstat', '--quiet']
 
 DEVICES = ['rpi2', 'artik530', 'artik053', 'stm32f4dis']
 

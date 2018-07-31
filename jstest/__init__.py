@@ -16,6 +16,7 @@ import re
 
 from jstest import builder
 from jstest.common import utils, paths
+from jstest.emulate import pseudo_terminal
 from jstest.testrunner import testrunner
 
 

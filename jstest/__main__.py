@@ -106,14 +106,24 @@ def parse_options():
                        type=int, default=115200,
                        help='specify the baud rate (default: %(default)s)')
 
+    group.add_argument('--emulate',
+                       default=False, action='store_true',
+                       help='Emulate the serial connection.')
+
     return parser.parse_args()
 
 
-def main():
+def adjust_options(options):
     '''
-    Main function of the remote testrunner.
+    Adjust some of the command line arguments.
     '''
-    options = parse_options()
+    if options.emulate:
+        options.no_flash = True
+
+        if options.device in ['rpi2', 'artik530']:
+            options.no_test = True
+        else:
+            options.device_id = jstest.emulate.pseudo_terminal.open_pseudo_terminal(options.device)
 
     if options.coverage:
         if options.app != 'iotjs':
@@ -124,6 +134,15 @@ def main():
             # Overwrite the buildtype option to debug.
             # In IoT.js the code is minimized in release mode, which will mess up the line numbers.
             options.buildtype = 'debug'
+
+    return options
+
+
+def main():
+    '''
+    Main function of the remote testrunner.
+    '''
+    options = adjust_options(parse_options())
 
     # Get an environment object that holds all the necessary
     # information for the build and the test.
@@ -148,6 +167,9 @@ def main():
         testrunner = jstest.testrunner.TestRunner(env)
         testrunner.run()
         testrunner.save()
+
+        if env['info']['emulate']:
+            jstest.emulate.pseudo_terminal.close_pseudo_terminal(env)
 
 
 if __name__ == '__main__':
