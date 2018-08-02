@@ -47,6 +47,17 @@ class SerialDevice(RemoteDevice):
         '''
         pass
 
+    def login(self):
+        '''
+        Login to the device.
+        '''
+        try:
+            self.channel.open()
+            self.channel.exec_command('cd /test')
+
+        except Exception as e:
+            console.fail(str(e))
+
     def _prepare_command(self, testset, test):
         '''
         Prepare the command which will be executed.

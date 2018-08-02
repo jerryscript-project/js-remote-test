@@ -94,20 +94,6 @@ class SSHDevice(RemoteDevice):
 
         utils.execute('.', 'rsync', rsync_flags + [src, dst])
 
-    def login(self):
-        '''
-        Login to the device.
-        '''
-        RemoteDevice.login(self)
-        try:
-            # Press enters to start the serial communication and
-            # go to the test folder because some tests require resources.
-            self.channel.exec_command('\n\n')
-            self.channel.exec_command('cd /test')
-
-        except Exception as e:
-            console.fail(str(e))
-
     def execute(self, testset, test):
         '''
         Run commands for the given app on the board.

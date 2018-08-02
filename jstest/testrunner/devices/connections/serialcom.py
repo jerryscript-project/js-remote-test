@@ -36,6 +36,9 @@ class SerialConnection(object):
         '''
         self.serial = serial.Serial(port=self.id, baudrate=self.baud, timeout=self.timeout)
 
+        # Press enters to start the serial communication.
+        self.exec_command('\n\n')
+
     def close(self):
         '''
         Close the serial port.
