@@ -15,29 +15,18 @@
 import time
 from threading import Thread
 
-from jstest.testrunner.devices.device_base import RemoteDevice
 from jstest.common import utils
-from jstest.testrunner.devices.connections.serialcom import SerialConnection
 from jstest.testrunner import utils as testrunner_utils
+from jstest.testrunner.devices.serial_device import SerialDevice
 
-class ARTIK053Device(RemoteDevice):
+class ARTIK053Device(SerialDevice):
     '''
     Device of the ARTIK053 target.
     '''
     def __init__(self, env):
-        self.os = 'tizenrt'
         self.tizenrt = env['modules']['tizenrt']
 
-        RemoteDevice.__init__(self, env)
-
-        data = {
-            'dev-id': env['info']['device_id'],
-            'baud': env['info']['baud'],
-            'timeout': env['info']['timeout'],
-            'prompt': 'TASH>>'
-        }
-
-        self.channel = SerialConnection(data)
+        SerialDevice.__init__(self, env, 'tizenrt', 'TASH>>')
 
     def initialize(self):
         '''
@@ -69,23 +58,7 @@ class ARTIK053Device(RemoteDevice):
         self.reset()
         self.login()
 
-        # Absolute path to the test file on the device.
-        testfile = '/test/%s/%s' % (testset, test['name'])
-
-        args = []
-        if not self.env['info']['no_memstat']:
-            args = ['--mem-stats']
-
-        if self.env['info']['coverage']:
-            args.append('--start-debug-server')
-            port = testrunner_utils.read_port_from_url(self.env['info']['coverage'])
-            args.append('--debug-port %s' % port)
-
-        command = {
-            'iotjs': 'iotjs %s %s\n' % (' '.join(args), testfile),
-            'jerryscript': 'jerry %s %s\n' % (testfile, ' '.join(args))
-        }
-
+        command = self._prepare_command(testset, test)
         # Run the test on the device.
         self.channel.putc(command[self.app])
         self.channel.readline()

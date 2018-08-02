@@ -15,22 +15,20 @@
 import json
 import time
 
-from jstest.common import console, utils
+from jstest.common import console
 from jstest.testrunner import utils as testrunner_utils
 
 class RemoteDevice(object):
     '''
     Base class of all the device classes.
     '''
-    def __init__(self, env):
+    def __init__(self, env, os):
         self.env = env
         self.app = env['info']['app']
-        self.user = env['info']['username']
-        self.ip = env['info']['ip']
-        self.port = env['info']['port']
         self.device = env['info']['device']
         self.workdir = env['info']['remote_workdir']
         self.channel = None
+        self.os = os
 
         self.check_args()
 
@@ -41,22 +39,7 @@ class RemoteDevice(object):
         if self.env['info']['emulate']:
             return
 
-        if self.device in ['rpi2', 'artik530']:
-            if not self.workdir:
-                console.fail('Please use --remote-workdir for the device.')
-            if not self.ip:
-                console.fail('Please define the IP address of the device.')
-            if not self.user:
-                console.fail('Please define the username of the device.')
-
-            if self.workdir == '/':
-                console.fail('Please do not use the root folder as test folder.')
-
-        elif self.device in ['artik053', 'stm32f4dis']:
-            if not self.env['info']['device_id']:
-                console.fail('Please use the --device-id to select the device.')
-
-        else:
+        if self.device not in ['rpi2', 'artik530', 'artik053', 'stm32f4dis']:
             console.fail('The selected device is not supported')
 
     def login(self):
@@ -65,28 +48,6 @@ class RemoteDevice(object):
         '''
         try:
             self.channel.open()
-
-            if self.device in ['artik053', 'stm32f4dis']:
-                # Press enters to start the serial communication and
-                # go to the test folder because some tests require resources.
-                self.channel.exec_command('\n\n')
-                self.channel.exec_command('cd /test')
-
-                if self.device == 'artik053' and self.app == 'iotjs':
-                    # Set up the wifi connection.
-                    wifi_name = utils.get_environment('ARTIK_WIFI_NAME')
-                    wifi_pwd = utils.get_environment('ARTIK_WIFI_PWD')
-
-                    self.channel.exec_command('wifi startsta')
-                    self.channel.exec_command('wifi join %s %s' % (wifi_name, wifi_pwd))
-                    self.channel.exec_command('ifconfig wl1 dhcp')
-
-                    # Set the current date and time on the device.
-                    # Note: test_tls_ca.js requires the current datetime.
-                    datetime = utils.current_date('%b %d %H:%M:%S %Y')
-                    self.channel.exec_command('date -s %s' % datetime)
-
-                    time.sleep(1)
 
         except Exception as e:
             console.fail(str(e))

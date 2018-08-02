@@ -12,76 +12,38 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import json
-from threading import Thread
+import time
 
-from jstest.testrunner.devices.device_base import RemoteDevice
-from jstest.common import utils, paths
-from jstest.testrunner import utils as testrunner_utils
-from jstest.testrunner.devices.connections.sshcom import SSHConnection
+from jstest.common import console, utils, paths
+from jstest.testrunner.devices.ssh_device import SSHDevice
 
-class ARTIK530Device(RemoteDevice):
+class ARTIK530Device(SSHDevice):
     '''
     Device of the ARTIK530 target.
     '''
     def __init__(self, env):
-        self.os = 'tizen'
-
-        RemoteDevice.__init__(self, env)
-
-        data = {
-            'username': self.user,
-            'ip': self.ip,
-            'port': self.port,
-            'timeout': env['info']['timeout']
-        }
-
-        self.channel = SSHConnection(data)
+        SSHDevice.__init__(self, env, 'tizen')
 
     def initialize(self):
         '''
         Flash the device.
         '''
-        if self.env['info']['no_flash']:
-            return
-
-        target_app = self.env['modules']['app']
-        build_path = self.env['paths']['build']
-
-        test_src = target_app['paths']['tests']
-        test_dst = utils.join(build_path, 'tests')
-
-        # 1. Copy all the necessary files.
-        # Copy applicaiton RPM package file.
-        rpm_package_path = self.env['paths']['tizen-rpm-package']
-        utils.copy(rpm_package_path, build_path)
-
-        # Copy all the tests into the build folder.
-        utils.copy(test_src, test_dst)
-
-        utils.copy(paths.FREYA_TESTER, build_path)
+        # 1. Call initialize from the super class to copy necessary files.
+        SSHDevice.initialize(self)
 
         if not self.env['info']['no_memstat']:
-            utils.copy(paths.FREYA_CONFIG, build_path)
+            utils.copy(paths.FREYA_CONFIG, self._build_path)
 
             # Resolve the iotjs-dirname macro in the Freya configuration file.
             basename = utils.basename(paths.GBS_IOTJS_PATH)
             sed_flags = ['-i', 's/%%{iotjs-dirname}/%s/g' % basename, 'iotjs-freya.config']
-            utils.execute(build_path, 'sed', sed_flags)
+            utils.execute(self._build_path, 'sed', sed_flags)
 
         # 2. Deploy the build folder to the device.
         self.login()
         self.channel.exec_command('mount -o remount,rw /')
 
-        shell_flags = 'ssh -p %s' % self.port
-        rsync_flags = ['--rsh', shell_flags, '--recursive', '--compress', '--delete']
-        # Note: slash character is required after the path.
-        # In this case `rsync` copies the whole folder, not
-        # the subcontents to the destination.
-        src = self.env['paths']['build'] + '/'
-        dst = '%s@%s:%s' % (self.user, self.ip, self.workdir)
-
-        utils.execute('.', 'rsync', rsync_flags + [src, dst])
+        self._deploy_to_device()
 
         # 3. Install rpm package
         template = 'rpm -ivh --force --nodeps %s/%s-1.0.0-0.armv7l.rpm'
@@ -89,43 +51,29 @@ class ARTIK530Device(RemoteDevice):
 
         self.logout()
 
-    def execute(self, testset, test):
+    def login(self):
         '''
-        Execute the given test.
+        Login to the device.
         '''
-        self.login()
+        SSHDevice.login(self)
 
-        template = 'python %s/tester.py --cwd %s --cmd %s --testfile %s'
-        # Absolute path to the test folder.
-        testdir = '%s/tests' % self.workdir
-        # Absolute path to the test file.
-        testfile = '%s/%s/%s' % (testdir, testset, test['name'])
-        # Absolute path to the application.
-        iotjs = '%s/iotjs' % self.workdir
+        if self.app != 'iotjs':
+            return
 
-        # Create the command that the device will execute.
-        command = template % (self.workdir, testdir, iotjs, testfile)
+        try:
+            # Set up the wifi connection.
+            wifi_name = utils.get_environment('ARTIK_WIFI_NAME')
+            wifi_pwd = utils.get_environment('ARTIK_WIFI_PWD')
 
-        if self.env['info']['no_memstat']:
-            command += ' --no-memstat'
+            self.channel.exec_command('wifi startsta')
+            self.channel.exec_command('wifi join %s %s' % (wifi_name, wifi_pwd))
+            self.channel.exec_command('ifconfig wl1 dhcp')
 
-        if self.env['info']['coverage'] and self.app == 'iotjs':
-            port = testrunner_utils.read_port_from_url(self.env['info']['coverage'])
-            command += ' --coverage-port %s' % port
+            # Set the current date and time on the device.
+            # Note: test_tls_ca.js requires the current datetime.
+            datetime = utils.current_date('%b %d %H:%M:%S %Y')
+            self.channel.exec_command('date -s %s' % datetime)
+            time.sleep(1)
 
-            # Start the client script on a different thread for coverage.
-            client_thread = Thread(target=testrunner_utils.run_coverage_script,
-                                   kwargs={'env': self.env})
-            client_thread.daemon = True
-            client_thread.start()
-
-        stdout = self.channel.exec_command(command)
-
-        # Since the stdout is a JSON text, parse it.
-        result = json.loads(stdout)
-        # Make HTML friendly stdout.
-        result['output'] = result['output'].rstrip('\n').replace('\n', '<br>')
-
-        self.logout()
-
-        return result
+        except Exception as e:
+            console.fail(str(e))

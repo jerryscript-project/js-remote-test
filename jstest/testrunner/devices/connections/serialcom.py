@@ -57,7 +57,7 @@ class SerialConnection(object):
         if isinstance(data, unicode):
             data = data.encode('utf8')
 
-        return self.serial.write(data)
+        return self.serial.write(data + '\n')
 
     def readline(self):
         '''

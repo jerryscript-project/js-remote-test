@@ -16,27 +16,16 @@ import time
 
 from jstest.common import utils
 from jstest.testrunner import utils as testrunner_utils
-from jstest.testrunner.devices.device_base import RemoteDevice
-from jstest.testrunner.devices.connections.serialcom import SerialConnection
+from jstest.testrunner.devices.serial_device import SerialDevice
 
-class STM32F4Device(RemoteDevice):
+class STM32F4Device(SerialDevice):
     '''
     Device of the STM32F4-Discovery target.
     '''
     def __init__(self, env):
-        self.os = 'nuttx'
         self.stlink = env['modules']['stlink']
 
-        RemoteDevice.__init__(self, env)
-
-        data = {
-            'dev-id': env['info']['device_id'],
-            'baud': env['info']['baud'],
-            'timeout': env['info']['timeout'],
-            'prompt': 'nsh> '
-        }
-
-        self.channel = SerialConnection(data)
+        SerialDevice.__init__(self, env, 'nuttx', 'nsh> ')
 
     def initialize(self):
         '''
@@ -72,18 +61,7 @@ class STM32F4Device(RemoteDevice):
         self.reset()
         self.login()
 
-        # Absolute path to the test file on the device.
-        testfile = '/test/%s/%s' % (testset, test['name'])
-
-        args = []
-        if not self.env['info']['no_memstat']:
-            args = ['--mem-stats']
-
-        command = {
-            'iotjs': 'iotjs %s %s' % (' '.join(args), testfile),
-            'jerryscript': 'jerry %s %s' % (testfile, ' '.join(args))
-        }
-
+        command = self._prepare_command(testset, test)
         # Run the test on the device.
         output = self.channel.exec_command(command[self.app])
 
