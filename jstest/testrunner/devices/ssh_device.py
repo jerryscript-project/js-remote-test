@@ -26,10 +26,10 @@ class SSHDevice(RemoteDevice):
     Common super class for ssh devices.
     '''
     def __init__(self, env, os):
-        RemoteDevice.__init__(self, env, os)
         self.user = env['info']['username']
         self.ip = env['info']['ip']
         self.port = env['info']['port']
+        RemoteDevice.__init__(self, env, os)
 
         data = {
             'username': self.user,
@@ -60,7 +60,7 @@ class SSHDevice(RemoteDevice):
         Flash the device.
         '''
         if self.env['info']['no_flash']:
-            return
+            return False
 
         # 1. Copy all the necessary files.
         self._target_app = self.env['modules']['app']
@@ -77,6 +77,8 @@ class SSHDevice(RemoteDevice):
         utils.copy(test_src, test_dst)
 
         utils.copy(paths.FREYA_TESTER, self._build_path)
+
+        return True
 
     def _deploy_to_device(self):
         '''

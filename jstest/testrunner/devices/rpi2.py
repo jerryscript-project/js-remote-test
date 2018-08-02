@@ -27,7 +27,8 @@ class RPi2Device(SSHDevice):
         Flash the device.
         '''
         # 1. Call initialize from the super class to copy necessary files.
-        SSHDevice.initialize(self)
+        if not SSHDevice.initialize(self):
+            return
 
         if not self.env['info']['no_memstat']:
             # Copy Freya memory measurement files.
