@@ -317,6 +317,17 @@ def current_date(date_format):
     return time.strftime(date_format)
 
 
+def is_broken_symlink(path):
+    '''
+    Test whether a path exists. Returns True for broken symbolic links.
+    '''
+    try:
+        os.lstat(path)
+    except OSError:
+        return False
+    return True
+
+
 def symlink(src, dst):
     '''
     Create a symlink at dst pointing to src
@@ -336,5 +347,7 @@ def symlink(src, dst):
             remove_file(dst)
         else:
             rmtree(dst)
+    elif is_broken_symlink(dst):
+        os.unlink(dst)
 
     os.symlink(src, dst)
