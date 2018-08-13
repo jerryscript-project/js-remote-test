@@ -110,6 +110,18 @@ def parse_options():
                        default=False, action='store_true',
                        help='Emulate the serial connection.')
 
+    group = parser.add_argument_group("Telnet communication")
+
+    group.add_argument('--router',
+                       metavar='ROUTERADDR',
+                       default='10.0.0.1',
+                       help='specify the router address')
+
+    group.add_argument('--netmask',
+                       metavar='NETMASK',
+                       default='255.255.255.0',
+                       help='specify the netmask')
+
     return parser.parse_args()
 
 

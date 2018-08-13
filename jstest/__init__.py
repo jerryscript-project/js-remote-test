@@ -107,6 +107,7 @@ def _replacer(string, env):
 
     symbol_table = {
         'app': env['info']['app'],
+        'communication': 'telnet' if env['info']['ip'] else 'serial',
         'device': env['info']['device'],
         'build-type': env['info']['buildtype'],
         'target': _TARGETS.get(env['info']['device']),

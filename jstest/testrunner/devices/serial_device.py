@@ -16,7 +16,7 @@ from jstest.common import console
 from jstest.testrunner import utils as testrunner_utils
 from jstest.testrunner.devices.device_base import RemoteDevice
 from jstest.testrunner.devices.connections.serialcom import SerialConnection
-
+from jstest.testrunner.devices.connections.telnetcom import TelnetConnection
 
 class SerialDevice(RemoteDevice):
     '''
@@ -26,13 +26,19 @@ class SerialDevice(RemoteDevice):
         RemoteDevice.__init__(self, env, os)
 
         data = {
-            'dev-id': env['info']['device_id'],
-            'baud': env['info']['baud'],
             'timeout': env['info']['timeout'],
             'prompt': prompt
         }
 
-        self.channel = SerialConnection(data)
+        if env['info']['ip']:
+            # FIXME: In this case there is no need for serial connection.
+            # So, the SerialDevice is a misleading class name for STM32F4-DISCOVERY
+            data['ip'] = env['info']['ip']
+            self.channel = TelnetConnection(data)
+        else:
+            data['dev-id'] = env['info']['device_id']
+            data['baud'] = env['info']['baud']
+            self.channel = SerialConnection(data)
 
     def check_args(self):
         '''

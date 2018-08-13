@@ -74,12 +74,12 @@
       "config": [
         {
           "condition": "'%{app}' == 'iotjs'",
-          "src": "%{config}/nuttx-iotjs.config",
+          "src": "%{config}/nuttx-iotjs-%{communication}.config",
           "dst": "%{nuttx}/configs/stm32f4discovery/usbnsh/defconfig"
         },
         {
           "condition": "'%{app}' == 'jerryscript'",
-          "src": "%{config}/nuttx-jerryscript.config",
+          "src": "%{config}/nuttx-jerryscript-%{communication}.config",
           "dst": "%{nuttx}/configs/stm32f4discovery/usbnsh/defconfig"
         }
       ]

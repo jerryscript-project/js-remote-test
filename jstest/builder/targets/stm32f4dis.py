@@ -12,6 +12,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import binascii
+import socket
+
 from jstest.builder import builder
 from jstest.common import utils
 from jstest.builder import utils as builder_utils
@@ -39,6 +42,23 @@ class STM32F4Builder(builder.BuilderBase):
         '''
         nuttx = self.env['modules']['nuttx']
         config = ['stm32f4discovery/usbnsh']
+
+        if self.env['info']['ip']:
+            ip_addr = binascii.hexlify(socket.inet_aton(self.env['info']['ip']))
+            router_addr = binascii.hexlify(socket.inet_aton(self.env['info']['router']))
+            netmask = binascii.hexlify(socket.inet_aton(self.env['info']['netmask']))
+
+            config_path = utils.join(nuttx['src'], 'configs/stm32f4discovery/usbnsh/')
+
+            utils.execute(config_path,
+                          'sed',
+                          ['-ie', 's/YOUR_IP_ADDR/0x%s/g' % ip_addr, 'defconfig'])
+            utils.execute(config_path,
+                          'sed',
+                          ['-ie', 's/YOUR_ROUTER_ADDR/0x%s/g' % router_addr, 'defconfig'])
+            utils.execute(config_path,
+                          'sed',
+                          ['-ie', 's/YOUR_NETMASK/0x%s/g' % netmask, 'defconfig'])
 
         utils.execute(nuttx['src'], 'make', ['distclean'])
         utils.execute(nuttx['paths']['tools'], './configure.sh', config)
