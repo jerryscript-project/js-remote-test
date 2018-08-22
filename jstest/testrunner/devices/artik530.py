@@ -12,9 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import time
-
-from jstest.common import console, utils, paths
+from jstest.common import utils, paths
 from jstest.testrunner.devices.ssh_device import SSHDevice
 
 class ARTIK530Device(SSHDevice):
@@ -51,30 +49,3 @@ class ARTIK530Device(SSHDevice):
         self.channel.exec_command(template % (self.workdir, self.app))
 
         self.logout()
-
-    def login(self):
-        '''
-        Login to the device.
-        '''
-        SSHDevice.login(self)
-
-        if self.app != 'iotjs':
-            return
-
-        try:
-            # Set up the wifi connection.
-            wifi_name = utils.get_environment('ARTIK_WIFI_NAME')
-            wifi_pwd = utils.get_environment('ARTIK_WIFI_PWD')
-
-            self.channel.exec_command('wifi startsta')
-            self.channel.exec_command('wifi join %s %s' % (wifi_name, wifi_pwd))
-            self.channel.exec_command('ifconfig wl1 dhcp')
-
-            # Set the current date and time on the device.
-            # Note: test_tls_ca.js requires the current datetime.
-            datetime = utils.current_date('%b %d %H:%M:%S %Y')
-            self.channel.exec_command('date -s %s' % datetime)
-            time.sleep(1)
-
-        except Exception as e:
-            console.fail(str(e))

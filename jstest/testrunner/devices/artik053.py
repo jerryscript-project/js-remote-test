@@ -15,7 +15,7 @@
 import time
 from threading import Thread
 
-from jstest.common import utils
+from jstest.common import console, utils
 from jstest.testrunner import utils as testrunner_utils
 from jstest.testrunner.devices.serial_device import SerialDevice
 
@@ -84,3 +84,31 @@ class ARTIK053Device(SerialDevice):
             'memstat': memstat,
             'exitcode': exitcode
         }
+
+    def login(self):
+        '''
+        Login to the device.
+        '''
+        SerialDevice.login(self)
+
+        # The JerryScript testsuite does not require Internet connection.
+        if self.app == 'jerryscript':
+            return
+
+        try:
+            # Set up the wifi connection.
+            wifi_name = utils.get_environment('ARTIK_WIFI_NAME')
+            wifi_pwd = utils.get_environment('ARTIK_WIFI_PWD')
+
+            self.channel.exec_command('wifi startsta')
+            self.channel.exec_command('wifi join %s %s' % (wifi_name, wifi_pwd))
+            self.channel.exec_command('ifconfig wl1 dhcp')
+
+            # Set the current date and time on the device.
+            # Note: test_tls_ca.js requires the current datetime.
+            datetime = utils.current_date('%b %d %H:%M:%S %Y')
+            self.channel.exec_command('date -s %s' % datetime)
+            time.sleep(1)
+
+        except Exception as e:
+            console.fail(str(e))
