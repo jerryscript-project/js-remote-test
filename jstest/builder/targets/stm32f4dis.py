@@ -108,7 +108,6 @@ class STM32F4Builder(builder.BuilderBase):
             '--clean',
             '--lto=OFF',
             '--jerry-cmdline=OFF',
-            '--jerry-libc=OFF',
             '--jerry-libm=ON',
             '--all-in-one=OFF',
             '--mem-heap=70',

@@ -92,7 +92,6 @@ class RPi2Builder(builder.BuilderBase):
         build_flags = [
             '--clean',
             '--lto=OFF',
-            '--jerry-libc=ON',
             '--jerry-libm=ON',
             '--all-in-one=OFF',
             '--linker-flag=-Wl,-Map=jerry.map',
