@@ -133,7 +133,7 @@
           "file": "%{patches}/linux-jerryscript-stack.diff"
         },
         {
-          "condition": "'%{device}' == 'stm32f4' and %{memstat}",
+          "condition": "'%{device}' == 'stm32f4dis' and %{memstat}",
           "file": "%{patches}/nuttx-jerryscript-stack.diff"
         },
         {
