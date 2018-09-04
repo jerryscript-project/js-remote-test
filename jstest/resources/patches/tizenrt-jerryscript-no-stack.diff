@@ -1,0 +1,15 @@
+diff --git a/targets/tizenrt-artik053/apps/jerryscript/jerry_main.c b/targets/tizenrt-artik053/apps/jerryscript/jerry_main.c
+index f894d53..d12bdb6 100644
+--- a/targets/tizenrt-artik053/apps/jerryscript/jerry_main.c
++++ b/targets/tizenrt-artik053/apps/jerryscript/jerry_main.c
+@@ -442,9 +442,7 @@ jerry(int argc, char *argv[])
+ {
+   int ret_code = jerry_cmd_main(argc, argv);
+ 
+-#ifdef CONFIG_DEBUG_VERBOSE
+-  jerry_port_log(JERRY_LOG_LEVEL_DEBUG, "JerryScript result: %d\n", ret_code);
+-#endif
++  printf( "JerryScript result: %d\n", ret_code);
+ 
+   return ret_code;
+ } /* jerry */

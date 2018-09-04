@@ -1,8 +1,8 @@
 diff --git a/src/platform/tizenrt/iotjs_main_tizenrt.c b/src/platform/tizenrt/iotjs_main_tizenrt.c
-index bcf0243..7626aa5 100644
+index 00b7b58..e9a921e 100644
 --- a/src/platform/tizenrt/iotjs_main_tizenrt.c
 +++ b/src/platform/tizenrt/iotjs_main_tizenrt.c
-@@ -104,6 +104,7 @@ void longjmp(jmp_buf buf, int value) {
+@@ -80,6 +80,7 @@ void jerryx_port_handler_print_char(char c) { /**< the character to print */
  int iotjs_entry(int argc, char **argv);
  int tuv_cleanup(void);
  
@@ -10,7 +10,7 @@ index bcf0243..7626aa5 100644
  
  #if USE_IOTJS_THREAD
  struct iotjs_thread_arg {
-@@ -114,14 +115,54 @@ struct iotjs_thread_arg {
+@@ -90,14 +91,54 @@ struct iotjs_thread_arg {
  pthread_addr_t iotjs_thread(void *thread_arg) {
    struct iotjs_thread_arg *arg = thread_arg;
  
@@ -68,4 +68,14 @@ index bcf0243..7626aa5 100644
 +
    sleep(1);
    return NULL;
+ }
+@@ -139,9 +180,7 @@ int iotjs(int argc, char *argv[]) {
+ static int iotjs(int argc, char *argv[]) {
+   int ret = 0;
+   ret = iotjs_entry(argc, argv);
+-#ifdef CONFIG_DEBUG_VERBOSE
+   printf("IoT.js Result: %d\n", ret);
+-#endif
+   tuv_cleanup();
+   return ret;
  }

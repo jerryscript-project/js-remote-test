@@ -185,6 +185,7 @@ def process_output(output):
 
     if match:
         exitcode = int(match.group(2))
+        output, _ = output.split(match.group(), 1)
 
     if output.find('Heap stats:') != -1:
         # Process jerry-memstat output.

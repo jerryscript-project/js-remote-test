@@ -137,8 +137,8 @@
           "file": "%{patches}/nuttx-jerryscript-stack.diff"
         },
         {
-          "condition": "'%{device}' == 'artik053' and %{memstat}",
-          "file": "%{patches}/tizenrt-jerryscript-stack.diff"
+          "condition": "'%{device}' == 'artik053'",
+          "file": "%{patches}/tizenrt-jerryscript-%{use-stack}.diff"
         }
       ]
     },
@@ -172,8 +172,8 @@
           "file": "%{patches}/nuttx-iotjs-stack.diff"
         },
         {
-          "condition": "'%{device}' == 'artik053' and %{memstat}",
-          "file": "%{patches}/tizenrt-iotjs-stack.diff"
+          "condition": "'%{device}' == 'artik053'",
+          "file": "%{patches}/tizenrt-iotjs-%{use-stack}.diff"
         },
         {
           "condition": "'%{device}' in ['stm32f4dis', 'artik053'] and %{memstat}",

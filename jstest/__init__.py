@@ -118,6 +118,7 @@ def _replacer(string, env):
         'config': paths.CONFIG_PATH,
         'home': paths.HOME,
         'memstat': not env['info']['no_memstat'],
+        'use-stack': 'stack' if not env['info']['no_memstat'] else 'no-stack',
         'coverage': bool(env['info']['coverage'])
     }
 
