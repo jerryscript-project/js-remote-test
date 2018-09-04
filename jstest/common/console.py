@@ -13,7 +13,6 @@
 # limitations under the License.
 
 from __future__ import print_function
-import sys
 
 TERMINAL_RED = '\033[1;31m'
 TERMINAL_BLUE = '\033[1;34m'
@@ -38,9 +37,6 @@ def info(msg):
 
 def fail(msg):
     '''
-    Print a message with red color and exit.
+    Raises an error containing msg, which __main.py__ can catch and print out.
     '''
-    print()
-    print('%s%s%s' % (TERMINAL_RED, msg, TERMINAL_EMPTY))
-    print()
-    sys.exit(1)
+    raise SystemError(msg)

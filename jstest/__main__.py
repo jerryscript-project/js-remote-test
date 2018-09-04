@@ -166,22 +166,27 @@ def main():
     if os.environ.get('VERBOSE', '') and env['info']['quiet']:
         print('\n\033[1;33mWarning: --quiet option disables VERBOSE output!\033[0m\n')
 
-    # Initialize the testing environment by building all the
-    # required modules to be ready to run tests.
-    builder = jstest.builder.create(env)
-    builder.create_profile_builds()
-    builder.create_test_build()
+    try:
+        # Initialize the testing environment by building all the
+        # required modules to be ready to run tests.
+        builder = jstest.builder.create(env)
+        builder.create_profile_builds()
+        builder.create_test_build()
 
-    # Run all the tests.
-    # FIXME this will have to remain in an if block until
-    # dummy devices are created for the Travis jobs.
-    if not env['info']['no_test']:
-        testrunner = jstest.testrunner.TestRunner(env)
-        testrunner.run()
-        testrunner.save()
-
-        if env['info']['emulate']:
-            jstest.emulate.pseudo_terminal.close_pseudo_terminal(env)
+        # Run all the tests.
+        # FIXME this will have to remain in an if block until
+        # dummy devices are created for the Travis jobs.
+        if not env['info']['no_test']:
+            testrunner = jstest.testrunner.TestRunner(env)
+            testrunner.run()
+            testrunner.save()
+            if env['info']['emulate']:
+                jstest.emulate.pseudo_terminal.close_pseudo_terminal(env)
+    except (Exception, KeyboardInterrupt) as e:
+        jstest.console.log('[Failed] %s' % (str(e)), jstest.console.TERMINAL_RED)
+    finally:
+        # Revert patches if an error occured.
+        jstest.resources.patch_modules(env, revert=True)
 
 
 if __name__ == '__main__':
