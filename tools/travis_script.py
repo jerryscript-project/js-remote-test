@@ -18,8 +18,7 @@ from __future__ import print_function
 
 import argparse
 import os
-
-from common_py.system.executor import Executor as ex
+import subprocess
 
 TRAVIS_BUILD_PATH = os.environ['TRAVIS_BUILD_DIR']
 
@@ -67,7 +66,7 @@ def run_docker():
     '''
     Create the Docker container where we will run the builds.
     '''
-    ex.check_run_cmd('docker', ['run', '-dit', '--privileged',
+    subprocess.call(['docker', 'run', '-dit', '--privileged',
                                 '--name', DOCKER_NAME,
                                 '-v', '%s:%s' % (TRAVIS_BUILD_PATH, DOCKER_JSREMOTE_PATH),
                                 '--env', 'PYTHONPATH=%s:$PYTHONPATH' % DOCKER_JSREMOTE_PATH,
@@ -78,7 +77,7 @@ def exec_docker(cmd):
     Execute the given command in Docker.
     '''
     exec_cmd = ' '.join(cmd)
-    ex.check_run_cmd('docker', ['exec', '-it', DOCKER_NAME, '/bin/bash', '-c', exec_cmd])
+    subprocess.call(['docker', 'exec', '-it', DOCKER_NAME, '/bin/bash', '-c', exec_cmd])
 
 def main():
     option = parse_option()
@@ -87,10 +86,10 @@ def main():
         args = []
         if os.getenv('TRAVIS') is not None:
             args = ['--travis']
-        ex.check_run_cmd('tools/check_signed_off.sh', args)
+        subprocess.call(['tools/check_signed_off.sh'] + args)
 
     if option.check_pylint:
-        ex.check_run_cmd('python', ['tools/check_pylint.py'])
+        subprocess.call(['python', 'tools/check_pylint.py'])
 
     if option.app and option.device:
         run_docker()
