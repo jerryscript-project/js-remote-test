@@ -50,6 +50,9 @@ class ARTIK053Builder(builder.BuilderBase):
         '''
         tizenrt = self.env['modules']['tizenrt']
 
+        # Define extra libs.
+        self._define_extra_libs()
+
         # Provide test files as ROMFS content.
         self._append_testfiles()
 
@@ -134,3 +137,18 @@ class ARTIK053Builder(builder.BuilderBase):
 
         utils.rmtree(test_dst)
         utils.copy(test_src, test_dst)
+
+    def _define_extra_libs(self):
+        if not self.env['info']['app'] == 'iotjs':
+            return
+
+        iotjs_src = self.env['modules']['iotjs']['src']
+        build_type = self.env['info']['buildtype']
+
+        jerryext_path = utils.join(iotjs_src,
+                                   'build/arm-tizenrt',
+                                   build_type,
+                                   'lib/')
+
+        utils.define_environment('EXTRA_LIBPATHS', '-L' + jerryext_path)
+        utils.define_environment('EXTRA_LIBS', '-ljerry-ext')
