@@ -1,22 +1,86 @@
 diff --git a/jerry-core/jmem/jmem-heap.c b/jerry-core/jmem/jmem-heap.c
-index f15ba90..680cc3a 100644
+index e7e9906..66ee491 100644
 --- a/jerry-core/jmem/jmem-heap.c
 +++ b/jerry-core/jmem/jmem-heap.c
-@@ -580,7 +580,7 @@ jmem_heap_stats_print (void)
+@@ -534,45 +534,45 @@ jmem_heap_stats_print (void)
  {
    jmem_heap_stats_t *heap_stats = &JERRY_CONTEXT (jmem_heap_stats);
  
--  JERRY_DEBUG_MSG ("Heap stats:\n"
-+  printf ("Heap stats:\n"
-                    "  Heap size = %zu bytes\n"
-                    "  Allocated = %zu bytes\n"
-                    "  Peak allocated = %zu bytes\n"
-@@ -608,7 +608,7 @@ jmem_heap_stats_print (void)
-                    heap_stats->property_bytes,
-                    heap_stats->peak_property_bytes);
+-  JERRY_DEBUG_MSG ("Heap stats:\n");
++  printf ("Heap stats:\n");
+ #ifndef JERRY_SYSTEM_ALLOCATOR
+-  JERRY_DEBUG_MSG ("  Heap size = %zu bytes\n",
+-                   heap_stats->size);
++  printf ("  Heap size = %zu bytes\n",
++          heap_stats->size);
+ #endif /* !JERRY_SYSTEM_ALLOCATOR */
+-  JERRY_DEBUG_MSG ("  Allocated = %zu bytes\n"
+-                   "  Peak allocated = %zu bytes\n"
+-                   "  Waste = %zu bytes\n"
+-                   "  Peak waste = %zu bytes\n"
+-                   "  Allocated byte code data = %zu bytes\n"
+-                   "  Peak allocated byte code data = %zu bytes\n"
+-                   "  Allocated string data = %zu bytes\n"
+-                   "  Peak allocated string data = %zu bytes\n"
+-                   "  Allocated object data = %zu bytes\n"
+-                   "  Peak allocated object data = %zu bytes\n"
+-                   "  Allocated property data = %zu bytes\n"
+-                   "  Peak allocated property data = %zu bytes\n",
+-                   heap_stats->allocated_bytes,
+-                   heap_stats->peak_allocated_bytes,
+-                   heap_stats->waste_bytes,
+-                   heap_stats->peak_waste_bytes,
+-                   heap_stats->byte_code_bytes,
+-                   heap_stats->peak_byte_code_bytes,
+-                   heap_stats->string_bytes,
+-                   heap_stats->peak_string_bytes,
+-                   heap_stats->object_bytes,
+-                   heap_stats->peak_object_bytes,
+-                   heap_stats->property_bytes,
+-                   heap_stats->peak_property_bytes);
++  printf ("  Allocated = %zu bytes\n"
++          "  Peak allocated = %zu bytes\n"
++          "  Waste = %zu bytes\n"
++          "  Peak waste = %zu bytes\n"
++          "  Allocated byte code data = %zu bytes\n"
++          "  Peak allocated byte code data = %zu bytes\n"
++          "  Allocated string data = %zu bytes\n"
++          "  Peak allocated string data = %zu bytes\n"
++          "  Allocated object data = %zu bytes\n"
++          "  Peak allocated object data = %zu bytes\n"
++          "  Allocated property data = %zu bytes\n"
++          "  Peak allocated property data = %zu bytes\n",
++          heap_stats->allocated_bytes,
++          heap_stats->peak_allocated_bytes,
++          heap_stats->waste_bytes,
++          heap_stats->peak_waste_bytes,
++          heap_stats->byte_code_bytes,
++          heap_stats->peak_byte_code_bytes,
++          heap_stats->string_bytes,
++          heap_stats->peak_string_bytes,
++          heap_stats->object_bytes,
++          heap_stats->peak_object_bytes,
++          heap_stats->property_bytes,
++          heap_stats->peak_property_bytes);
  #ifndef JERRY_SYSTEM_ALLOCATOR
 -  JERRY_DEBUG_MSG ("  Skip-ahead ratio = %zu.%04zu\n"
+-                   "  Average alloc iteration = %zu.%04zu\n"
+-                   "  Average free iteration = %zu.%04zu\n",
+-                   heap_stats->skip_count / heap_stats->nonskip_count,
+-                   heap_stats->skip_count % heap_stats->nonskip_count * 10000 / heap_stats->nonskip_count,
+-                   heap_stats->alloc_iter_count / heap_stats->alloc_count,
+-                   heap_stats->alloc_iter_count % heap_stats->alloc_count * 10000 / heap_stats->alloc_count,
+-                   heap_stats->free_iter_count / heap_stats->free_count,
+-                   heap_stats->free_iter_count % heap_stats->free_count * 10000 / heap_stats->free_count);
 +  printf ("  Skip-ahead ratio = %zu.%04zu\n"
-                    "  Average alloc iteration = %zu.%04zu\n"
-                    "  Average free iteration = %zu.%04zu\n",
-                    heap_stats->skip_count / heap_stats->nonskip_count,
++          "  Average alloc iteration = %zu.%04zu\n"
++          "  Average free iteration = %zu.%04zu\n",
++          heap_stats->skip_count / heap_stats->nonskip_count,
++          heap_stats->skip_count % heap_stats->nonskip_count * 10000 / heap_stats->nonskip_count,
++          heap_stats->alloc_iter_count / heap_stats->alloc_count,
++          heap_stats->alloc_iter_count % heap_stats->alloc_count * 10000 / heap_stats->alloc_count,
++          heap_stats->free_iter_count / heap_stats->free_count,
++          heap_stats->free_iter_count % heap_stats->free_count * 10000 / heap_stats->free_count);
+ #endif /* !JERRY_SYSTEM_ALLOCATOR */
+ } /* jmem_heap_stats_print */
+ 
