@@ -27,5 +27,6 @@ sudo apt-get install -y python-pip pylint pkg-config libssl-dev
 sudo apt-get install -y gcc-arm-linux-gnueabihf gcc-arm-linux-gnueabi
 sudo apt-get install -y binutils-arm-linux-gnueabi
 sudo apt-get install -y mosquitto
+sudo apt-get install -y autotools-dev automake
 
 sudo pip install paramiko pyserial pyrebase
