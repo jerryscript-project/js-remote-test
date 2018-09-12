@@ -27,8 +27,6 @@ def create_device(env):
     '''
     Create a device object for testing.
     '''
-    device = env['info']['device']
-
-    device_class = DEVICES[device]
+    device_class = DEVICES[env.options.device]
 
     return device_class(env)

@@ -23,7 +23,7 @@ class STM32F4Device(SerialDevice):
     Device of the STM32F4-Discovery target.
     '''
     def __init__(self, env):
-        self.stlink = env['modules']['stlink']
+        self.stlink = env.modules.stlink
 
         SerialDevice.__init__(self, env, 'nuttx', 'nsh> ')
 
@@ -31,11 +31,11 @@ class STM32F4Device(SerialDevice):
         '''
         Flash the device.
         '''
-        if self.env['info']['no_flash']:
+        if self.env.options.no_flash:
             return
 
-        stlink = self.env['modules']['stlink']
-        nuttx = self.env['modules']['nuttx']
+        stlink = self.env.modules.stlink
+        nuttx = self.env.modules.nuttx
 
         flash_flags = ['write', nuttx['paths']['image'], '0x8000000']
 
@@ -45,10 +45,10 @@ class STM32F4Device(SerialDevice):
         '''
         Reset the device to create clean environment.
         '''
-        if self.env['info']['emulate']:
+        if self.env.options.emulate:
             return
 
-        flasher = self.stlink['paths']['st-flash']
+        flasher = self.stlink.paths['st-flash']
 
         utils.execute('.', flasher, ['reset'], quiet=True)
         # Wait a moment to boot the device.

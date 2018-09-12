@@ -12,16 +12,15 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from jstest.common import utils
+
+from jstest.common import paths, utils
 
 
 def fetch_modules(env):
     '''
     Download all the required modules.
     '''
-    modules = env['modules']
-
-    for module in modules.values():
+    for module in env.modules.values():
         # Skip if the module is already exist.
         if utils.exists(module['src']):
             continue
@@ -38,9 +37,7 @@ def config_modules(env):
     '''
     Configure all the required modules.
     '''
-    modules = env['modules']
-
-    for module in modules.values():
+    for module in env.modules.values():
         for config in module.get('config', []):
             # Do not configure if the result of the condition is false.
             condition = config.get('condition', 'True')
@@ -55,9 +52,10 @@ def patch_modules(env, revert=False):
     '''
     Modify the source code of the required modules.
     '''
-    modules = env['modules']
+    if not env.options.patches:
+        return
 
-    for module in modules.values():
+    for module in env.modules.values():
         for patch in module.get('patches', []):
             # Do not patch if the result of the condition is false.
             condition = patch.get('condition', 'True')

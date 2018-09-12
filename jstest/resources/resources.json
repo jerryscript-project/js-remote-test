@@ -6,13 +6,13 @@
     "artik530": ["freya"]
   },
   "paths": {
-    "result": "%{result-path}/%{app}/%{device}",
-    "build": "%{build-path}/%{app}/%{device}/%{build-type}",
-    "build-json": "%{build-path}/%{app}/%{device}/%{build-type}/build.json",
-    "build-test": "%{build-path}/%{app}/%{device}/%{build-type}/test",
-    "build-target": "%{build-path}/%{app}/%{device}/%{build-type}/profiles/target",
-    "build-minimal": "%{build-path}/%{app}/%{device}/%{build-type}/profiles/minimal",
-    "tizen-rpm-package": "%{home}/GBS-ROOT/local/repos/tizen_unified_m1/armv7l/RPMS/%{app}-1.0.0-0.armv7l.rpm"
+    "result": "%{result-path}/%{appname}/%{device}",
+    "build": "%{build-path}/%{appname}/%{device}/%{build-type}",
+    "build-json": "%{build-path}/%{appname}/%{device}/%{build-type}/build.json",
+    "build-test": "%{build-path}/%{appname}/%{device}/%{build-type}/test",
+    "build-target": "%{build-path}/%{appname}/%{device}/%{build-type}/profiles/target",
+    "build-minimal": "%{build-path}/%{appname}/%{device}/%{build-type}/profiles/minimal",
+    "tizen-rpm-package": "%{home}/GBS-ROOT/local/repos/tizen_unified_m1/armv7l/RPMS/%{appname}-1.0.0-0.armv7l.rpm"
   },
   "modules": {
     "stlink": {
@@ -37,24 +37,34 @@
       },
       "config": [
         {
-          "condition": "'%{app}' == 'jerryscript'",
+          "condition": "'%{appname}' == 'iotjs'",
+          "src": "%{iotjs}/test",
+          "dst": "%{tizenrt}/tools/fs/contents/"
+        },
+        {
+          "condition": "'%{appname}' == 'jerryscript'",
+          "src": "%{jerryscript}/tests/jerry",
+          "dst": "%{tizenrt}/tools/fs/contents/"
+        },
+        {
+          "condition": "'%{appname}' == 'jerryscript'",
           "src": "%{jerryscript}/targets/tizenrt-artik053/apps/jerryscript/",
           "dst": "%{tizenrt}/apps/system/jerryscript/"
         },
         {
-          "condition": "'%{app}' == 'jerryscript'",
+          "condition": "'%{appname}' == 'jerryscript'",
           "src": "%{config}/tizenrt-artik053/jerryscript/",
           "dst": "%{tizenrt}/build/configs/artik053/jerryscript/"
         },
         {
-          "src": "%{config}/tizenrt-%{app}-%{build-type}.config",
-          "dst": "%{tizenrt}/build/configs/artik053/%{app}/defconfig"
+          "src": "%{config}/tizenrt-%{appname}-%{build-type}.config",
+          "dst": "%{tizenrt}/build/configs/artik053/%{appname}/defconfig"
         }
       ],
       "patches": [
         { "file": "%{patches}/tizenrt-openocd.diff", "revert": false},
         {
-          "condition": "'%{app}' == 'iotjs' and %{coverage}",
+          "condition": "'%{appname}' == 'iotjs' and %{coverage}",
           "file": "%{patches}/tizenrt-coverage.diff"
         }
       ]
@@ -73,12 +83,12 @@
       ],
       "config": [
         {
-          "condition": "'%{app}' == 'iotjs'",
+          "condition": "'%{appname}' == 'iotjs'",
           "src": "%{config}/nuttx-iotjs-%{communication}.config",
           "dst": "%{nuttx}/configs/stm32f4discovery/usbnsh/defconfig"
         },
         {
-          "condition": "'%{app}' == 'jerryscript'",
+          "condition": "'%{appname}' == 'jerryscript'",
           "src": "%{config}/nuttx-jerryscript-%{communication}.config",
           "dst": "%{nuttx}/configs/stm32f4discovery/usbnsh/defconfig"
         }
@@ -93,12 +103,12 @@
       },
       "config": [
         {
-          "condition": "'%{app}' == 'iotjs'",
+          "condition": "'%{appname}' == 'iotjs'",
           "src": "%{iotjs}/config/nuttx/stm32f4dis/app/",
           "dst": "%{nuttx-apps}/system/iotjs/"
         },
         {
-          "condition": "'%{app}' == 'jerryscript'",
+          "condition": "'%{appname}' == 'jerryscript'",
           "src": "%{jerryscript}/targets/nuttx-stm32f4/",
           "dst": "%{nuttx-apps}/interpreters/jerryscript/"
         }

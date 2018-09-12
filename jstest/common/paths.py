@@ -27,7 +27,7 @@ PROJECT_ROOT = os.path.abspath(ROOT_FOLDER)
 # ================================
 #
 
-API_PATH = os.path.join(PROJECT_ROOT, 'jstest')
+JSTEST_PATH = os.path.join(PROJECT_ROOT, 'jstest')
 
 BUILD_PATH = os.path.join(PROJECT_ROOT, 'build')
 
@@ -37,7 +37,15 @@ RESULT_PATH = os.path.join(PROJECT_ROOT, 'results')
 # ================================
 #
 
-RESOURCES_PATH = os.path.join(API_PATH, 'resources')
+RUNNABLE_JOBS = os.path.join(JSTEST_PATH, 'runnable.jobs')
+
+BUILDER_MODULES_PATH = os.path.join(JSTEST_PATH, 'builder', 'modules')
+
+#
+# ================================
+#
+
+RESOURCES_PATH = os.path.join(JSTEST_PATH, 'resources')
 
 RESOURCES_JSON = os.path.join(RESOURCES_PATH, 'resources.json')
 
@@ -55,7 +63,7 @@ SIMPLE_TESTER = os.path.join(RESOURCES_PATH, 'etc', 'simpletester.py')
 # ================================
 #
 
-TESTRUNNER_PATH = os.path.join(API_PATH, 'testrunner')
+TESTRUNNER_PATH = os.path.join(JSTEST_PATH, 'testrunner')
 
 #
 # ================================

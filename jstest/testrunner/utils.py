@@ -17,68 +17,8 @@ import json
 import os
 import re
 import time
-import pyrebase
 
 from jstest.common import console, paths, utils
-
-
-def upload_data_to_firebase(env, test_info):
-    '''
-    Upload the results of the testrunner to the Firebase database.
-    '''
-    info = env['info']
-
-    if not info['public']:
-        return
-
-    email = utils.get_environment('FIREBASE_USER')
-    password = utils.get_environment('FIREBASE_PWD')
-
-    if not (email and password):
-        return
-
-    config = {
-        'apiKey': 'AIzaSyDMgyPr0V49Rdf5ODAU9nLY02ZGEUNoxiM',
-        'authDomain': 'remote-testrunner.firebaseapp.com',
-        'databaseURL': 'https://remote-testrunner.firebaseio.com',
-        'storageBucket': 'remote-testrunner.appspot.com',
-    }
-
-    firebase = pyrebase.initialize_app(config)
-    database = firebase.database()
-    authentication = firebase.auth()
-
-    user = authentication.sign_in_with_email_and_password(email, password)
-
-    if env['info']['coverage']:
-        # Identify the place where the data should be stored.
-        database_path = 'coverage/%s/%s' % (info['app'], info['device'])
-        database.child(database_path).remove(user['idToken'])
-    else:
-        database_path = '%s/%s' % (info['app'], info['device'])
-
-    database.child(database_path).push(test_info, user['idToken'])
-
-    if env['info']['coverage']:
-        return
-
-    # Update the status images.
-    status = 'passed'
-    for test in test_info['tests']:
-        if test['result'] in ['fail', 'timeout']:
-            status = 'failed'
-            break
-
-    # The storage service allows to upload images to Firebase.
-    storage = firebase.storage()
-    # Download the corresponding status badge.
-    storage_status_path = 'status/%s.svg' % status
-    storage.child(storage_status_path).download('status.svg')
-    # Upload the status badge for the appropriate app-device pair.
-    storage_badge_path = 'status/%s/%s.svg' % (info['app'], info['device'])
-    storage.child(storage_badge_path).put('status.svg', user['idToken'])
-
-    utils.remove_file('status.svg')
 
 
 def read_test_files(env):
@@ -88,8 +28,8 @@ def read_test_files(env):
     '''
     testsets = {}
     # Read all the tests from the application.
-    app = env['modules']['app']
-    testpath = app['paths']['tests']
+    app = env.modules.app
+    testpath = app.paths.tests
 
     for root, _, files in os.walk(testpath):
         # The name of the testset is always the folder name.
@@ -118,8 +58,8 @@ def parse_coverage_info(env, coverage_output):
     '''
     coverage_info = {}
 
-    iotjs = env['modules']['iotjs']
-    js_folder = iotjs['paths']['js-sources']
+    iotjs = env.modules.iotjs
+    js_folder = iotjs.paths['js-sources']
 
     # Store line information from the JS sources.
     for js_file in os.listdir(js_folder):
@@ -219,11 +159,11 @@ def run_coverage_script(env):
     # Add latency because the start up of the debug server needs time.
     time.sleep(2)
 
-    address = env['info']['coverage']
-    iotjs = env['modules']['iotjs']
-    coverage_client = iotjs['paths']['coverage-client']
-    device = env['info']['device']
-    app_name = env['info']['app']
+    address = env.options.coverage
+    iotjs = env.modules.iotjs
+    coverage_client = iotjs.paths['coverage-client']
+    device = env.options.device
+    app_name = env.options.app
 
     commit_info = utils.last_commit_info(iotjs['src'])
     result_name = 'cov-%s-%s.json' % (commit_info['commit'], commit_info['date'])

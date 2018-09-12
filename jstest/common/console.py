@@ -35,6 +35,20 @@ def info(msg):
     print('%s%s%s' % (TERMINAL_GREEN, msg, TERMINAL_EMPTY))
 
 
+def warning(msg):
+    '''
+    Print debug message to the screen with yellow color.
+    '''
+    print('%s%s%s' % (TERMINAL_YELLOW, msg, TERMINAL_EMPTY))
+
+
+def error(msg):
+    '''
+    Print debug message to the screen with red color.
+    '''
+    print('%s%s%s' % (TERMINAL_RED, msg, TERMINAL_EMPTY))
+
+
 def fail(msg):
     '''
     Raises an error containing msg, which __main.py__ can catch and print out.

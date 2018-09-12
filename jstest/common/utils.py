@@ -14,11 +14,12 @@
 
 import json
 import os
+import re
 import shutil
 import subprocess
 import time
 
-from jstest.common import console, paths
+from jstest.common import console, paths, symbol_resolver
 
 
 class TimeoutException(Exception):
@@ -28,13 +29,25 @@ class TimeoutException(Exception):
     pass
 
 
-def execute(cwd, cmd, args=None, quiet=False, strict=True):
+def exec_builtin(cwd, cmd, args, env):
     '''
-    Run the given command.
+    Execute the built-in command.
     '''
-    if args is None:
-        args = []
+    # FIXME: resolve the circular dependencies between
+    # the common.utils and the common.builtins modules.
+    from jstest.common import builtins
 
+    builtin_func = builtins.get(cmd)
+    # FIXME: handle stdout and exitcode values.
+    builtin_func(cwd=cwd, args=args, env=env)
+
+    return '', 0
+
+
+def exec_shell(cwd, cmd, args, env, quiet, strict):
+    '''
+    Execute the shell command.
+    '''
     stdout = None
     stderr = None
 
@@ -47,7 +60,7 @@ def execute(cwd, cmd, args=None, quiet=False, strict=True):
 
     try:
         process = subprocess.Popen([cmd] + args, stdout=stdout,
-                                   stderr=stderr, cwd=cwd)
+                                   stderr=stderr, cwd=cwd, env=env)
 
         output = process.communicate()[0]
         exitcode = process.returncode
@@ -59,6 +72,27 @@ def execute(cwd, cmd, args=None, quiet=False, strict=True):
 
     except Exception as e:
         console.fail('[Failed - %s %s] %s' % (cmd, ' '.join(args), str(e)))
+
+
+def execute(cwd, cmd, args=None, env=None, quiet=False, strict=True):
+    '''
+    Run the given command.
+    '''
+    if args is None:
+        args = []
+
+    if env is None:
+        env = {}
+
+    # Append the user defined variables to the system's one.
+    env = merge_dicts(env, os.environ.copy())
+
+    match = re.search(r'function\(([a-zA-Z_]+)\)', cmd)
+    # Check if native function is defined as a command.
+    if match:
+        return exec_builtin(cwd, match.group(1), args, env)
+
+    return exec_shell(cwd, cmd, args, env, quiet, strict)
 
 
 def print_command(cwd, cmd, args):
@@ -108,6 +142,44 @@ def patch(project, patch_file, revert=False):
             console.fail('Failed to revert ' + patch_file)
 
 
+def merge_dicts(a_dict, b_dict):
+    '''
+    A basic dictionary merge function.
+    '''
+    if not (a_dict and b_dict):
+        return a_dict or b_dict
+
+    result = {}
+
+    # Copy the A values into the result.
+    for a_key, a_value in a_dict.iteritems():
+        if a_key not in b_dict.keys():
+            result[a_key] = a_value
+
+    # Copy the B values into the result.
+    for b_key, b_value in b_dict.iteritems():
+        if b_key not in a_dict.keys():
+            result[b_key] = b_value
+
+    # Merge the common keys and copy them into the result.
+    for a_key, a_value in a_dict.iteritems():
+        if a_key not in b_dict.keys():
+            continue
+
+        b_value = b_dict[a_key]
+        # Merge the values by their type.
+        if isinstance(a_value, dict):
+            result[a_key] = merge_dicts(a_value, b_value)
+
+        elif isinstance(a_value, list):
+            result[a_key] = a_value + b_value
+
+        else:
+            result[a_key] = a_value
+
+    return result
+
+
 def write_json_file(filename, data):
     '''
     Write a JSON file from the given data.
@@ -127,6 +199,15 @@ def read_json_file(filename):
     '''
     with open(filename, 'r') as json_file:
         return json.load(json_file)
+
+
+def read_config_file(filename, env):
+    '''
+    Read JSON based configuration file.
+    '''
+    config = read_json_file(filename)
+
+    return symbol_resolver.resolve(config, env)
 
 
 def copy(src, dst):
@@ -191,7 +272,7 @@ def get_environment(env):
     '''
     Get environment value.
     '''
-    return os.environ.get(env)
+    return os.environ.get(env, '')
 
 
 def unset_environment(env):
@@ -310,7 +391,7 @@ def last_commit_info(gitpath):
     return info
 
 
-def current_date(date_format):
+def current_date(date_format='%Y-%m-%d_%H.%M.%S'):
     '''
     Format the current datetime by the given pattern.
     '''

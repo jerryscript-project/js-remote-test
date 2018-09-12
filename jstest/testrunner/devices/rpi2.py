@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from jstest.common import utils, paths
+from jstest.common import utils
 from jstest.testrunner.devices.ssh_device import SSHDevice
 
 class RPi2Device(SSHDevice):
@@ -26,18 +26,12 @@ class RPi2Device(SSHDevice):
         '''
         Flash the device.
         '''
-        # 1. Call initialize from the super class to copy necessary files.
-        if not SSHDevice.initialize(self):
-            return
-
-        if not self.env['info']['no_memstat']:
-            # Copy Freya memory measurement files.
-            utils.copy(paths.FREYA_CONFIG, self._build_path)
-
+        if not self.env.options.no_memstat:
             # Resolve the iotjs-dirname macro in the Freya configuration file.
-            basename = utils.basename(self._target_app['src'])
+            basename = utils.basename(self.env.modules.app['src'])
+
             sed_flags = ['-i', 's/%%{iotjs-dirname}/%s/g' % basename, 'iotjs-freya.config']
-            utils.execute(self._build_path, 'sed', sed_flags)
+            utils.execute(self.env.paths.builddir, 'sed', sed_flags)
 
         # 2. Deploy the build folder to the device.
         self._deploy_to_device()

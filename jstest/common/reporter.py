@@ -41,22 +41,20 @@ def report_skip(test, reason):
 
 
 def report_configuration(env):
-    info = env['info']
-
     console.log()
     console.log('Test configuration:')
-    console.log('  app:                %s' % info['app'])
-    console.log('  device:             %s' % info['device'])
-    console.log('  timeout:            %s sec' % info['timeout'])
+    console.log('  app:                %s' % env.options.app)
+    console.log('  device:             %s' % env.options.device)
+    console.log('  timeout:            %s sec' % env.options.timeout)
 
-    if info['device'] in ['rpi2', 'artik530']:
-        console.log('  ip:                 %s' % info['ip'])
-        console.log('  port:               %s' % info['port'])
-        console.log('  username:           %s' % info['username'])
-        console.log('  remote workdir:     %s' % info['remote_workdir'])
-    elif info['device'] in ['stm32f4dis', 'artik053']:
-        console.log('  device-id:          %s' % info['device_id'])
-        console.log('  baud:               %d' % info['baud'])
+    if env.options.device in ['rpi2', 'artik530']:
+        console.log('  ip:                 %s' % env.options.ip)
+        console.log('  port:               %s' % env.options.port)
+        console.log('  username:           %s' % env.options.username)
+        console.log('  remote workdir:     %s' % env.options.remote_workdir)
+    elif env.options.device in ['stm32f4dis', 'artik053']:
+        console.log('  device-id:          %s' % env.options.device_id)
+        console.log('  baud:               %d' % env.options.baud)
 
 
 def report_final(testresults):

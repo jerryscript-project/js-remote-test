@@ -22,14 +22,14 @@ def read_testsets(env):
     '''
     Read all the tests into dictionary.
     '''
-    application = env['modules']['app']
+    application = env.modules.app
 
     # Since JerryScript doesn't have testset descriptor file,
     # simply read the file contents from the test folder.
     if application['name'] == 'jerryscript':
         testsets = testrunner_utils.read_test_files(env)
     else:
-        testsets = utils.read_json_file(application['paths']['testfiles'])
+        testsets = utils.read_json_file(application.paths['testfiles'])
 
     return testsets
 
@@ -40,6 +40,10 @@ class TestRunner(object):
     '''
     def __init__(self, environment):
         self.env = environment
+
+        # Do not initialize the members if testing is not enabled.
+        if environment.options.no_test:
+            return
 
         self.device = devices.create_device(environment)
         self.results = []
@@ -55,7 +59,7 @@ class TestRunner(object):
         '''
         Main method to run IoT.js or JerryScript tests.
         '''
-        if self.env['info']['no_test']:
+        if self.env.options.no_test:
             return
 
         reporter.report_configuration(self.env)
@@ -63,13 +67,12 @@ class TestRunner(object):
         for testset, tests in read_testsets(self.env).items():
             self.run_testset(testset, tests)
 
-
-        if self.env['info']['coverage']:
-            device = self.env['info']['device']
-            app_name = self.env['info']['app']
+        if self.env.options.coverage:
+            device = self.env.options.device
+            app_name = self.env.options.app
 
             if device in ['artik053', 'artik530', 'rpi2'] and app_name == 'iotjs':
-                iotjs = self.env['modules']['iotjs']
+                iotjs = self.env.modules.iotjs
                 commit_info = utils.last_commit_info(iotjs['src'])
                 result_name = 'cov-%s-%s.json' % (commit_info['commit'], commit_info['date'])
                 result_dir = utils.join(paths.RESULT_PATH, '%s/%s/' % (app_name, device))
@@ -135,33 +138,19 @@ class TestRunner(object):
         '''
         Save the current testresults into JSON format.
         '''
-        if self.env['info']['no_test']:
+        if self.env.options.no_test:
             return
 
-        build_file = self.env['paths']['build-json']
-        build_info = utils.read_json_file(build_file)
-
-        # Add the build information.
-        test_info = {
-                'date': build_info['last-commit-date'],
-                'bin': build_info['bin'],
-                'submodules': build_info['submodules']
-        }
-
+        results = {}
         # Specify a date named results file.
-        result_dir = self.env['paths']['result']
-        filename = utils.join(result_dir, build_info['build-date'])
+        filename = utils.join(self.env.paths.builddir, 'testresults.json')
 
-        if self.env['info']['coverage']:
-            # Add the coverage information.
-            test_info['coverage_info'] = self.coverage_info
+        if self.env.options.coverage:
+            results['coverage_info'] = self.coverage_info
             filename += '_coverage'
+
         else:
-            # Add the test results.
-            test_info['tests'] = self.results
+            results['tests'] = self.results
 
         # Save the results into the date named file.
-        utils.write_json_file(filename + '.json', test_info)
-
-        # Publish the results if necessary.
-        testrunner_utils.upload_data_to_firebase(self.env, test_info)
+        utils.write_json_file(filename, results)

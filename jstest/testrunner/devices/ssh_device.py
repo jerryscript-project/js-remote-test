@@ -15,7 +15,7 @@
 import json
 from threading import Thread
 
-from jstest.common import console, utils, paths
+from jstest.common import console, utils
 from jstest.testrunner.devices.device_base import RemoteDevice
 from jstest.testrunner.devices.connections.sshcom import SSHConnection
 from jstest.testrunner import utils as testrunner_utils
@@ -26,20 +26,20 @@ class SSHDevice(RemoteDevice):
     Common super class for ssh devices.
     '''
     def __init__(self, env, os):
-        self.user = env['info']['username']
-        self.ip = env['info']['ip']
-        self.port = env['info']['port']
+        self.user = env.options.username
+        self.ip = env.options.ip
+        self.port = env.options.port
         RemoteDevice.__init__(self, env, os)
 
         data = {
             'username': self.user,
             'ip': self.ip,
             'port': self.port,
-            'timeout': env['info']['timeout']
+            'timeout': env.options.timeout
         }
 
         self.channel = SSHConnection(data)
-        self.workdir = env['info']['remote_workdir']
+        self.workdir = env.options.remote_workdir
 
     def check_args(self):
         '''
@@ -55,31 +55,6 @@ class SSHDevice(RemoteDevice):
         if self.workdir == '/':
             console.fail('Please do not use the root folder as test folder.')
 
-    def initialize(self):
-        '''
-        Flash the device.
-        '''
-        if self.env['info']['no_flash']:
-            return False
-
-        # 1. Copy all the necessary files.
-        self._target_app = self.env['modules']['app']
-        self._build_path = self.env['paths']['build']
-
-        test_src = self._target_app['paths']['tests']
-        test_dst = utils.join(self._build_path, 'tests')
-
-        if self.device == 'artik530':
-            rpm_package_path = self.env['paths']['tizen-rpm-package']
-            utils.copy(rpm_package_path, self._build_path)
-
-        # Copy all the tests into the build folder.
-        utils.copy(test_src, test_dst)
-
-        utils.copy(paths.FREYA_TESTER, self._build_path)
-
-        return True
-
     def _deploy_to_device(self):
         '''
         Deploy the build folder to the device.
@@ -89,7 +64,7 @@ class SSHDevice(RemoteDevice):
         # Note: slash character is required after the path.
         # In this case `rsync` copies the whole folder, not
         # the subcontents to the destination.
-        src = self.env['paths']['build'] + '/'
+        src = self.env.paths.builddir + '/'
         dst = '%s@%s:%s' % (self.user, self.ip, self.workdir)
 
         utils.execute('.', 'rsync', rsync_flags + [src, dst])
@@ -120,11 +95,11 @@ class SSHDevice(RemoteDevice):
             iotjs = '%s/iotjs' % self.workdir
             command = template % (self.workdir, testdir, iotjs, testfile)
 
-        if self.env['info']['no_memstat']:
+        if self.env.options.no_memstat:
             command += ' --no-memstat'
 
-        if self.env['info']['coverage'] and self.app == 'iotjs':
-            port = testrunner_utils.read_port_from_url(self.env['info']['coverage'])
+        if self.env.options.coverage and self.app == 'iotjs':
+            port = testrunner_utils.read_port_from_url(self.env.options.coverage)
             command += ' --coverage-port %s' % port
 
             # Start the client script on a different thread for coverage.

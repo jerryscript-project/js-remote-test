@@ -33,22 +33,9 @@ def create_build_info(env):
     '''
     Write binary size and commit information into a file.
     '''
-    app_name = env['info']['app']
-    build_path = env['paths']['build']
-
-    # Binary size information.
-    minimal_builddir = env['paths']['build-minimal']
-    target_builddir = env['paths']['build-target']
-
-    bin_sizes = {
-        'minimal-profile': calculate_section_sizes(minimal_builddir),
-        'target-profile': calculate_section_sizes(target_builddir)
-    }
-
-    # Git commit information from the projects.
     submodules = {}
 
-    for name, module in env['modules'].iteritems():
+    for name, module in env.modules.iteritems():
         # Don't duplicate the application information.
         if name == 'app':
             continue
@@ -58,28 +45,12 @@ def create_build_info(env):
     # Merge the collected values into a result object.
     build_info = {
         'build-date': utils.current_date('%Y-%m-%dT%H.%M.%SZ'),
-        'last-commit-date': submodules[app_name]['date'],
-        'bin': bin_sizes,
+        'last-commit-date': submodules[env.options.app]['date'],
+        'bin': calculate_section_sizes(env.paths.builddir),
         'submodules': submodules
     }
 
-    utils.write_json_file(utils.join(build_path, 'build.json'), build_info)
-
-
-def generate_romfs(src, dst):
-    '''
-    Create a romfs_img from the source directory that is
-    converted to a header (byte array) file. Finally, add
-    a `const` modifier to the byte array to be the data
-    in the Read Only Memory.
-    '''
-    romfs_img = utils.join(os.curdir, 'romfs_img')
-
-    utils.execute(os.curdir, 'genromfs', ['-f', romfs_img, '-d', src])
-    utils.execute(os.curdir, 'xxd', ['-i', 'romfs_img', dst])
-    utils.execute(os.curdir, 'sed', ['-i', 's/unsigned/const\ unsigned/g', dst])
-
-    os.remove(romfs_img)
+    utils.write_json_file(utils.join(env.paths.builddir, 'build.json'), build_info)
 
 
 def calculate_section_sizes(builddir):

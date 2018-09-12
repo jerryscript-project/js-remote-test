@@ -24,7 +24,7 @@ class ARTIK053Device(SerialDevice):
     Device of the ARTIK053 target.
     '''
     def __init__(self, env):
-        self.tizenrt = env['modules']['tizenrt']
+        self.tizenrt = env.modules.tizenrt
 
         SerialDevice.__init__(self, env, 'tizenrt', 'TASH>>')
 
@@ -32,22 +32,21 @@ class ARTIK053Device(SerialDevice):
         '''
         Flash the device.
         '''
-        if self.env['info']['no_flash']:
+        if self.env.options.no_flash:
             return
 
-        tizenrt = self.env['modules']['tizenrt']
-        utils.execute(tizenrt['paths']['os'], 'make', ['download', 'ALL'])
+        utils.execute(self.tizenrt.paths.os, 'make', ['download', 'ALL'])
 
     def reset(self):
         '''
         Reset the device to create clean environment.
         '''
-        if self.env['info']['emulate']:
+        if self.env.options.emulate:
             return
 
         flags = ['download', 'reset']
 
-        utils.execute(self.tizenrt['paths']['os'], 'make', flags, quiet=True)
+        utils.execute(self.tizenrt.paths.os, 'make', flags, quiet=True)
         # Wait a moment to boot the device.
         time.sleep(2)
 
@@ -63,7 +62,7 @@ class ARTIK053Device(SerialDevice):
         self.channel.putc(command[self.app])
         self.channel.readline()
 
-        if self.env['info']['coverage'] and self.app == 'iotjs':
+        if self.env.options.coverage and self.app == 'iotjs':
             # Start the client script on a different thread for coverage.
             client_thread = Thread(target=testrunner_utils.run_coverage_script,
                                    kwargs={'env': self.env})

@@ -26,25 +26,25 @@ class SerialDevice(RemoteDevice):
         RemoteDevice.__init__(self, env, os)
 
         data = {
-            'timeout': env['info']['timeout'],
+            'timeout': env.options.timeout,
             'prompt': prompt
         }
 
-        if env['info']['ip']:
+        if env.options.ip:
             # FIXME: In this case there is no need for serial connection.
             # So, the SerialDevice is a misleading class name for STM32F4-DISCOVERY
-            data['ip'] = env['info']['ip']
+            data['ip'] = env.options.ip
             self.channel = TelnetConnection(data)
         else:
-            data['dev-id'] = env['info']['device_id']
-            data['baud'] = env['info']['baud']
+            data['dev-id'] = env.options.device_id
+            data['baud'] = env.options.baud
             self.channel = SerialConnection(data)
 
     def check_args(self):
         '''
         Check that all the arguments are established.
         '''
-        if not self.env['info']['device_id']:
+        if not self.env.options.device_id:
             console.fail('Please use the --device-id to select the device.')
 
     def reset(self):
@@ -72,13 +72,14 @@ class SerialDevice(RemoteDevice):
         testfile = '/test/%s/%s' % (testset, test['name'])
 
         args = []
-        if not self.env['info']['no_memstat']:
+        if not self.env.options.no_memstat:
             args = ['--mem-stats']
 
-        if self.device == 'artik053' and self.env['info']['coverage']:
-            args.append('--start-debug-server')
-            port = testrunner_utils.read_port_from_url(self.env['info']['coverage'])
+        if self.env.options.coverage and self.device == 'artik053':
+            port = testrunner_utils.read_port_from_url(self.env.options.coverage)
+
             args.append('--debug-port %s' % port)
+            args.append('--start-debug-server')
 
         command = {
             'iotjs': 'iotjs %s %s' % (' '.join(args), testfile),

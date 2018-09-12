@@ -26,17 +26,12 @@ class ARTIK530Device(SSHDevice):
         '''
         Flash the device.
         '''
-        # 1. Call initialize from the super class to copy necessary files.
-        if not SSHDevice.initialize(self):
-            return
-
-        if not self.env['info']['no_memstat']:
-            utils.copy(paths.FREYA_CONFIG, self._build_path)
-
+        if not self.env.options.no_memstat:
             # Resolve the iotjs-dirname macro in the Freya configuration file.
             basename = utils.basename(paths.GBS_IOTJS_PATH)
+
             sed_flags = ['-i', 's/%%{iotjs-dirname}/%s/g' % basename, 'iotjs-freya.config']
-            utils.execute(self._build_path, 'sed', sed_flags)
+            utils.execute(self.env.paths.builddir, 'sed', sed_flags)
 
         # 2. Deploy the build folder to the device.
         self.login()

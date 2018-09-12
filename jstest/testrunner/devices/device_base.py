@@ -24,9 +24,9 @@ class RemoteDevice(object):
     '''
     def __init__(self, env, os):
         self.env = env
-        self.app = env['info']['app']
-        self.device = env['info']['device']
-        self.workdir = env['info']['remote_workdir']
+        self.app = env.options.app
+        self.device = env.options.device
+        self.workdir = env.options.remote_workdir
         self.channel = None
         self.os = os
 
@@ -36,7 +36,7 @@ class RemoteDevice(object):
         '''
         Check that all the arguments are established.
         '''
-        if self.env['info']['emulate']:
+        if self.env.options.emulate:
             return
 
         if self.device not in ['rpi2', 'artik530', 'artik053', 'stm32f4dis']:

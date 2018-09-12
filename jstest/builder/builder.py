@@ -12,117 +12,146 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from abc import ABCMeta, abstractmethod
-
 from jstest import resources
-from jstest.common import utils
+from jstest.common import utils, paths
 from jstest.builder import utils as builder_utils
 
 
-class BuilderBase(object):
+def init_modules(modules):
     '''
-    This class holds all the common properties of the targets.
+    Execute all the init commands that the modules define.
     '''
-    __metaclass__ = ABCMeta
+    for build_info in modules.values():
+        for command in build_info.get('init', []):
+            exec_cmd(command)
 
+
+def build_modules(modules, builddir):
+    '''
+    Build all the modules and save the artifacts.
+    '''
+    # FIXME: remove the sorted function that helps to
+    # build iotjs and jerryscript before NuttX.
+    for _, build_info in sorted(modules.iteritems()):
+        exec_cmd(build_info.get('build'))
+
+        for artifact in build_info.get('artifacts', []):
+            # Do not copy the artifact if not necessary.
+            if 'dst' not in artifact:
+                continue
+
+            src = artifact.get('src')
+            dst = artifact.get('dst')
+
+            utils.copy(src, utils.join(builddir, dst))
+
+
+def exec_cmd(command):
+    '''
+    Run the command defined in the build.config file.
+    '''
+    cwd = command.get('cwd', '.')
+    cmd = command.get('cmd', '')
+    args = command.get('args', [])
+    env = command.get('env', {})
+
+    # Update the arguments and the env variables with
+    # the values under the condition-options.
+    for option in command.get('conditional-options', []):
+        if not eval(option.get('condition')):
+            continue
+
+        args.extend(option.get('args', []))
+        env = utils.merge_dicts(env, option.get('env', {}))
+
+    # Convert array values to string to be real env values.
+    for key, value in env.iteritems():
+        env[key] = ' '.join(value)
+
+    utils.execute(cwd, cmd, args=args, env=env)
+
+
+class Builder(object):
+    '''
+    A basic builder class to build all the required modules.
+    '''
     def __init__(self, env):
-        # Get all the information about of the modules.
         self.env = env
+        self.device = env.options.device
+        self.build_dir = env.paths.builddir
 
-        # Download all the projects.
-        resources.fetch_modules(self.env)
-        resources.config_modules(self.env)
-
-    @abstractmethod
-    def _build(self, profile, builddir, use_extra_flags=False):
-        '''
-        Dummy function.
-        '''
-        pass
-
-    @abstractmethod
-    def _build_iotjs(self, profile, extra_flags):
-        '''
-        Dummy function.
-        '''
-        pass
-
-    @abstractmethod
-    def _build_jerryscript(self, profile, extra_flags):
-        '''
-        Dummy function.
-        '''
-        pass
-
-    def create_profile_builds(self):
-        '''
-        Build IoT.js and JerryScript on different profiles.
-
-        Note: this step is only for binary size measurement.
-        '''
-        info = self.env['info']
-        paths = self.env['paths']
-
-        if info['no_build'] or info['no_profile_build']:
+        # Do not initialize the modules if the build is disabled.
+        if env.options.no_build:
             return
 
-        self._build('minimal', paths['build-minimal'])
-        self._build('target', paths['build-target'])
+        # Fetch and configure the modules before build.
+        resources.fetch_modules(env)
+        resources.config_modules(env)
+        resources.patch_modules(env)
 
+    def build(self):
+        '''
+        Public method to build the module by the given build_info object.
+        '''
+        if self.env.options.no_build:
+            return
+
+        modules = self.read_modules()
+
+        init_modules(modules)
+        build_modules(modules, self.build_dir)
+
+        # Create build information.
         builder_utils.create_build_info(self.env)
-
-    def create_test_build(self):
-        '''
-        Build IoT.js and JerryScript on different profiles.
-        '''
-        info = self.env['info']
-        paths = self.env['paths']
-
-        if info['no_build']:
-            return
-
-        # Apply patches.
-        resources.patch_modules(self.env)
-
-        self._build('target', paths['build'], use_extra_flags=True)
-
-        # Clean up the patches.
+        # Revert all the patches from the projects.
         resources.patch_modules(self.env, revert=True)
 
-    def _build_application(self, profile, use_extra_flags):
+    def should_build(self, build_info):
         '''
-        Build IoT.js or JerryScript applications.
+        Test weather a component should be built or not.
         '''
-        application = self.env['modules']['app']
-        device = self.env['info']['device']
+        condition = build_info.get('build-condition', 'True')
 
-        builders = {
-            'iotjs': self._build_iotjs,
-            'jerryscript': self._build_jerryscript
-        }
+        if not eval(condition):
+            return False
 
-        extra_flags = []
-        # Append extra-flags that are defined in the resources.json file.
-        if use_extra_flags:
-            if not self.env['info']['no_memstat']:
-                extra_flags = application['extra-build-flags'][device]
+        # Always build the projects that don't have 'build-once' marker.
+        if 'build-once' not in build_info:
+            return True
 
-            if self.env['info']['coverage']:
-                extra_flags.append('--jerry-debugger')
-                extra_flags.append('--no-snapshot')
+        build_info = build_info[self.device]
+        # Some projects don't require to build them over-and-over again.
+        # e.g. Freya, ST-Link. In their case, just check if the project
+        # has already built.
+        for artifact in build_info.get('artifacts', []):
+            src = artifact.get('src', '')
+            dst = artifact.get('dst', '')
 
-        builder = builders.get(application['name'])
-        builder(profile, extra_flags)
+            # If dst is provided, check that first. If it doesn't, it's
+            # enough just check the src.
+            if dst and not utils.exists(utils.join(self.build_dir, dst)):
+                return True
 
-    def _copy_build_files(self, target_module, builddir):
+            if not dst and not utils.exists(src):
+                return True
+
+        return False
+
+    def read_modules(self):
         '''
-        Copy the created binaries, libs, linker map to the build folder.
+        Collect buildable modules and their build instructions.
         '''
-        application = self.env['modules']['app']
+        modules = {}
 
-        linker_map = utils.join(builddir, 'linker.map')
-        lib_folder = utils.join(builddir, 'libs')
+        for name in self.env.modules:
+            filename = utils.join(paths.BUILDER_MODULES_PATH, '%s.build.config' % name)
+            # Skip modules that don't have configuration file (e.g. nuttx-apps).
+            if not utils.exists(filename):
+                continue
 
-        utils.copy(application['paths']['libdir'], lib_folder)
-        utils.copy(target_module['paths']['linker-map'], linker_map)
-        utils.copy(target_module['paths']['image'], builddir)
+            build_info = utils.read_config_file(filename, self.env)
+            # Check if the project is alredy built.
+            if self.should_build(build_info):
+                modules[name] = build_info[self.device]
+
+        return modules

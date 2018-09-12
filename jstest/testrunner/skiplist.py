@@ -21,8 +21,8 @@ class Skiplist(object):
     '''
     def __init__(self, env, device):
         self.device = device
-        self.app = env['info']['app']
-        self.device_type = env['info']['device']
+        self.app = env.options.app
+        self.device_type = env.options.device
 
         if self.app == 'iotjs':
             buildinfo = self.device.iotjs_build_info()

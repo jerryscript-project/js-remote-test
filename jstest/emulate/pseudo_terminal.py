@@ -26,19 +26,26 @@ def open_pseudo_terminal(device):
         'stm32f4dis': 'nsh> ',
         'artik053': 'TASH>>'
     }
+
     master, slave = pty.openpty()
     thread = threading.Thread(target=_listener, args=[master, prompts[device]])
+    thread.daemon = True
     thread.start()
 
     return os.ttyname(slave)
 
 
-def close_pseudo_terminal(env):
+def close_pseudo_terminal(options):
     '''
     Close the pseudo terminal.
     '''
-    ser = serial.Serial(port=env['info']['device_id'], baudrate=env['info']['baud'],
-                        timeout=env['info']['timeout'])
+    if not (options.emulate and os.path.exists(options.device_id)):
+        return
+
+    ser = serial.Serial(port=options.device_id,
+                        baudrate=options.baud,
+                        timeout=options.timeout)
+
     ser.write('kill_thread\n')
     ser.close()
 

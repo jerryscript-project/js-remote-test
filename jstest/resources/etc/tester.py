@@ -56,21 +56,22 @@ def check_tools(options):
     '''
     Checking resources before testing.
     '''
-    if not options.no_memstat and not is_executable(FREYA_BIN):
-        sys.exit('The Freya tool is not suitable for testing!')
+    if options.cmd.endswith('iotjs'):
+        if not options.no_memstat and not is_executable(FREYA_BIN):
+            sys.exit('The Freya tool is not suitable for testing!')
 
-    if not options.no_memstat and not is_readable(FREYA_CONFIG):
-        sys.exit('The Freya config file is not available!')
+        if not options.no_memstat and not is_readable(FREYA_CONFIG):
+            sys.exit('The Freya config file is not available!')
+
+        # Remove the last Freya log file.
+        if os.path.exists(FREYA_LOG):
+            os.remove(FREYA_LOG)
 
     if not is_executable(options.cmd):
         sys.exit('The application is not suitable for testing!')
 
     if not is_readable(options.testfile):
         sys.exit('Testfile is not readable!')
-
-    # Remove the last Freya log file.
-#    if not options.no_memstat and os.path.exists(FREYA_LOG):
-        os.remove(FREYA_LOG)
 
 
 def execute(cwd, cmd, args=None):

@@ -15,9 +15,13 @@
 # limitations under the License.
 
 import argparse
-import os
+import atexit
+import sys
 
 import jstest
+from jstest import Builder, TestResult, TestRunner
+from jstest import paths, pseudo_terminal, utils
+
 
 def parse_options():
     '''
@@ -129,23 +133,38 @@ def adjust_options(options):
     '''
     Adjust some of the command line arguments.
     '''
+    if options.device == 'artik530' and options.app == 'jerryscript':
+        jstest.console.warning('JerryScript is not supported for Tizen.')
+        options.no_build = True
+        options.no_flash = True
+        options.no_test = True
+
     if options.emulate:
         options.no_flash = True
 
         if options.device in ['rpi2', 'artik530']:
             options.no_test = True
+
         else:
-            options.device_id = jstest.emulate.pseudo_terminal.open_pseudo_terminal(options.device)
+            options.device_id = pseudo_terminal.open_pseudo_terminal(options.device)
+            atexit.register(pseudo_terminal.close_pseudo_terminal, options)
 
     if options.coverage:
         if options.app != 'iotjs':
-            print('Warning! Coverage measurement is only supported with IoT.js!')
+            jstest.console.warning('Coverage measurement is only supported with IoT.js!')
             options.coverage = None
+
         elif options.buildtype != 'debug':
-            print('Warning! Coverage measurement is only supported with debug build type!')
+            jstest.console.warning('Coverage measurement is only supported with debug build type!')
             # Overwrite the buildtype option to debug.
             # In IoT.js the code is minimized in release mode, which will mess up the line numbers.
             options.buildtype = 'debug'
+
+    if options.quiet:
+        utils.define_environment('QUIET', 1)
+
+        if utils.get_environment('VERBOSE'):
+            jstest.console.warning('--quiet option disables VERBOSE output!')
 
     return options
 
@@ -154,39 +173,30 @@ def main():
     '''
     Main function of the remote testrunner.
     '''
-    options = adjust_options(parse_options())
-
-    # Get an environment object that holds all the necessary
-    # information for the build and the test.
-    env = jstest.load_testing_environment(options)
-
-    if env['info']['quiet']:
-        os.environ['QUIET'] = '1'
-
-    if os.environ.get('VERBOSE', '') and env['info']['quiet']:
-        print('\n\033[1;33mWarning: --quiet option disables VERBOSE output!\033[0m\n')
+    user_options = adjust_options(parse_options())
+    testresult = TestResult(user_options)
 
     try:
-        # Initialize the testing environment by building all the
-        # required modules to be ready to run tests.
-        builder = jstest.builder.create(env)
-        builder.create_profile_builds()
-        builder.create_test_build()
+        # Execute all the jobs defined in the runnalble.jobs file.
+        for job_options in utils.read_json_file(paths.RUNNABLE_JOBS):
+            env = jstest.create_testing_environment(user_options, job_options)
 
-        # Run all the tests.
-        # FIXME this will have to remain in an if block until
-        # dummy devices are created for the Travis jobs.
-        if not env['info']['no_test']:
-            testrunner = jstest.testrunner.TestRunner(env)
+            builder = Builder(env)
+            builder.build()
+
+            testrunner = TestRunner(env)
             testrunner.run()
             testrunner.save()
-            if env['info']['emulate']:
-                jstest.emulate.pseudo_terminal.close_pseudo_terminal(env)
+
+            testresult.append(env.options.id, env.paths.builddir)
+        # Upload all the results to the Firebase database.
+        testresult.upload()
+
     except (Exception, KeyboardInterrupt) as e:
-        jstest.console.log('[Failed] %s' % (str(e)), jstest.console.TERMINAL_RED)
-    finally:
-        # Revert patches if an error occured.
         jstest.resources.patch_modules(env, revert=True)
+        jstest.console.error('[%s] %s' % (type(e).__name__, str(e)))
+
+        sys.exit(1)
 
 
 if __name__ == '__main__':
