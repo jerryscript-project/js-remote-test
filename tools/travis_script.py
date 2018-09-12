@@ -20,6 +20,7 @@ import argparse
 import os
 import subprocess
 
+
 TRAVIS_BUILD_PATH = os.environ['TRAVIS_BUILD_DIR']
 
 DOCKER_IMAGE_NAME = 'iotjs/js_remote_test:0.4'
@@ -37,17 +38,20 @@ COMMON_ARGS = ['--emulate', '--no-memstat', '--quiet']
 
 DEVICES = ['rpi2', 'artik530', 'artik053', 'stm32f4dis']
 
+
 def parse_option():
-    parser = argparse.ArgumentParser(
-         description='JS-remote-test Travis script.')
+    '''
+    Parse the given options.
+    '''
+    parser = argparse.ArgumentParser(description='JS-remote-test Travis script.')
 
     parser.add_argument('--check-signoff', action='store_true')
     parser.add_argument('--check-pylint', action='store_true')
     parser.add_argument('--device', choices=DEVICES, action='append')
     parser.add_argument('--app', choices=['iotjs', 'jerryscript'], action='append')
 
-    option = parser.parse_args()
-    return option
+    return parser.parse_args()
+
 
 def build_app(option):
     '''
@@ -62,22 +66,38 @@ def build_app(option):
     exec_docker(release_command)
     exec_docker(debug_command)
 
+
 def run_docker():
     '''
     Create the Docker container where we will run the builds.
     '''
-    subprocess.call(['docker', 'run', '-dit', '--privileged',
-                                '--name', DOCKER_NAME,
-                                '-v', '%s:%s' % (TRAVIS_BUILD_PATH, DOCKER_JSREMOTE_PATH),
-                                '--env', 'PYTHONPATH=%s:$PYTHONPATH' % DOCKER_JSREMOTE_PATH,
-                                DOCKER_IMAGE_NAME])
+    exec_command('docker', ['run', '-dit', '--privileged', '--name', DOCKER_NAME,
+                            '-v', '%s:%s' % (TRAVIS_BUILD_PATH, DOCKER_JSREMOTE_PATH),
+                            '--env', 'PYTHONPATH=%s:$PYTHONPATH' % DOCKER_JSREMOTE_PATH,
+                            DOCKER_IMAGE_NAME])
+
+
+def exec_command(cmd, args):
+    '''
+    Execute the given command.
+    '''
+    if not args:
+        args = []
+
+    exitcode = subprocess.call([cmd] + args)
+
+    if exitcode != 0:
+        print('[Failed - %s] %s %s', exitcode, cmd, ' '.join(args))
+        exit(1)
+
 
 def exec_docker(cmd):
     '''
     Execute the given command in Docker.
     '''
     exec_cmd = ' '.join(cmd)
-    subprocess.call(['docker', 'exec', '-it', DOCKER_NAME, '/bin/bash', '-c', exec_cmd])
+    exec_command('docker', ['exec', '-it', DOCKER_NAME, '/bin/bash', '-c', exec_cmd])
+
 
 def main():
     option = parse_option()
@@ -86,14 +106,15 @@ def main():
         args = []
         if os.getenv('TRAVIS') is not None:
             args = ['--travis']
-        subprocess.call(['tools/check_signed_off.sh'] + args)
+        exec_command('tools/check_signed_off.sh', args)
 
     if option.check_pylint:
-        subprocess.call(['python', 'tools/check_pylint.py'])
+        exec_command('python', ['tools/check_pylint.py'])
 
     if option.app and option.device:
         run_docker()
         build_app(option)
+
 
 if __name__ == "__main__":
     main()
