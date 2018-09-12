@@ -1,5 +1,5 @@
 diff --git a/src/platform/tizenrt/iotjs_main_tizenrt.c b/src/platform/tizenrt/iotjs_main_tizenrt.c
-index 00b7b58..e9a921e 100644
+index 00b7b58..a985705 100644
 --- a/src/platform/tizenrt/iotjs_main_tizenrt.c
 +++ b/src/platform/tizenrt/iotjs_main_tizenrt.c
 @@ -80,6 +80,7 @@ void jerryx_port_handler_print_char(char c) { /**< the character to print */
@@ -50,7 +50,7 @@ index 00b7b58..e9a921e 100644
 +
 +  /* Run IoT.js */
    int ret = iotjs_entry(arg->argc, arg->argv);
-   printf("IoT.js Result: %d\n", ret);
+-  printf("IoT.js Result: %d\n", ret);
 -#else
 -  iotjs_entry(arg->argc, arg->argv);
 -#endif
@@ -65,6 +65,7 @@ index 00b7b58..e9a921e 100644
 +  }
 +
 +  printf ("Stack usage: %d\n", (int) (base - (unsigned long)stack_p));
++  printf("IoT.js Result: %d\n", ret);
 +
    sleep(1);
    return NULL;
