@@ -26,7 +26,7 @@ def init_modules(modules):
             exec_cmd(command)
 
 
-def build_modules(modules, builddir):
+def build_modules(modules):
     '''
     Build all the modules and save the artifacts.
     '''
@@ -35,8 +35,14 @@ def build_modules(modules, builddir):
     for _, build_info in sorted(modules.iteritems()):
         exec_cmd(build_info.get('build'))
 
+
+def save_artifacts(modules, builddir):
+    '''
+    Copy the created files (libs, linker.map, ...) into the build folder.
+    '''
+    for _, build_info in modules.iteritems():
+        # Do not copy the artifact if not necessary.
         for artifact in build_info.get('artifacts', []):
-            # Do not copy the artifact if not necessary.
             if 'dst' not in artifact:
                 continue
 
@@ -99,7 +105,8 @@ class Builder(object):
         modules = self.read_modules()
 
         init_modules(modules)
-        build_modules(modules, self.build_dir)
+        build_modules(modules)
+        save_artifacts(modules, self.build_dir)
 
         # Create build information.
         builder_utils.create_build_info(self.env)
