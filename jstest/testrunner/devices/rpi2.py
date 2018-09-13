@@ -26,7 +26,7 @@ class RPi2Device(SSHDevice):
         '''
         Flash the device.
         '''
-        if not self.env.options.no_memstat:
+        if not self.env.options.no_memstat and self.env.options.app == 'iotjs':
             # Resolve the iotjs-dirname macro in the Freya configuration file.
             basename = utils.basename(self.env.modules.app['src'])
 
