@@ -95,6 +95,36 @@ def execute(cwd, cmd, args=None, env=None, quiet=False, strict=True):
     return exec_shell(cwd, cmd, args, env, quiet, strict)
 
 
+def execute_config_command(command):
+    '''
+    Run the command defined in the build.config file.
+    '''
+    condition = command.get('condition', 'True')
+
+    if not eval(condition):
+        return
+
+    cwd = command.get('cwd', '.')
+    cmd = command.get('cmd', '')
+    args = command.get('args', [])
+    env = command.get('env', {})
+
+    # Update the arguments and the env variables with
+    # the values under the condition-options.
+    for option in command.get('conditional-options', []):
+        if not eval(option.get('condition')):
+            continue
+
+        args.extend(option.get('args', []))
+        env = merge_dicts(env, option.get('env', {}))
+
+    # Convert array values to string to be real env values.
+    for key, value in env.iteritems():
+        env[key] = ' '.join(value)
+
+    execute(cwd, cmd, args=args, env=env)
+
+
 def print_command(cwd, cmd, args):
     '''
     Helper function to print commands.

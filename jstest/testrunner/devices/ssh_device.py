@@ -15,7 +15,7 @@
 import json
 from threading import Thread
 
-from jstest.common import console, utils
+from jstest.common import console
 from jstest.testrunner.devices.device_base import RemoteDevice
 from jstest.testrunner.devices.connections.sshcom import SSHConnection
 from jstest.testrunner import utils as testrunner_utils
@@ -54,20 +54,6 @@ class SSHDevice(RemoteDevice):
 
         if self.workdir == '/':
             console.fail('Please do not use the root folder as test folder.')
-
-    def _deploy_to_device(self):
-        '''
-        Deploy the build folder to the device.
-        '''
-        shell_flags = 'ssh -p %s' % self.port
-        rsync_flags = ['--rsh', shell_flags, '--recursive', '--compress', '--delete']
-        # Note: slash character is required after the path.
-        # In this case `rsync` copies the whole folder, not
-        # the subcontents to the destination.
-        src = self.env.paths.builddir + '/'
-        dst = '%s@%s:%s' % (self.user, self.ip, self.workdir)
-
-        utils.execute('.', 'rsync', rsync_flags + [src, dst])
 
     def execute(self, testset, test):
         '''

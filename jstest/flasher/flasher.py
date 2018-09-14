@@ -12,11 +12,22 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from jstest.testrunner.devices.ssh_device import SSHDevice
+from jstest.common import utils, paths
 
-class ARTIK530Device(SSHDevice):
+
+def flash(env):
     '''
-    Device of the ARTIK530 target.
+    Flash the device.
     '''
-    def __init__(self, env):
-        SSHDevice.__init__(self, env, 'tizen')
+    if env.options.no_flash:
+        return
+
+    config = utils.read_config_file(paths.FLASH_CONFIG_FILE, env)
+    # Get the device specific flash instructions.
+    flash_info = config[env.options.device]
+
+    # Do the initialization steps.
+    for command in flash_info.get('init', []):
+        utils.execute_config_command(command)
+    # Flash the device.
+    utils.execute_config_command(flash_info.get('flash'))

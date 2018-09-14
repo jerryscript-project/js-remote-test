@@ -41,6 +41,8 @@ RUNNABLE_JOBS = os.path.join(JSTEST_PATH, 'runnable.jobs')
 
 BUILDER_MODULES_PATH = os.path.join(JSTEST_PATH, 'builder', 'modules')
 
+FLASH_CONFIG_FILE = os.path.join(JSTEST_PATH, 'flasher', 'flash.config')
+
 #
 # ================================
 #

@@ -23,7 +23,7 @@ def init_modules(modules):
     '''
     for build_info in modules.values():
         for command in build_info.get('init', []):
-            exec_cmd(command)
+            utils.execute_config_command(command)
 
 
 def build_modules(modules):
@@ -33,10 +33,10 @@ def build_modules(modules):
     # FIXME: remove the sorted function that helps to
     # build iotjs and jerryscript before NuttX.
     for _, build_info in sorted(modules.iteritems()):
-        exec_cmd(build_info.get('build'))
+        utils.execute_config_command(build_info.get('build'))
 
 
-def save_artifacts(modules, builddir):
+def save_artifacts(modules):
     '''
     Copy the created files (libs, linker.map, ...) into the build folder.
     '''
@@ -49,32 +49,7 @@ def save_artifacts(modules, builddir):
             src = artifact.get('src')
             dst = artifact.get('dst')
 
-            utils.copy(src, utils.join(builddir, dst))
-
-
-def exec_cmd(command):
-    '''
-    Run the command defined in the build.config file.
-    '''
-    cwd = command.get('cwd', '.')
-    cmd = command.get('cmd', '')
-    args = command.get('args', [])
-    env = command.get('env', {})
-
-    # Update the arguments and the env variables with
-    # the values under the condition-options.
-    for option in command.get('conditional-options', []):
-        if not eval(option.get('condition')):
-            continue
-
-        args.extend(option.get('args', []))
-        env = utils.merge_dicts(env, option.get('env', {}))
-
-    # Convert array values to string to be real env values.
-    for key, value in env.iteritems():
-        env[key] = ' '.join(value)
-
-    utils.execute(cwd, cmd, args=args, env=env)
+            utils.copy(src, dst)
 
 
 class Builder(object):
@@ -84,7 +59,6 @@ class Builder(object):
     def __init__(self, env):
         self.env = env
         self.device = env.options.device
-        self.build_dir = env.paths.builddir
 
         # Do not initialize the modules if the build is disabled.
         if env.options.no_build:
@@ -106,7 +80,7 @@ class Builder(object):
 
         init_modules(modules)
         build_modules(modules)
-        save_artifacts(modules, self.build_dir)
+        save_artifacts(modules)
 
         # Create build information.
         builder_utils.create_build_info(self.env)
@@ -136,7 +110,7 @@ class Builder(object):
 
             # If dst is provided, check that first. If it doesn't, it's
             # enough just check the src.
-            if dst and not utils.exists(utils.join(self.build_dir, dst)):
+            if dst and not utils.exists(dst):
                 return True
 
             if not dst and not utils.exists(src):

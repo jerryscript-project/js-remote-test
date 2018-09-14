@@ -15,6 +15,7 @@
 from jstest.builder.builder import Builder
 from jstest.common import console, paths, symbol_resolver, utils
 from jstest.emulate import pseudo_terminal
+from jstest.flasher import flasher
 from jstest.testresult import TestResult
 from jstest.testrunner.testrunner import TestRunner
 

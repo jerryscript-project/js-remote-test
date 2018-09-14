@@ -28,15 +28,6 @@ class ARTIK053Device(SerialDevice):
 
         SerialDevice.__init__(self, env, 'tizenrt', 'TASH>>')
 
-    def initialize(self):
-        '''
-        Flash the device.
-        '''
-        if self.env.options.no_flash:
-            return
-
-        utils.execute(self.tizenrt.paths.os, 'make', ['download', 'ALL'])
-
     def reset(self):
         '''
         Reset the device to create clean environment.
@@ -44,9 +35,7 @@ class ARTIK053Device(SerialDevice):
         if self.env.options.emulate:
             return
 
-        flags = ['download', 'reset']
-
-        utils.execute(self.tizenrt.paths.os, 'make', flags, quiet=True)
+        utils.execute(self.tizenrt.paths.os, 'make', ['download', 'reset'], quiet=True)
         # Wait a moment to boot the device.
         time.sleep(2)
 

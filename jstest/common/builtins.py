@@ -72,11 +72,35 @@ def print_message(**params):
     console.log(params['args'][0])
 
 
+def init_freya_config(**params):
+    '''
+    Resolve the %{iotjs-dirname} symbol in the Freya configuration file.
+    '''
+    iotjs_src = params['args'][0]
+    build_dir = params['args'][1]
+
+    pattern = 's/%%{iotjs-dirname}/%s/g' % utils.basename(iotjs_src)
+
+    utils.execute(build_dir, 'sed', ['-i', pattern, 'iotjs-freya.config'])
+
+
+def mount_fs_writable(**params):
+    '''
+    Remount the file system as writable.
+    '''
+    addr = params['args'][0]
+    port = params['args'][1]
+
+    utils.execute('.', 'ssh', [addr, '-p %s' % port, 'mount -o remount,rw /'])
+
+
 NATIVES = {
   'print': print_message,
   'genromfs': genromfs,
   'config_internet': config_internet,
-  'push_environment': push_environment
+  'push_environment': push_environment,
+  'init_freya_config': init_freya_config,
+  'mount_fs_writable': mount_fs_writable
 }
 
 

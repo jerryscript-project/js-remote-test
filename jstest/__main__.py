@@ -20,7 +20,7 @@ import sys
 
 import jstest
 from jstest import Builder, TestResult, TestRunner
-from jstest import paths, pseudo_terminal, utils
+from jstest import flasher, paths, pseudo_terminal, utils
 
 
 def parse_options():
@@ -183,6 +183,8 @@ def main():
 
             builder = Builder(env)
             builder.build()
+
+            flasher.flash(env)
 
             testrunner = TestRunner(env)
             testrunner.run()
