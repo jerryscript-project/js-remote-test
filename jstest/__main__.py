@@ -17,6 +17,7 @@
 import argparse
 import atexit
 import sys
+import traceback
 
 import jstest
 from jstest import Builder, TestResult, TestRunner
@@ -197,6 +198,7 @@ def main():
     except (Exception, KeyboardInterrupt) as e:
         jstest.resources.patch_modules(env, revert=True)
         jstest.console.error('[%s] %s' % (type(e).__name__, str(e)))
+        traceback.print_exc()
 
         sys.exit(1)
 
