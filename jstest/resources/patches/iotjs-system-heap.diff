@@ -1,8 +1,8 @@
 diff --git a/src/iotjs.c b/src/iotjs.c
-index ef2be53..0720ec6 100644
+index 5a93eb7..4a5a8bd 100644
 --- a/src/iotjs.c
 +++ b/src/iotjs.c
-@@ -246,6 +246,9 @@ terminate:
+@@ -242,6 +242,9 @@ terminate:
    iotjs_terminate(env);
  
  exit:
@@ -13,7 +13,7 @@ index ef2be53..0720ec6 100644
        iotjs_environment_config(env)->debugger->context_reset) {
      iotjs_environment_release();
 diff --git a/src/iotjs_util.c b/src/iotjs_util.c
-index abd7a86..453d597 100644
+index abd7a86..cc6b4e3 100644
 --- a/src/iotjs_util.c
 +++ b/src/iotjs_util.c
 @@ -75,12 +75,76 @@ iotjs_string_t iotjs_file_read(const char* path) {
@@ -93,7 +93,7 @@ index abd7a86..453d597 100644
    return buffer;
  }
  
-@@ -99,16 +163,30 @@ char* iotjs_buffer_allocate_from_number_array(size_t size,
+@@ -99,17 +163,31 @@ char* iotjs_buffer_allocate_from_number_array(size_t size,
  
  char* iotjs_buffer_reallocate(char* buffer, size_t size) {
    IOTJS_ASSERT(buffer != NULL);
@@ -117,15 +117,16 @@ index abd7a86..453d597 100644
  
  
  void iotjs_buffer_release(char* buffer) {
-+  size_t size;
-+  memcpy(&size, (buffer - SIZEOF_MM_ALLOCNODE), sizeof(size_t));
-+  mem_stat_free(size - SIZEOF_MM_ALLOCNODE);
-+
    if (buffer) {
++    size_t size;
++    memcpy(&size, (buffer - SIZEOF_MM_ALLOCNODE), sizeof(size_t));
++    mem_stat_free(size - SIZEOF_MM_ALLOCNODE);
++
      free(buffer);
    }
+ }
 diff --git a/src/iotjs_util.h b/src/iotjs_util.h
-index adccee2..318d6bd 100644
+index a891604..786830e 100644
 --- a/src/iotjs_util.h
 +++ b/src/iotjs_util.h
 @@ -23,6 +23,10 @@
