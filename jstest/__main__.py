@@ -21,7 +21,7 @@ import traceback
 
 import jstest
 from jstest import Builder, TestResult, TestRunner
-from jstest import flasher, paths, pseudo_terminal, utils
+from jstest import flasher, paths, pseudo_terminal, twisted_server, utils
 
 
 def parse_options():
@@ -83,11 +83,18 @@ def parse_options():
                         action='store_true', default=False,
                         help='display less verbose output')
 
+    parser.add_argument('--emulate',
+                       default=False, action='store_true',
+                       help='emulate the connection')
+
     group = parser.add_argument_group("Secure Shell communication")
 
     group.add_argument('--username',
                        metavar='USER',
-                       help='specify the username to login to the device.')
+                       help='specify the username to login to the device')
+
+    group.add_argument('--password',
+                       help='specify the password to login to the device')
 
     group.add_argument('--ip',
                        metavar='IPADDR',
@@ -111,9 +118,6 @@ def parse_options():
                        type=int, default=115200,
                        help='specify the baud rate (default: %(default)s)')
 
-    group.add_argument('--emulate',
-                       default=False, action='store_true',
-                       help='Emulate the serial connection.')
 
     group = parser.add_argument_group("Telnet communication")
 
@@ -144,7 +148,14 @@ def adjust_options(options):
         options.no_flash = True
 
         if options.device in ['rpi2', 'artik530']:
-            options.no_test = True
+            options.username = 'js-remote-test'
+            options.password = 'jerry'
+            options.ip = '127.0.0.1'
+            options.port = 2022
+            options.remote_workdir = 'emulated_workdir'
+            options.sshclient_no_exec_command = True
+            twisted_server.run()
+            atexit.register(twisted_server.stop)
 
         else:
             options.device_id = pseudo_terminal.open_pseudo_terminal(options.device)

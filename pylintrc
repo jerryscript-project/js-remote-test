@@ -107,3 +107,10 @@ expected-line-ending-format=LF
 
 # List of note tags to take in consideration, separated by a comma.
 notes=FIXME, TODO
+
+
+[TYPECHECK]
+
+# List of classes names for which member attributes should not be checked
+# (useful for classes with attributes dynamically set).
+ignored-classes=twisted.internet.reactor

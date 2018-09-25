@@ -33,9 +33,11 @@ class SSHDevice(RemoteDevice):
 
         data = {
             'username': self.user,
+            'password': env.options.password,
             'ip': self.ip,
             'port': self.port,
-            'timeout': env.options.timeout
+            'timeout': env.options.timeout,
+            '_no_exec_command': hasattr(env.options, 'sshclient_no_exec_command')
         }
 
         self.channel = SSHConnection(data)

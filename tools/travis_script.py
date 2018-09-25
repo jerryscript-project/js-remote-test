@@ -23,7 +23,7 @@ import subprocess
 
 TRAVIS_BUILD_PATH = os.environ['TRAVIS_BUILD_DIR']
 
-DOCKER_IMAGE_NAME = 'iotjs/js_remote_test:0.4'
+DOCKER_IMAGE_NAME = 'iotjs/js_remote_test:0.5'
 DOCKER_NAME = 'jsremote_docker'
 DOCKER_ROOT_PATH = '/root'
 

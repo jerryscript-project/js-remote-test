@@ -29,4 +29,4 @@ sudo apt-get install -y binutils-arm-linux-gnueabi
 sudo apt-get install -y mosquitto
 sudo apt-get install -y autotools-dev automake
 
-sudo pip install paramiko pyserial pyrebase
+sudo pip install paramiko pyserial pyrebase twisted
