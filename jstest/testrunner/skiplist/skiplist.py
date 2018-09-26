@@ -85,7 +85,7 @@ class Skiplist(object):
            'jerryscript': 'jerryscript-skiplist.json'
         }
 
-        skipfile = utils.join(paths.TESTRUNNER_PATH, skiplists[self.app])
+        skipfile = utils.join(paths.SKIPLIST_PATH, skiplists[self.app])
         skiplist = utils.read_json_file(skipfile)
 
         return skiplist[self.device_type]

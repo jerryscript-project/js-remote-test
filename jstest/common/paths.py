@@ -67,6 +67,8 @@ SIMPLE_TESTER = os.path.join(RESOURCES_PATH, 'etc', 'simpletester.py')
 
 TESTRUNNER_PATH = os.path.join(JSTEST_PATH, 'testrunner')
 
+SKIPLIST_PATH = os.path.join(TESTRUNNER_PATH, 'skiplist')
+
 #
 # ================================
 #

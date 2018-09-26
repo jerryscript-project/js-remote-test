@@ -15,7 +15,7 @@
 from jstest.common import paths, reporter, utils
 from jstest.testrunner import utils as testrunner_utils
 from jstest.testrunner import devices
-from jstest.testrunner.skiplist import Skiplist
+from jstest.testrunner.skiplist.skiplist import Skiplist
 
 
 def read_testsets(env):
