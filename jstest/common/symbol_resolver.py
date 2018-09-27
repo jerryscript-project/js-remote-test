@@ -118,7 +118,8 @@ def resolve_symbol(symbol, env):
         'coverage': bool(env.options.coverage),
         'minimal-profile-build': 'minimal-profile-build' in env.options.id,
         'test-build': 'test-build' in env.options.id,
-        'build-dir': env.paths.builddir
+        'build-dir': env.paths.builddir,
+        'testsuite': env.modules.app.paths.tests
     }
 
     return symbol_table.get(symbol, None)

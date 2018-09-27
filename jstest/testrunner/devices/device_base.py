@@ -15,7 +15,7 @@
 import json
 import time
 
-from jstest.common import console
+from jstest.common import console, utils
 from jstest.testrunner import utils as testrunner_utils
 
 class RemoteDevice(object):
@@ -62,6 +62,9 @@ class RemoteDevice(object):
         '''
         Get buildinfo from iotjs.
         '''
+        if not utils.exist_files(self.env.modules.app.paths.tests, ['testsets.json']):
+            return set(), set(), 'stable'
+
         if self.device in ['rpi2', 'artik530']:
             iotjs = '%s/iotjs' % self.workdir
             buildinfo = '%s/tests/tools/iotjs_build_info.js' % self.workdir

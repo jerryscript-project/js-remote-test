@@ -22,16 +22,12 @@ def read_testsets(env):
     '''
     Read all the tests into dictionary.
     '''
-    application = env.modules.app
+    testset = utils.join(env.modules.app.paths.tests, 'testsets.json')
 
-    # Since JerryScript doesn't have testset descriptor file,
-    # simply read the file contents from the test folder.
-    if application['name'] == 'jerryscript':
-        testsets = testrunner_utils.read_test_files(env)
-    else:
-        testsets = utils.read_json_file(application.paths['testfiles'])
+    if utils.exists(testset):
+        return utils.read_json_file(testset)
 
-    return testsets
+    return testrunner_utils.read_test_files(env)
 
 
 class TestRunner(object):

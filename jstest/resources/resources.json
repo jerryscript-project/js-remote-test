@@ -37,13 +37,7 @@
       },
       "config": [
         {
-          "condition": "'%{appname}' == 'iotjs'",
-          "src": "%{iotjs}/test",
-          "dst": "%{tizenrt}/tools/fs/contents/"
-        },
-        {
-          "condition": "'%{appname}' == 'jerryscript'",
-          "src": "%{jerryscript}/tests/jerry",
+          "src": "%{testsuite}",
           "dst": "%{tizenrt}/tools/fs/contents/"
         },
         {

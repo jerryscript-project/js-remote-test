@@ -86,6 +86,9 @@ def create_testing_environment(user_options, job_options):
     if options.app_path:
         modules[options.app].src = options.app_path
 
+    if options.testsuite:
+        modules[options.app].paths.tests = options.testsuite
+
     # Add an 'app' named module that is just a reference
     # to the user defined target application.
     modules.app = modules[options.app]

@@ -87,6 +87,10 @@ def parse_options():
                        default=False, action='store_true',
                        help='emulate the connection')
 
+    parser.add_argument('--testsuite',
+                        metavar='TEST_SUITE_PATH',
+                        help='specify the path to user-owned tests')
+
     group = parser.add_argument_group("Secure Shell communication")
 
     group.add_argument('--username',
