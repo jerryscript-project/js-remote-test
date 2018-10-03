@@ -25,7 +25,10 @@ _LIBLIST = [
     'libjerry-ext.a',
     'libjerry-port-default.a',
     'libjerry-port-default-minimal.a',
-    'libtuv.a'
+    'libtuv.a',
+    'libmbedx509.a',
+    'libmbedcrypto.a',
+    'libmbedtls.a'
 ]
 
 
@@ -99,11 +102,11 @@ def read_objects_from_libs(libpath, liblist):
     '''
     objlist = []
 
-    for object_file in os.listdir(libpath):
-        if object_file not in liblist:
+    for lib_file in os.listdir(libpath):
+        if lib_file not in liblist:
             continue
 
-        output, _ = utils.execute(libpath, 'ar', ['t', object_file], quiet=True)
+        output, _ = utils.execute(libpath, 'ar', ['t', lib_file], quiet=True)
         objlist.extend(output.splitlines())
 
     return objlist
