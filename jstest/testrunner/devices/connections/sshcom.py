@@ -44,7 +44,7 @@ class SSHConnection(object):
         Open the ssh port.
         '''
         self.ssh.connect(hostname=self.ip, port=self.port, username=self.username,
-                         password=self.password, look_for_keys=bool(self.password))
+                         password=self.password, look_for_keys=not bool(self.password))
 
         if self._no_exec_command:
             self.chan = self.ssh.invoke_shell()
