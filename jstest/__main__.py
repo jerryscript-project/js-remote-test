@@ -157,8 +157,8 @@ def adjust_options(options):
             options.ip = '127.0.0.1'
             options.port = 2022
             options.remote_workdir = 'emulated_workdir'
-            options.sshclient_no_exec_command = True
-            twisted_server.run()
+
+            twisted_server.run(options.device)
             atexit.register(twisted_server.stop)
 
         else:

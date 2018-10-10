@@ -66,9 +66,11 @@ class RemoteDevice(object):
             return set(), set(), 'stable'
 
         if self.device in ['rpi2', 'artik530']:
+            tester_py = 'python %s/tester.py ' % self.workdir
             iotjs = '%s/iotjs' % self.workdir
             buildinfo = '%s/tests/tools/iotjs_build_info.js' % self.workdir
-            command = '%s %s' % (iotjs, buildinfo)
+            template = '%s --cwd %s --cmd %s --testfile %s --iotjs-build-info'
+            command = template % (tester_py, self.workdir, iotjs, buildinfo)
 
         elif self.device in ['artik053', 'stm32f4dis']:
             buildinfo = '/test/tools/iotjs_build_info.js'
@@ -91,7 +93,5 @@ class RemoteDevice(object):
         builtins = set(info['builtins'])
         features = set(info['features'])
         stability = info['stability']
-
-        self.logout()
 
         return builtins, features, stability

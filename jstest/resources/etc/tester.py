@@ -176,6 +176,9 @@ def run_iotjs(options):
     stack_peak = 'n/a'
     malloc_peak = 'n/a'
 
+    if options.iotjs_build_info:
+        return json.loads(output.split('\n')[0])
+
     if output.find('Heap stats:') != -1:
         # Process jerry-memstat output.
         match = re.search(r'Peak allocated = (\d+) bytes', str(output))
@@ -249,6 +252,10 @@ def parse_arguments():
     parser.add_argument('--no-memstat',
                         action='store_true', default=False,
                         help='do not measure memory statistics (default: %(default)s)')
+
+    parser.add_argument('--iotjs-build-info',
+                        action='store_true', default=False,
+                        help='Run the buildinfo script for iotjs')
 
     return parser.parse_args()
 

@@ -19,4 +19,5 @@ class ARTIK530Device(SSHDevice):
     Device of the ARTIK530 target.
     '''
     def __init__(self, env):
-        SSHDevice.__init__(self, env, 'tizen')
+        # Note: the PS1 prompt on the device has to have this ending.
+        SSHDevice.__init__(self, env, 'tizen', ':~>')

@@ -25,7 +25,7 @@ class SSHDevice(RemoteDevice):
     '''
     Common super class for ssh devices.
     '''
-    def __init__(self, env, os):
+    def __init__(self, env, os, prompt):
         self.user = env.options.username
         self.ip = env.options.ip
         self.port = env.options.port
@@ -37,11 +37,19 @@ class SSHDevice(RemoteDevice):
             'ip': self.ip,
             'port': self.port,
             'timeout': env.options.timeout,
-            '_no_exec_command': hasattr(env.options, 'sshclient_no_exec_command')
+            'prompt': prompt
         }
 
         self.channel = SSHConnection(data)
         self.workdir = env.options.remote_workdir
+
+        self.login()
+
+    def __del__(self):
+        '''
+        Destructor function.
+        '''
+        self.logout()
 
     def check_args(self):
         '''
@@ -64,8 +72,6 @@ class SSHDevice(RemoteDevice):
         FIXME: Remove the external tester.py to eliminate code duplications.
                Instead, this function should send commands to the device.
         '''
-        self.login()
-
         template = 'python %s/tester.py --cwd %s --cmd %s --testfile %s'
         # Absolute path to the test folder.
         testdir = '%s/tests' % self.workdir
@@ -97,12 +103,9 @@ class SSHDevice(RemoteDevice):
             client_thread.start()
 
         stdout = self.channel.exec_command(command)
-
         # Since the stdout is a JSON text, parse it.
         result = json.loads(stdout)
         # Make HTML friendly stdout.
         result['output'] = result['output'].rstrip('\n').replace('\n', '<br>')
-
-        self.logout()
 
         return result

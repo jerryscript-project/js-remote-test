@@ -19,4 +19,5 @@ class RPi2Device(SSHDevice):
     Device of the Raspberry Pi 2 target.
     '''
     def __init__(self, env):
-        SSHDevice.__init__(self, env, 'linux')
+        # Note: the PS1 prompt on the device has to have this ending.
+        SSHDevice.__init__(self, env, 'linux', ':~$')

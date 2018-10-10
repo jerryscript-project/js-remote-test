@@ -31,7 +31,15 @@ from twisted.conch.ssh.session import SSHSessionProcessProtocol, wrapProtocol
 class SimpleSession(SSHChannel):
     name = 'session'
 
-    # pylint: disable=invalid-name
+    @staticmethod
+    def set_prompt(prompt):
+        SimpleSession.prompt = prompt
+
+    #pylint: disable=invalid-name,unused-argument
+    def channelOpen(self, specificData):
+        self.write(SimpleSession.prompt)
+    #pylint: enable=unused-argument
+
     def dataReceived(self, data):
         cmd = str(data)
 
@@ -53,6 +61,7 @@ class SimpleSession(SSHChannel):
             }
 
         self.write(json.dumps(result) + '\r\n')
+        self.write(SimpleSession.prompt)
 
     # pylint: enable=invalid-name
     # pylint: disable=unused-argument
@@ -70,18 +79,22 @@ class SimpleSession(SSHChannel):
     # pylint: enable=unused-argument
 
 class SimpleRealm(object):
-    @staticmethod
     # pylint: disable=invalid-name,unused-argument
+    @staticmethod
     def requestAvatar(avatar_id, mind, *interfaces):
         user = ConchUser()
         user.channelLookup['session'] = SimpleSession
         return IConchUser, user, lambda: None
     # pylint: enable=invalid-name,unused-argument
 
-def run():
+def run(device):
     '''
     Run a threaded server.
     '''
+    prompts = {
+        'rpi2': ':~$',
+        'artik530': ':~>'
+    }
     this_dir = os.path.dirname(__file__)
     with open(os.path.join(this_dir, 'private.key')) as private_blob_file:
         private_blob = private_blob_file.read()
@@ -95,6 +108,7 @@ def run():
     factory.privateKeys = {'ssh-rsa': private_key}
     factory.publicKeys = {'ssh-rsa': public_key}
 
+    SimpleSession.set_prompt(prompts[device])
     factory.portal = Portal(SimpleRealm())
     factory.portal.registerChecker(FilePasswordDB(os.path.join(this_dir, 'ssh-passwords')))
 

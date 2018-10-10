@@ -28,9 +28,7 @@ class SSHConnection(object):
         self.ip = device_info['ip']
         self.port = device_info['port']
         self.timeout = device_info['timeout']
-        # FIXME: the exec_command method of paramiko.client.SSHClient cannot be used with the
-        # emulated ssh server.
-        self._no_exec_command = device_info['_no_exec_command']
+        self.prompt = device_info['prompt']
 
         # Note: add your SSH key to the known host file
         # to avoid getting password.
@@ -46,9 +44,8 @@ class SSHConnection(object):
         self.ssh.connect(hostname=self.ip, port=self.port, username=self.username,
                          password=self.password, look_for_keys=not bool(self.password))
 
-        if self._no_exec_command:
-            self.chan = self.ssh.invoke_shell()
-            self.chan_file = self.chan.makefile('r')
+        self.chan = self.ssh.invoke_shell()
+        self.read_until(self.prompt)
 
     def close(self):
         '''
@@ -60,20 +57,14 @@ class SSHConnection(object):
         '''
         Send command over the serial port.
         '''
+        self.chan.settimeout(self.timeout)
         try:
-            if self._no_exec_command:
-                self.send(cmd)
-                response = self.receive()
-
-            else:
-                _, stdout, _ = self.ssh.exec_command(cmd, timeout=self.timeout)
-
-                response = stdout.readline()
-
+            self.send(cmd)
+            data = self.read_until(self.prompt)
         except socket.timeout:
             raise TimeoutException
 
-        return response
+        return data
 
     def send(self, cmd):
         '''
@@ -81,11 +72,17 @@ class SSHConnection(object):
         '''
         self.chan.send(cmd + '\n')
 
-    def receive(self):
+    def read_until(self, expected):
         '''
-        Receive data from the ssh channel.
+        Receive data from the server until we get the expected pattern.
         '''
+        temp = ''
+        while expected not in temp:
+            temp += self.chan.recv(1)
+
+        temp = temp.split('\r\n')
         try:
-            return self.chan_file.readline().strip('\r\n')
-        except socket.timeout:
-            raise TimeoutException
+            temp.pop()
+            return temp[-1]
+        except IndexError:
+            pass
