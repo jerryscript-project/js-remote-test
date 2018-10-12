@@ -182,6 +182,9 @@ def adjust_options(options):
         if utils.get_environment('VERBOSE'):
             jstest.console.warning('--quiet option disables VERBOSE output!')
 
+    if options.testsuite:
+        options.testsuite = utils.abspath(options.testsuite)
+
     return options
 
 
