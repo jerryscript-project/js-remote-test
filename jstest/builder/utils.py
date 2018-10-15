@@ -89,7 +89,9 @@ def calculate_section_sizes(builddir):
             continue
 
         for entry in section['contents']:
-            if any(obj in entry['path'] for obj in objlist):
+            # The objects (from _LIBLIST) have to be at the end of the paths.
+            # E.g. /home/../libraries/libiotjs.a(iotjs.c.obj)
+            if any(entry['path'].endswith('(%s)' % obj) for obj in objlist):
                 section_sizes[section_name] += entry['size']
 
     return section_sizes

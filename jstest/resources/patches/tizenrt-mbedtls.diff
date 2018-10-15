@@ -1,0 +1,64 @@
+diff --git a/external/mbedtls/Makefile b/external/mbedtls/Makefile
+index 5e321e3..fb174a7 100644
+--- a/external/mbedtls/Makefile
++++ b/external/mbedtls/Makefile
+@@ -99,12 +99,12 @@ SRCS		= $(ASRCS) $(CSRCS)
+ OBJS		= $(AOBJS) $(COBJS)
+ 
+ ifeq ($(CONFIG_WINDOWS_NATIVE),y)
+-  BIN		= ..\libexternal$(LIBEXT)
++  BIN		= ..\libmbedtls$(LIBEXT)
+ else
+ ifeq ($(WINTOOL),y)
+-  BIN		= ..\\libexternal$(LIBEXT)
++  BIN		= ..\\libmbedtls$(LIBEXT)
+ else
+-  BIN		= ../libexternal$(LIBEXT)
++  BIN		= ../libmbedtls$(LIBEXT)
+ endif
+ endif
+ 
+diff --git a/os/FlatLibs.mk b/os/FlatLibs.mk
+index 00c6716..de0ec9c 100644
+--- a/os/FlatLibs.mk
++++ b/os/FlatLibs.mk
+@@ -88,6 +88,10 @@ endif
+ 
+ TINYARALIBS += $(LIBRARIES_DIR)$(DELIM)libexternal$(LIBEXT)
+ 
++# Add library for mbedtls support.
++
++TINYARALIBS += $(LIBRARIES_DIR)$(DELIM)libmbedtls$(LIBEXT)
++
+ # Add libraries for network support
+ 
+ ifeq ($(CONFIG_NET),y)
+diff --git a/os/LibTargets.mk b/os/LibTargets.mk
+index ccb5d2c..95be375 100644
+--- a/os/LibTargets.mk
++++ b/os/LibTargets.mk
+@@ -178,6 +178,12 @@ $(EXTDIR)$(DELIM)libexternal$(LIBEXT): context
+ $(LIBRARIES_DIR)$(DELIM)libexternal$(LIBEXT): $(EXTDIR)$(DELIM)libexternal$(LIBEXT)
+ 	$(Q) install $(EXTDIR)$(DELIM)libexternal$(LIBEXT) $(LIBRARIES_DIR)$(DELIM)libexternal$(LIBEXT)
+ 
++$(EXTDIR)$(DELIM)libmbedtls$(LIBEXT): context
++	$(Q) $(MAKE) -C $(EXTDIR) TOPDIR="$(TOPDIR)" EXTDIR="$(EXTDIR)" libmbedtls$(LIBEXT) KERNEL=n
++
++$(LIBRARIES_DIR)$(DELIM)libmbedtls$(LIBEXT): $(EXTDIR)$(DELIM)libmbedtls$(LIBEXT)
++	$(Q) install $(EXTDIR)$(DELIM)libmbedtls$(LIBEXT) $(LIBRARIES_DIR)$(DELIM)libmbedtls$(LIBEXT)
++
+ #Iotivity Libs
+ 
+ ifeq ($(CONFIG_ENABLE_IOTIVITY),y)
+diff --git a/os/ProtectedLibs.mk b/os/ProtectedLibs.mk
+index 874b809..42b5fd8 100644
+--- a/os/ProtectedLibs.mk
++++ b/os/ProtectedLibs.mk
+@@ -92,6 +92,7 @@ endif
+ 
+ 
+ USERLIBS += $(LIBRARIES_DIR)$(DELIM)libexternal$(LIBEXT)
++USERLIBS += $(LIBRARIES_DIR)$(DELIM)libmbedtls$(LIBEXT)
+ 
+ # Add libraries for iotivity support
+ 

@@ -55,13 +55,34 @@
           "dst": "%{tizenrt}/build/configs/artik053/%{appname}/defconfig"
         }
       ],
-      "patches": [
-        { "file": "%{patches}/tizenrt-openocd.diff", "revert": false},
-        {
-          "condition": "'%{appname}' == 'iotjs' and %{coverage}",
-          "file": "%{patches}/tizenrt-coverage.diff"
-        }
-      ]
+      "patches": {
+        "profiles/minimal-profile-build": [
+          {
+            "condition": "'%{appname}' == 'iotjs'",
+            "file": "%{patches}/tizenrt-mbedtls.diff"
+          }
+        ],
+        "profiles/target-profile-build": [
+          {
+            "condition": "'%{appname}' == 'iotjs'",
+            "file": "%{patches}/tizenrt-mbedtls.diff"
+          }
+        ],
+        "test-build": [
+          {
+            "condition": "'%{appname}' == 'iotjs'",
+            "file": "%{patches}/tizenrt-mbedtls.diff"
+          },
+          {
+            "condition": "'%{appname}' == 'iotjs' and %{coverage}",
+            "file": "%{patches}/tizenrt-coverage.diff"
+          },
+          {
+            "file": "%{patches}/tizenrt-openocd.diff",
+            "revert": false
+          }
+        ]
+      }
     },
     "nuttx": {
       "url": "https://bitbucket.org/nuttx/nuttx.git",
@@ -73,8 +94,6 @@
         "include": "%{nuttx}/include",
         "linker-map": "%{nuttx}/arch/arm/src/nuttx.map"
       },
-      "patches": [
-      ],
       "config": [
         {
           "condition": "'%{appname}' == 'iotjs'",
@@ -106,8 +125,6 @@
           "src": "%{jerryscript}/targets/nuttx-stm32f4/",
           "dst": "%{nuttx-apps}/interpreters/jerryscript/"
         }
-      ],
-      "patches": [
       ]
     },
     "jerryscript": {
@@ -131,20 +148,22 @@
         "artik053-toolchain": "%{jerryscript}/cmake/toolchain_mcu_artik053.cmake",
         "rpi2-toolchain": "%{jerryscript}/cmake/toolchain_linux_armv7l.cmake"
       },
-      "patches": [
-        {
-          "condition": "'%{device}' == 'rpi2' and %{memstat}",
-          "file": "%{patches}/linux-jerryscript-stack.diff"
-        },
-        {
-          "condition": "'%{device}' == 'stm32f4dis' and %{memstat}",
-          "file": "%{patches}/nuttx-jerryscript-stack.diff"
-        },
-        {
-          "condition": "'%{device}' == 'artik053'",
-          "file": "%{patches}/tizenrt-jerryscript-%{use-stack}.diff"
-        }
-      ]
+      "patches": {
+        "test-build": [
+          {
+            "condition": "'%{device}' == 'rpi2' and %{memstat}",
+            "file": "%{patches}/linux-jerryscript-stack.diff"
+          },
+          {
+            "condition": "'%{device}' == 'stm32f4dis' and %{memstat}",
+            "file": "%{patches}/nuttx-jerryscript-stack.diff"
+          },
+          {
+            "condition": "'%{device}' == 'artik053'",
+            "file": "%{patches}/tizenrt-jerryscript-%{use-stack}.diff"
+          }
+        ]
+      }
     },
     "iotjs": {
       "url": "https://github.com/Samsung/iotjs.git",
@@ -170,45 +189,47 @@
         "coverage-client": "%{iotjs}/deps/jerry/jerry-debugger/jerry-client-ws.py",
         "js-sources" : "%{iotjs}/src/js/"
       },
-      "patches": [
-        {
-          "condition": "'%{device}' == 'stm32f4dis' and %{memstat}",
-          "file": "%{patches}/nuttx-iotjs-stack.diff"
-        },
-        {
-          "condition": "'%{device}' == 'artik053'",
-          "file": "%{patches}/tizenrt-iotjs-%{use-stack}.diff"
-        },
-        {
-          "condition": "'%{device}' in ['stm32f4dis', 'artik053'] and %{memstat}",
-          "file": "%{patches}/iotjs-system-heap.diff"
-        },
-        {
-          "condition": "'%{device}' in ['stm32f4dis', 'artik053'] and %{memstat}",
-          "file": "%{patches}/libtuv-system-heap.diff",
-          "submodule": "%{iotjs}/deps/libtuv/"
-        },
-        {
-          "condition": "'%{device}' in ['stm32f4dis', 'artik053', 'artik530', 'rpi2'] and %{memstat}",
-          "file": "%{patches}/jerryscript-jerry-heap.diff",
-          "submodule": "%{iotjs}/deps/jerry/"
-        },
-        {
-          "condition": "'%{device}' in ['artik053', 'artik530', 'rpi2'] and %{coverage}",
-          "file": "%{patches}/jerryscript-coverage.diff",
-          "submodule": "%{iotjs}/deps/jerry/"
-        },
-        {
-          "condition": "'%{device}' in ['artik053', 'artik530', 'rpi2'] and %{coverage}",
-          "file": "%{patches}/coverage-client.diff",
-          "submodule": "%{iotjs}/deps/jerry/",
-          "revert": false
-        },
-        {
-          "condition": "'%{device}' in ['artik530', 'rpi2'] and %{memstat}",
-          "file": "%{patches}/linux-iotjs-stack.diff"
-        }
-      ]
+      "patches": {
+        "test-build": [
+          {
+            "condition": "'%{device}' == 'stm32f4dis' and %{memstat}",
+            "file": "%{patches}/nuttx-iotjs-stack.diff"
+          },
+          {
+            "condition": "'%{device}' == 'artik053'",
+            "file": "%{patches}/tizenrt-iotjs-%{use-stack}.diff"
+          },
+          {
+            "condition": "'%{device}' in ['stm32f4dis', 'artik053'] and %{memstat}",
+            "file": "%{patches}/iotjs-system-heap.diff"
+          },
+          {
+            "condition": "'%{device}' in ['stm32f4dis', 'artik053'] and %{memstat}",
+            "file": "%{patches}/libtuv-system-heap.diff",
+            "submodule": "%{iotjs}/deps/libtuv/"
+          },
+          {
+            "condition": "'%{device}' in ['stm32f4dis', 'artik053', 'artik530', 'rpi2'] and %{memstat}",
+            "file": "%{patches}/jerryscript-jerry-heap.diff",
+            "submodule": "%{iotjs}/deps/jerry/"
+          },
+          {
+            "condition": "'%{device}' in ['artik053', 'artik530', 'rpi2'] and %{coverage}",
+            "file": "%{patches}/jerryscript-coverage.diff",
+            "submodule": "%{iotjs}/deps/jerry/"
+          },
+          {
+            "condition": "'%{device}' in ['artik053', 'artik530', 'rpi2'] and %{coverage}",
+            "file": "%{patches}/coverage-client.diff",
+            "submodule": "%{iotjs}/deps/jerry/",
+            "revert": false
+          },
+          {
+            "condition": "'%{device}' in ['artik530', 'rpi2'] and %{memstat}",
+            "file": "%{patches}/linux-iotjs-stack.diff"
+          }
+        ]
+      }
     },
     "freya": {
       "url": "https://github.com/szeged/Freya.git",

@@ -52,11 +52,9 @@ def patch_modules(env, revert=False):
     '''
     Modify the source code of the required modules.
     '''
-    if not env.options.patches:
-        return
-
     for module in env.modules.values():
-        for patch in module.get('patches', []):
+        # Get patches that belong to the current job.
+        for patch in module.get('patches', {}).get(env.options.id, []):
             # Do not patch if the result of the condition is false.
             condition = patch.get('condition', 'True')
 
