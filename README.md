@@ -9,8 +9,8 @@ The following table shows the supported devices and applications:
 |                :---:                   |  :---:    |    :---:    |
 | STM32F4-Discovery                      | &#128504; |  &#128504;  |
 | Raspberry Pi 2                         | &#128504; |  &#128504;  |
-| ARTIK 053                               | &#128504; |  &#128504;  |
-| ARTIK 530                               |  |  |
+| ARTIK 053                              | &#128504; |  &#128504;  |
+| ARTIK 530                              | &#128504; |  |
 <br />
 
 In the first step, all the dependencies should be installed:  
@@ -141,6 +141,9 @@ $ export PYTHONPATH=/path/to/js-remote-test:$PYTHONPATH
 --timeout
   Defines a time (in seconds) when to restart the device.
 
+--no-memstat
+  Skip the memory measurements.
+
 --no-build
   Do not build the projects.
 
@@ -159,10 +162,19 @@ $ export PYTHONPATH=/path/to/js-remote-test:$PYTHONPATH
 --quiet
   Make the output less verbose.
 
+--emulate
+  Emulate the connection.
+
+--testsuite
+  Specify the path to user-owned tests.
+
 SSH communication:
 
 --username
   Defines the username for the Raspberry Pi target.
+
+--password
+  The password to login to the device.
 
 --ip
   IP(v4) address of the device.
@@ -180,6 +192,14 @@ Serial communication:
 
 --baud
   Defines the baud rate (default: 115200)
+
+Telnet communication:
+
+--router
+  Defines the router address.
+
+--netmask
+  Defines the netmask.
 ```
 
 ### Examples to run tests

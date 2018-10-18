@@ -15,7 +15,7 @@
 
 import pyrebase
 
-from jstest.common import paths, utils
+from jstest.common import console, paths, utils
 
 
 class TestResult(object):
@@ -76,6 +76,11 @@ class TestResult(object):
         filename = utils.join(filepath, utils.current_date() + '.json')
         # Save the content info a result file.
         utils.write_json_file(filename, result)
+
+        console.log()
+        console.log('The results are written into:', console.TERMINAL_BLUE)
+        console.log('  {json_file}'.format(json_file=filename))
+        console.log()
 
         return result
 

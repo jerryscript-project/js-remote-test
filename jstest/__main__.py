@@ -28,7 +28,8 @@ def parse_options():
     '''
     Parse the given options.
     '''
-    parser = argparse.ArgumentParser(description='[J]ava[S]cript [remote] [test]runner')
+    parser = argparse.ArgumentParser(description='[J]ava[S]cript [remote] [test]runner',
+                                     prog='jstest')
 
     parser.add_argument('--app',
                         choices=['iotjs', 'jerryscript'], default='iotjs',
@@ -196,7 +197,7 @@ def main():
     testresult = TestResult(user_options)
 
     try:
-        # Execute all the jobs defined in the runnalble.jobs file.
+        # Execute all the jobs defined in the runnable.jobs file.
         for job_options in utils.read_json_file(paths.RUNNABLE_JOBS):
             env = jstest.create_testing_environment(user_options, job_options)
 
