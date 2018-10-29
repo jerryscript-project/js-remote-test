@@ -30,8 +30,9 @@ class Skiplist(object):
             self.builtin_features = buildinfo[1]
             self.stability = buildinfo[2]
 
-        # Read the local skiplist.
-        self.skiplist = self._read_skiplist()
+        # Read the test_descriptor file that defines which tests
+        # should be enabled or skipped.
+        self.test_descriptor = self._read_test_descriptor()
 
     def contains(self, testset, test):
         '''
@@ -76,29 +77,32 @@ class Skiplist(object):
 
         return False
 
-    def _read_skiplist(self):
+    def _read_test_descriptor(self):
         '''
         Read the local skiplists.
         '''
-        skiplists = {
-           'iotjs': 'iotjs-skiplist.json',
-           'jerryscript': 'jerryscript-skiplist.json'
+        descriptors = {
+           'iotjs': 'iotjs-test-descriptor.json',
+           'jerryscript': 'jerryscript-test-descriptor.json'
         }
 
-        skipfile = utils.join(paths.SKIPLIST_PATH, skiplists[self.app])
-        skiplist = utils.read_json_file(skipfile)
+        descriptor_file = utils.join(paths.SKIPLIST_PATH, descriptors[self.app])
+        descriptor_info = utils.read_json_file(descriptor_file)
 
-        return skiplist[self.device_type]
+        return descriptor_info[self.device_type]
 
     def _find_in_skiplist(self, testset, test):
         '''
         Find element in the skiplist.
         '''
-        for obj in self.skiplist['testsets']:
+        if test['name'] in self.test_descriptor['enable']:
+            return None
+
+        for obj in self.test_descriptor['skip']['testsets']:
             if obj['name'] == testset:
                 return obj
 
-        for obj in self.skiplist['testfiles']:
+        for obj in self.test_descriptor['skip']['testfiles']:
             if obj['name'] == test['name']:
                 return obj
 
