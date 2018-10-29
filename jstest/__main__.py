@@ -186,6 +186,9 @@ def adjust_options(options):
     if options.testsuite:
         options.testsuite = utils.abspath(options.testsuite)
 
+    if options.app_path:
+        options.app_path = utils.abspath(options.app_path)
+
     return options
 
 
