@@ -1,3 +1,16 @@
+diff --git a/external/include/mbedtls/config.h b/external/include/mbedtls/config.h
+index 7d5cda4..0f1401f 100644
+--- a/external/include/mbedtls/config.h
++++ b/external/include/mbedtls/config.h
+@@ -678,7 +678,7 @@
+  * enabled as well):
+  *      MBEDTLS_TLS_ECDH_ANON_WITH_AES_128_CBC_SHA256
+  */
+-#define MBEDTLS_KEY_EXCHANGE_ECDH_ANON_ENABLED
++//#define MBEDTLS_KEY_EXCHANGE_ECDH_ANON_ENABLED
+ 
+ /**
+  * \def MBEDTLS_KEY_EXCHANGE_ECDHE_ECDSA_ENABLED
 diff --git a/external/mbedtls/Makefile b/external/mbedtls/Makefile
 index 5e321e3..fb174a7 100644
 --- a/external/mbedtls/Makefile
