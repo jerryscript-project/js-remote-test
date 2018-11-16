@@ -1,5 +1,5 @@
 diff --git a/src/unix/fs.c b/src/unix/fs.c
-index a9b1531..0a99f69 100644
+index 5971915..4026d14 100644
 --- a/src/unix/fs.c
 +++ b/src/unix/fs.c
 @@ -98,7 +98,7 @@
@@ -12,119 +12,41 @@ index a9b1531..0a99f69 100644
          uv__req_unregister(loop, req);                                        \
          return -ENOMEM;                                                       \
 diff --git a/src/uv-common.c b/src/uv-common.c
-index 5c12d82..f73b1fc 100644
+index 5c12d82..7e0cb57 100644
 --- a/src/uv-common.c
 +++ b/src/uv-common.c
-@@ -67,7 +67,6 @@ static uv__allocator_t uv__allocator = {
-   free,
+@@ -60,14 +60,18 @@ typedef struct {
+   uv_free_func local_free;
+ } uv__allocator_t;
+ 
++void jstest_free(void*);
++void* jstest_malloc(size_t);
++void* jstest_calloc(size_t, size_t);
++void* jstest_realloc(void*, size_t);
++
+ static uv__allocator_t uv__allocator = {
+-  malloc,
+-  realloc,
+-  calloc,
+-  free,
++  jstest_malloc,
++  jstest_realloc,
++  jstest_calloc,
++  jstest_free,
  };
  
 -#if defined(__APPLE__) || defined(_WIN32) || defined(TUV_FEATURE_PIPE)
  char* uv__strdup(const char* s) {
    size_t len = strlen(s) + 1;
    char* m = uv__malloc(len);
-@@ -75,15 +74,66 @@ char* uv__strdup(const char* s) {
+@@ -75,7 +79,6 @@ char* uv__strdup(const char* s) {
      return NULL;
    return memcpy(m, s, len);
  }
-+
-+/*
-+ * Memory statistic for system allocator.
-+ *
-+ *
-+ * When allocating a chunk of memory, the real size (with padding) is
-+ * located in a descriptor (mm_allocnode_s) before the allocated memory area:
-+ *
-+ *    struct mm_freenode_s
-+ *    {
-+ *        mmsize_t size;        // Size of the chunk
-+ *        ...
-+ *    };
-+ *
-+ * The SIZEOF_MM_ALLOCNODE defines the size of the mm_allocnode_s structure,
-+ * that helps to find the size variable.
-+ *
-+ * Note: on NuttX and TizenRT, the size variable contains the size of the
-+ * mm_freenode_s as well, but that is not calculated into the statistic.
-+ *
-+ * The SIZEOF_MM_ALLOCNODE is defined in:
-+ *
-+ *    NuttX:   include/nuttx/mm/mm.h
-+ *    TizenRT: os/include/tinyara/mm/mm.h
-+ */
-+
-+#if defined(__NUTTX__) || defined(__TIZENRT__)
-+#if !defined(NDEBUG) && defined(__TIZENRT__)
-+#define SIZEOF_MM_ALLOCNODE 16
-+#else
-+#define SIZEOF_MM_ALLOCNODE 8
-+#endif
-+#else
-+#error "Undefined memory allocation chunk size."
- #endif
+-#endif
  
-+extern void mem_stat_alloc(size_t size);
-+extern void mem_stat_free(size_t size);
-+
-+
  void* uv__malloc(size_t size) {
--  return uv__allocator.local_malloc(size);
-+  char* ptr = (char*)uv__allocator.local_malloc(size);
-+
-+  size_t new_size;
-+  memcpy(&new_size, (ptr - SIZEOF_MM_ALLOCNODE), sizeof(size_t));
-+  mem_stat_alloc(new_size - SIZEOF_MM_ALLOCNODE);
-+
-+  return (void*)ptr;
- }
- 
- void uv__free(void* ptr) {
-   int saved_errno;
- 
-+  if (ptr == NULL)
-+    return;
-+
-+  size_t size;
-+  memcpy(&size, (char*)ptr - SIZEOF_MM_ALLOCNODE, sizeof(size_t));
-+  mem_stat_free(size);
-+
-   /* Libuv expects that free() does not clobber errno.  The system allocator
-    * honors that assumption but custom allocators may not be so careful.
-    */
-@@ -93,11 +143,31 @@ void uv__free(void* ptr) {
- }
- 
- void* uv__calloc(size_t count, size_t size) {
--  return uv__allocator.local_calloc(count, size);
-+  char* ptr = (char*)uv__allocator.local_calloc(count, size);
-+
-+  size_t new_size;
-+  memcpy(&new_size, (ptr - SIZEOF_MM_ALLOCNODE), sizeof(size_t));
-+  mem_stat_alloc(new_size - SIZEOF_MM_ALLOCNODE);
-+
-+  return (void*)ptr;
- }
- 
- void* uv__realloc(void* ptr, size_t size) {
--  return uv__allocator.local_realloc(ptr, size);
-+  if (ptr != NULL) {
-+    size_t old_size;
-+    memcpy(&old_size, (char*)ptr - SIZEOF_MM_ALLOCNODE, sizeof(size_t));
-+    mem_stat_free(old_size - SIZEOF_MM_ALLOCNODE);
-+
-+    char* new_ptr = (char*)uv__allocator.local_realloc(ptr, size);
-+
-+    size_t new_size;
-+    memcpy(&new_size, (new_ptr - SIZEOF_MM_ALLOCNODE), sizeof(size_t));
-+    mem_stat_alloc(new_size - SIZEOF_MM_ALLOCNODE);
-+
-+    return (void*)new_ptr;
-+  }
-+
-+  return uv__malloc(size);
- }
- 
- uv_buf_t uv_buf_init(char* base, unsigned int len) {
+   return uv__allocator.local_malloc(size);
 diff --git a/src/uv-common.h b/src/uv-common.h
 index e52b529..a24de69 100644
 --- a/src/uv-common.h

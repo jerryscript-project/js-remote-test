@@ -189,6 +189,13 @@
         "coverage-client": "%{iotjs}/deps/jerry/jerry-debugger/jerry-client-ws.py",
         "js-sources" : "%{iotjs}/src/js/"
       },
+      "config": [
+        {
+          "condition": "'%{device}' in ['stm32f4dis', 'artik053'] and %{memstat}",
+          "src": "%{js-remote-test}/jstest/resources/memstat/jstest_memstat.c",
+          "dst": "%{iotjs}/src/jstest_memstat.c"
+        }
+      ],
       "patches": {
         "test-build": [
           {
