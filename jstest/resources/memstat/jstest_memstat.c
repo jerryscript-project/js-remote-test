@@ -122,4 +122,9 @@ void print_mem_stat() {
   printf("  Malloc peak allocated: %u bytes\n", peak_allocated_bytes);
 }
 
+
+// Define custom allocator functions for mbedtls of TizenRT.
+void *(*mbedtls_calloc)(size_t n, size_t size) = jstest_calloc;
+void (*mbedtls_free)(void *ptr) = jstest_free;
+
 #endif /* JSTEST_MEMSTAT_ENABLED */
