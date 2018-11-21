@@ -116,8 +116,10 @@ def resolve_symbol(symbol, env):
         'flash': not env.options.no_flash,
         'memstat': not env.options.no_memstat,
         'coverage': bool(env.options.coverage),
-        'minimal-profile-build': 'minimal-profile-build' in env.options.id,
         'test-build': 'test-build' in env.options.id,
+        'minimal-profile-build': 'minimal-profile-build' in env.options.id,
+        'es5.1-profile-build': 'target-es5.1-profile-build' in env.options.id,
+        'es2015subset-profile-build': 'target-es2015subset-profile-build' in env.options.id,
         'build-dir': env.paths.builddir,
         'testsuite': env.modules.app.paths.tests
     }

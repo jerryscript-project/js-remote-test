@@ -45,7 +45,8 @@ class TestResult(object):
 
         labels = {
             'profiles/minimal-profile-build': 'minimal-profile',
-            'profiles/target-profile-build': 'target-profile'
+            'profiles/target-es5.1-profile-build': 'target-es5.1-profile',
+            'profiles/target-es2015subset-profile-build': 'target-es2015subset-profile'
         }
 
         for job_id, build_path in self.results.iteritems():

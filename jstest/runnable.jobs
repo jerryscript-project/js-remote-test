@@ -7,7 +7,14 @@
     "no_test": true
   },
   {
-    "id": "profiles/target-profile-build",
+    "id": "profiles/target-es5.1-profile-build",
+    "coverage": false,
+    "no_memstat": true,
+    "no_flash": true,
+    "no_test": true
+  },
+  {
+    "id": "profiles/target-es2015subset-profile-build",
     "coverage": false,
     "no_memstat": true,
     "no_flash": true,

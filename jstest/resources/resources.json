@@ -62,7 +62,13 @@
             "file": "%{patches}/tizenrt-mbedtls.diff"
           }
         ],
-        "profiles/target-profile-build": [
+        "profiles/target-es5.1-profile-build": [
+          {
+            "condition": "'%{appname}' == 'iotjs'",
+            "file": "%{patches}/tizenrt-mbedtls.diff"
+          }
+        ],
+        "profiles/target-es2015subset-profile-build": [
           {
             "condition": "'%{appname}' == 'iotjs'",
             "file": "%{patches}/tizenrt-mbedtls.diff"
