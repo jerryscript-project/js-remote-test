@@ -1,8 +1,8 @@
 diff --git a/src/iotjs.c b/src/iotjs.c
-index 2df7e0f..bd7b62f 100644
+index b50b939..7fac0b9 100644
 --- a/src/iotjs.c
 +++ b/src/iotjs.c
-@@ -234,6 +234,8 @@ void iotjs_conf_console_out(int (*out)(int lv, const char* fmt, ...)) {
+@@ -242,6 +242,8 @@ void iotjs_conf_console_out(int (*out)(int lv, const char* fmt, ...)) {
    iotjs_set_console_out(out);
  }
  
@@ -11,16 +11,14 @@ index 2df7e0f..bd7b62f 100644
  int iotjs_entry(int argc, char** argv) {
    int ret_code = 0;
  
-@@ -265,6 +267,9 @@ terminate:
+@@ -273,6 +275,7 @@ terminate:
    iotjs_terminate(env);
  
  exit:
-+  // Print mem-stat info.
 +  print_mem_stat();
-+
+ #ifdef JERRY_DEBUGGER
    if (iotjs_environment_config(env)->debugger &&
        iotjs_environment_config(env)->debugger->context_reset) {
-     iotjs_environment_release();
 diff --git a/src/iotjs_util.c b/src/iotjs_util.c
 index abd7a86..5668015 100644
 --- a/src/iotjs_util.c
