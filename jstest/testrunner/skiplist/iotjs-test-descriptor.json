@@ -16,9 +16,7 @@
   "artik053": {
     "skip": {
       "testsets": [],
-      "testfiles": [
-        { "name": "test_tls.js", "reason": "Error: SSL setup failed (no enough memory for the test)" }
-      ]
+      "testfiles": []
     },
     "enable": []
   },
