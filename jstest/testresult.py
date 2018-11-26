@@ -102,10 +102,10 @@ class TestResult(object):
             return
 
         config = {
-            'apiKey': 'AIzaSyDMgyPr0V49Rdf5ODAU9nLY02ZGEUNoxiM',
-            'authDomain': 'remote-testrunner.firebaseapp.com',
-            'databaseURL': 'https://remote-testrunner.firebaseio.com',
-            'storageBucket': 'remote-testrunner.appspot.com',
+            'apiKey': 'AIzaSyDgg8DBNM95XWt4DG6OlbdHjPExzHV5SQU',
+            'authDomain': 'jsremote-testrunner.firebaseapp.com',
+            'databaseURL': 'https://jsremote-testrunner.firebaseio.com',
+            'storageBucket': 'jsremote-testrunner.appspot.com',
         }
 
         firebase = pyrebase.initialize_app(config)
