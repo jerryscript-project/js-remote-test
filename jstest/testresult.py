@@ -45,7 +45,7 @@ class TestResult(object):
 
         labels = {
             'profiles/minimal-profile-build': 'minimal-profile',
-            'profiles/target-es5.1-profile-build': 'target-es5.1-profile',
+            'profiles/target-es5.1-profile-build': 'target-es5_1-profile',
             'profiles/target-es2015subset-profile-build': 'target-es2015subset-profile'
         }
 
