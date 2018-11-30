@@ -17,12 +17,14 @@
       ],
       "testfiles": [
         { "name": "parser-oom.js", "reason": "Requires exactly 512KB memory." },
+        { "name": "parser-oom2.js", "reason": "There's not enough memory to run." },
         { "name": "N.compact-profile-error.js", "reason": "Compact profile is not enabled." },
         { "name": "regression-test-issue-1555.js", "reason": "There's not enough memory to run." },
         { "name": "regression-test-issue-1997.js", "reason": "There's not enough memory to run." },
         { "name": "regression-test-issue-2451.js", "reason": "There's not enough memory to run." },
         { "name": "regression-test-issue-2452.js", "reason": "There's not enough memory to run." },
-        { "name": "regression-test-issue-2453.js", "reason": "There's not enough memory to run." }
+        { "name": "regression-test-issue-2453.js", "reason": "There's not enough memory to run." },
+        { "name": "regression-test-issue-2486.js", "reason": "There's not enough memory to run." }
       ]
     },
     "enable": []
@@ -34,12 +36,14 @@
       ],
       "testfiles": [
         { "name": "parser-oom.js", "reason": "Requires exactly 512KB memory." },
+        { "name": "parser-oom2.js", "reason": "There's not enough memory to run." },
         { "name": "N.compact-profile-error.js", "reason": "Compact profile is not enabled." },
         { "name": "regression-test-issue-1555.js", "reason": "There's not enough memory to run." },
         { "name": "regression-test-issue-1997.js", "reason": "There's not enough memory to run." },
         { "name": "regression-test-issue-2451.js", "reason": "There's not enough memory to run." },
         { "name": "regression-test-issue-2452.js", "reason": "There's not enough memory to run." },
-        { "name": "regression-test-issue-2453.js", "reason": "There's not enough memory to run." }
+        { "name": "regression-test-issue-2453.js", "reason": "There's not enough memory to run." },
+        { "name": "regression-test-issue-2486.js", "reason": "There's not enough memory to run." }
       ]
     },
     "enable": []
