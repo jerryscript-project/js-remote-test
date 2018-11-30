@@ -121,6 +121,11 @@ def run_jerry(options):
     if not options.no_memstat:
         args.append('--mem-stats')
 
+    if options.debug_port:
+        args.append('--start-debug-server')
+        args.append('--debug-port')
+        args.append('%s' % options.debug_port)
+
     output, exitcode = execute(options.cwd, options.cmd, args)
 
     mempeak = 'n/a'
@@ -162,10 +167,10 @@ def run_iotjs(options):
     if not options.no_memstat:
         args.append('--mem-stats')
 
-    if options.coverage_port:
+    if options.debug_port:
         args.append('--start-debug-server')
         args.append('--debug-port')
-        args.append('%s' % options.coverage_port)
+        args.append('%s' % options.debug_port)
 
     args.append(options.testfile)
 
@@ -244,10 +249,9 @@ def parse_arguments():
     parser.add_argument('--testfile', metavar='file',
                         help='Test file with path')
 
-    parser.add_argument('--coverage-port',
+    parser.add_argument('--debug-port',
                         metavar='PORT',
-                        help='Specify the PORT for jerry-debugger to'
-                             ' calculate the JS source code coverage')
+                        help='Specify the PORT for jerry-debugger')
 
     parser.add_argument('--no-memstat',
                         action='store_true', default=False,

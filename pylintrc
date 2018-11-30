@@ -13,7 +13,7 @@
 # limitations under the License.
 
 [MESSAGES CONTROL]
-disable=missing-docstring, anomalous-backslash-in-string, attribute-defined-outside-init, import-error, broad-except, redefined-variable-type, superfluous-parens, bad-continuation, eval-used, fixme, too-many-arguments
+disable=missing-docstring, anomalous-backslash-in-string, attribute-defined-outside-init, import-error, broad-except, redefined-variable-type, superfluous-parens, bad-continuation, eval-used, fixme, too-many-arguments, too-many-branches
 
 [REPORTS]
 

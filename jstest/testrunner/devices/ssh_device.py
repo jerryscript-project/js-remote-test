@@ -92,10 +92,11 @@ class SSHDevice(RemoteDevice):
         if self.env.options.no_memstat:
             command += ' --no-memstat'
 
-        if self.env.options.coverage and self.app == 'iotjs':
-            port = testrunner_utils.read_port_from_url(self.env.options.coverage)
-            command += ' --coverage-port %s' % port
+        if self.env.options.debugger and self.env.options.debugger != 'no_address':
+            port = testrunner_utils.read_port_from_url(self.env.options.debugger)
+            command += ' --debug-port %s' % port
 
+        if self.env.options.coverage:
             # Start the client script on a different thread for coverage.
             client_thread = Thread(target=testrunner_utils.run_coverage_script,
                                    kwargs={'env' :self.env})

@@ -116,6 +116,7 @@ def resolve_symbol(symbol, env):
         'flash': not env.options.no_flash,
         'memstat': not env.options.no_memstat,
         'coverage': bool(env.options.coverage),
+        'debugger':bool(env.options.debugger),
         'test-build': 'test-build' in env.options.id,
         'minimal-profile-build': 'minimal-profile-build' in env.options.id,
         'es5.1-profile-build': 'target-es5.1-profile-build' in env.options.id,

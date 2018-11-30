@@ -59,6 +59,9 @@ def parse_options():
                         action='store_true', default=False,
                         help='do not test the application (default: %(default)s)')
 
+    parser.add_argument('--debugger', nargs='?', const='no_address', metavar='ADDRESS',
+                        help='Enable jerry debugger (Set ADDRESS to run debugger at startup')
+
     parser.add_argument('--device',
                         choices=['stm32f4dis', 'rpi2', 'artik053', 'artik530'],
                         default='stm32f4dis',
@@ -148,6 +151,15 @@ def adjust_options(options):
         options.no_build = True
         options.no_flash = True
         options.no_test = True
+
+    # TODO: resolve this section, debugger should work on every target.
+    if options.debugger:
+        if options.device == 'stm32f4dis':
+            jstest.console.warning('Debugger is not supported on STM32F4-Discovery')
+            options.debugger = None
+        elif options.device == 'artik053' and options.app == 'jerryscript':
+            jstest.console.warning('Debugger is not supported on ARTIK053 with JerryScript')
+            options.debugger = None
 
     if options.emulate:
         options.no_flash = True

@@ -75,11 +75,11 @@ class SerialDevice(RemoteDevice):
         if not self.env.options.no_memstat:
             args = ['--mem-stats']
 
-        if self.env.options.coverage and self.device == 'artik053':
-            port = testrunner_utils.read_port_from_url(self.env.options.coverage)
-
-            args.append('--debug-port %s' % port)
+        if self.env.options.debugger and self.env.options.debugger != 'no_address':
+            port = testrunner_utils.read_port_from_url(self.env.options.debugger)
             args.append('--start-debug-server')
+            args.append('--debug-port')
+            args.append('%s' % port)
 
         command = {
             'iotjs': 'iotjs %s %s' % (' '.join(args), testfile),
