@@ -32,21 +32,21 @@ def info(msg):
     '''
     Print debug message to the screen with green color.
     '''
-    print('%s%s%s' % (TERMINAL_GREEN, msg, TERMINAL_EMPTY))
+    log(msg=msg, color=TERMINAL_GREEN)
 
 
 def warning(msg):
     '''
     Print debug message to the screen with yellow color.
     '''
-    print('%s%s%s' % (TERMINAL_YELLOW, msg, TERMINAL_EMPTY))
+    log(msg=msg, color=TERMINAL_YELLOW)
 
 
 def error(msg):
     '''
     Print debug message to the screen with red color.
     '''
-    print('%s%s%s' % (TERMINAL_RED, msg, TERMINAL_EMPTY))
+    log(msg=msg, color=TERMINAL_RED)
 
 
 def fail(msg):
