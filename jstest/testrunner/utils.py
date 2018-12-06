@@ -33,7 +33,7 @@ def read_test_files(env):
 
     for root, _, files in os.walk(testpath):
         # The name of the testset is always the folder name.
-        testset = utils.relpath(root, testpath)
+        testset = utils.relpath(root, utils.abspath(utils.join(testpath, '..')))
 
         # Create a new testset entry if it doesn't exist.
         if testset not in testsets:
