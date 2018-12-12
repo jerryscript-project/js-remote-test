@@ -84,8 +84,7 @@
             "file": "%{patches}/tizenrt-coverage.diff"
           },
           {
-            "file": "%{patches}/tizenrt-openocd.diff",
-            "revert": false
+            "file": "%{patches}/tizenrt-openocd.diff"
           }
         ]
       }
@@ -234,8 +233,7 @@
           {
             "condition": "'%{device}' in ['artik053', 'artik530', 'rpi2'] and %{coverage}",
             "file": "%{patches}/coverage-client.diff",
-            "submodule": "%{iotjs}/deps/jerry/",
-            "revert": false
+            "submodule": "%{iotjs}/deps/jerry/"
           },
           {
             "condition": "'%{device}' in ['artik530', 'rpi2'] and %{memstat}",

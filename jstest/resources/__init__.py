@@ -33,7 +33,7 @@ def fetch_modules(env):
         utils.execute(module['src'], 'git', ['submodule', 'update', '--init'])
 
 
-def config_modules(env):
+def config_modules(env, revert=False):
     '''
     Configure all the required modules.
     '''
@@ -45,7 +45,11 @@ def config_modules(env):
             if not eval(condition):
                 continue
 
-            utils.symlink(config['src'], config['dst'])
+            if revert:
+                utils.restore_file(module['src'], config['dst'])
+
+            else:
+                utils.symlink(config['src'], config['dst'])
 
 
 def patch_modules(env, revert=False):
@@ -61,14 +65,24 @@ def patch_modules(env, revert=False):
             if not eval(condition):
                 continue
 
-            revertable = patch.get('revert', True)
-            # Note: some patches should not be removed
-            # because sometimes the testing requires the
-            # modifications.
-            if revert and not revertable:
-                continue
-
             # By default, the project is patched. If there is a
             # submodule information, the subproject will be patched.
             project = patch.get('submodule', module['src'])
             utils.patch(project, patch['file'], revert)
+
+
+def initialize(env):
+    '''
+    Public method to initialize the project.
+    '''
+    fetch_modules(env)
+    config_modules(env)
+    patch_modules(env)
+
+
+def finalize(env):
+    '''
+    Public method to restore the project files.
+    '''
+    config_modules(env, revert=True)
+    patch_modules(env, revert=True)

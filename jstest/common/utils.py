@@ -433,6 +433,41 @@ def is_broken_symlink(path):
     return True
 
 
+def remove(fpath):
+    '''
+    Remove the resource file.
+    '''
+    resource = os.path.normpath(fpath)
+
+    if exists(resource):
+        if os.path.islink(resource):
+            os.unlink(resource)
+
+        elif os.path.isfile(resource):
+            remove_file(resource)
+
+        else:
+            rmtree(resource)
+
+    elif is_broken_symlink(resource):
+        os.unlink(resource)
+
+
+def restore_file(project, fpath):
+    '''
+    Restore the modified project files.
+    '''
+    project_files, _ = execute(project, 'git', ['ls-files'], quiet=True)
+    resource_name = relpath(fpath, project)
+
+    if resource_name in project_files:
+        execute(project, 'git', ['checkout', fpath], quiet=True)
+
+    else:
+        # The file doesn't belong to the project, so that can be removed.
+        remove(fpath)
+
+
 def symlink(src, dst):
     '''
     Create a symlink at dst pointing to src
@@ -445,14 +480,6 @@ def symlink(src, dst):
     dst = os.path.normpath(dst)
 
     # Existing dst needs to be deleted, since symlink requires non-existing dst.
-    if exists(dst):
-        if os.path.islink(dst):
-            os.unlink(dst)
-        elif os.path.isfile(dst):
-            remove_file(dst)
-        else:
-            rmtree(dst)
-    elif is_broken_symlink(dst):
-        os.unlink(dst)
+    remove(dst)
 
     os.symlink(src, dst)

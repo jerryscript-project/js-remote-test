@@ -68,9 +68,7 @@ class Builder(object):
             return
 
         # Fetch and configure the modules before build.
-        resources.fetch_modules(env)
-        resources.config_modules(env)
-        resources.patch_modules(env)
+        resources.initialize(env)
 
     def build(self):
         '''
@@ -87,8 +85,6 @@ class Builder(object):
 
         # Create build information.
         builder_utils.create_build_info(self.env)
-        # Revert all the patches from the projects.
-        resources.patch_modules(self.env, revert=True)
 
     def should_build(self, build_info):
         '''

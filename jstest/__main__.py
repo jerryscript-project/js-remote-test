@@ -24,6 +24,10 @@ from jstest import Builder, TestResult, TestRunner
 from jstest import flasher, paths, pseudo_terminal, twisted_server, utils
 
 
+EXIT_SUCCESS = 0
+EXIT_FAILURE = 1
+
+
 def parse_options():
     '''
     Parse the given options.
@@ -210,6 +214,7 @@ def main():
     '''
     user_options = adjust_options(parse_options())
     testresult = TestResult(user_options)
+    exitcode = EXIT_SUCCESS
 
     try:
         # Execute all the jobs defined in the runnable.jobs file.
@@ -230,11 +235,16 @@ def main():
         testresult.upload()
 
     except (Exception, KeyboardInterrupt) as e:
-        jstest.resources.patch_modules(env, revert=True)
-        jstest.console.error('[%s] %s' % (type(e).__name__, str(e)))
-        traceback.print_exc()
+        # Don't print backtrace for keyboard interrupt.
+        if isinstance(e, Exception):
+            traceback.print_exc()
 
-        sys.exit(1)
+        exitcode = EXIT_FAILURE
+
+    # Revert all the patches and restore all the modified files.
+    jstest.resources.finalize(env)
+
+    sys.exit(exitcode)
 
 
 if __name__ == '__main__':
