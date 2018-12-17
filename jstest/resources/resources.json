@@ -80,11 +80,8 @@
             "file": "%{patches}/tizenrt-mbedtls.diff"
           },
           {
-            "condition": "'%{appname}' == 'iotjs' and %{coverage}",
-            "file": "%{patches}/tizenrt-coverage.diff"
-          },
-          {
-            "file": "%{patches}/tizenrt-openocd.diff"
+            "file": "%{patches}/tizenrt-openocd.diff",
+            "revert": false
           }
         ]
       }
@@ -191,7 +188,7 @@
         "linker-map": "%{iotjs}/build/%{target}/%{build-type}/iotjs.map",
         "libdir": "%{iotjs}/build/%{target}/%{build-type}/lib",
         "image": "%{iotjs}/build/%{target}/%{build-type}/bin/iotjs",
-        "coverage-client": "%{iotjs}/deps/jerry/jerry-debugger/jerry-client-ws.py",
+        "coverage-client": "%{js-remote-test}/tools/coverage_client.py",
         "js-sources" : "%{iotjs}/src/js/"
       },
       "config": [
@@ -228,11 +225,6 @@
           {
             "condition": "'%{device}' in ['artik053', 'artik530', 'rpi2'] and %{coverage}",
             "file": "%{patches}/jerryscript-coverage.diff",
-            "submodule": "%{iotjs}/deps/jerry/"
-          },
-          {
-            "condition": "'%{device}' in ['artik053', 'artik530', 'rpi2'] and %{coverage}",
-            "file": "%{patches}/coverage-client.diff",
             "submodule": "%{iotjs}/deps/jerry/"
           },
           {

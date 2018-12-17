@@ -84,8 +84,8 @@ def parse_options():
                         help='do not measure memory statistics (default: %(default)s)')
 
     parser.add_argument('--coverage',
-                        metavar='SERVER_ADDRESS(HOST:PORT)',
-                        help='use jerry-debugger to calculate the JS source code coverage')
+                        action='store_true', default=False,
+                        help='calculate the JS source code coverage (default: %(default)s)')
 
     parser.add_argument('--quiet',
                         action='store_true', default=False,
@@ -152,17 +152,17 @@ def adjust_options(options):
     '''
     if options.device == 'artik530' and options.app == 'jerryscript':
         jstest.console.warning('JerryScript is not supported for Tizen.')
-        options.no_build = True
-        options.no_flash = True
-        options.no_test = True
+        sys.exit(1)
 
     # TODO: resolve this section, debugger should work on every target.
     if options.debugger:
         if options.device == 'stm32f4dis':
-            jstest.console.warning('Debugger is not supported on STM32F4-Discovery')
+            jstest.console.warning('Debugger is disabled, beacuse it is not supported on'
+                                   ' STM32F4-Discovery')
             options.debugger = None
         elif options.device == 'artik053' and options.app == 'jerryscript':
-            jstest.console.warning('Debugger is not supported on ARTIK053 with JerryScript')
+            jstest.console.warning('Debugger is disabled, because it is not supported on'
+                                   ' ARTIK053 with JerryScript')
             options.debugger = None
 
     if options.emulate:
@@ -183,12 +183,18 @@ def adjust_options(options):
             atexit.register(pseudo_terminal.close_pseudo_terminal, options)
 
     if options.coverage:
+        if not options.debugger or options.debugger == 'no_address':
+            jstest.console.error('Coverage measurement is require the enabled debugger option'
+                                 ' with a valid server ADDRESS')
+            sys.exit(1)
+
         if options.app != 'iotjs':
             jstest.console.warning('Coverage measurement is only supported with IoT.js!')
-            options.coverage = None
+            sys.exit(1)
 
-        elif options.buildtype != 'debug':
-            jstest.console.warning('Coverage measurement is only supported with debug build type!')
+        if options.buildtype != 'debug':
+            jstest.console.warning('Buidltype was set to debug because the coverage measurement is'
+                                   ' only supported with debug build type!')
             # Overwrite the buildtype option to debug.
             # In IoT.js the code is minimized in release mode, which will mess up the line numbers.
             options.buildtype = 'debug'

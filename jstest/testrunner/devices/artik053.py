@@ -51,7 +51,7 @@ class ARTIK053Device(SerialDevice):
         self.channel.putc(command[self.app])
         self.channel.readline()
 
-        if self.env.options.coverage and self.app == 'iotjs':
+        if self.env.options.coverage:
             # Start the client script on a different thread for coverage.
             client_thread = Thread(target=testrunner_utils.run_coverage_script,
                                    kwargs={'env': self.env})

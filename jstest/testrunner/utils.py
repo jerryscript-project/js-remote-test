@@ -93,6 +93,8 @@ def parse_coverage_info(env, coverage_output):
                 continue
 
             filename, _ = os.path.splitext(js_name)
+            if filename not in coverage_info:
+                continue
 
             # Iterate reached js files.
             for line_number, line_value in raw_data[js_name].iteritems():
@@ -159,7 +161,7 @@ def run_coverage_script(env):
     # Add latency because the start up of the debug server needs time.
     time.sleep(2)
 
-    address = env.options.coverage
+    address = env.options.debugger
     iotjs = env.modules.iotjs
     coverage_client = iotjs.paths['coverage-client']
     device = env.options.device
@@ -171,9 +173,8 @@ def run_coverage_script(env):
     result_path = utils.join(result_dir, result_name)
 
     utils.mkdir(result_dir)
-    utils.execute(paths.PROJECT_ROOT, coverage_client, ['--non-interactive',
-                                                        '--coverage-output=%s' % result_path,
-                                                        address])
+    utils.execute(paths.PROJECT_ROOT, 'python',
+                  [coverage_client, '--coverage-output', result_path, address])
 
 
 def read_port_from_url(url):
