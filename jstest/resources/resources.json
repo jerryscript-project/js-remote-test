@@ -6,13 +6,11 @@
     "artik530": ["freya"]
   },
   "paths": {
-    "result": "%{result-path}/%{appname}/%{device}",
     "build": "%{build-path}/%{appname}/%{device}/%{build-type}",
-    "build-json": "%{build-path}/%{appname}/%{device}/%{build-type}/build.json",
-    "build-test": "%{build-path}/%{appname}/%{device}/%{build-type}/test",
-    "build-target": "%{build-path}/%{appname}/%{device}/%{build-type}/profiles/target",
-    "build-minimal": "%{build-path}/%{appname}/%{device}/%{build-type}/profiles/minimal",
-    "tizen-rpm-package": "%{home}/GBS-ROOT/local/repos/tizen_unified_m1/armv7l/RPMS/%{appname}-1.0.0-0.armv7l.rpm"
+    "tizen-build-root": "%{build}/tizen-build-root",
+    "tizen-iotjs-dir": "%{build}/tizen-build-root/local/BUILD-ROOTS/scratch.armv7l.0/home/abuild/rpmbuild/BUILD/iotjs-1.0.0",
+    "tizen-rpm-package": "%{build}/tizen-build-root/local/repos/tizen50m2/armv7l/RPMS/iotjs-1.0.0-0.armv7l.rpm",
+    "result": "%{result-path}/%{appname}/%{device}"
   },
   "modules": {
     "stlink": {

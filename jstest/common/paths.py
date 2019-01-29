@@ -68,13 +68,3 @@ SIMPLE_TESTER = os.path.join(RESOURCES_PATH, 'etc', 'simpletester.py')
 TESTRUNNER_PATH = os.path.join(JSTEST_PATH, 'testrunner')
 
 SKIPLIST_PATH = os.path.join(TESTRUNNER_PATH, 'skiplist')
-
-#
-# ================================
-#
-
-GBS_ROOT_PATH = os.path.join(HOME, 'GBS-ROOT')
-
-GBS_ARCH_PATH = os.path.join(GBS_ROOT_PATH, 'local/BUILD-ROOTS/scratch.armv7l.0')
-
-GBS_IOTJS_PATH = os.path.join(GBS_ARCH_PATH, 'home/abuild/rpmbuild/BUILD/iotjs-1.0.0')
