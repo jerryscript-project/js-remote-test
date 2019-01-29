@@ -1,0 +1,13 @@
+diff --git a/arch/arm/src/stm32/stm32_eth.c b/arch/arm/src/stm32/stm32_eth.c
+index 0a21496..4e8520c 100644
+--- a/arch/arm/src/stm32/stm32_eth.c
++++ b/arch/arm/src/stm32/stm32_eth.c
+@@ -4106,7 +4106,7 @@ int stm32_ethinitialize(int intf)
+  *
+  ****************************************************************************/
+ 
+-#if STM32_NETHERNET == 1
++#if (STM32_NETHERNET == 1) && !defined(CONFIG_NETDEV_LATEINIT)
+ void up_netinitialize(void)
+ {
+   (void)stm32_ethinitialize(0);

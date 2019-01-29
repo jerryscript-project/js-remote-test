@@ -18,7 +18,7 @@
     "stlink": {
       "url": "https://github.com/texane/stlink.git",
       "src": "%{js-remote-test}/deps/stlink",
-      "version": "master",
+      "version": "v1.5.1",
       "paths": {
         "st-flash": "%{stlink}/build/Release/st-flash"
       }
@@ -26,7 +26,7 @@
     "tizenrt": {
       "url": "https://github.com/Samsung/TizenRT.git",
       "src": "%{js-remote-test}/deps/tizenrt",
-      "version": "766372ee7bacfc8d2e0a072c7db559927d3d5026",
+      "version": "2.0_Public_M2",
       "paths": {
         "os": "%{tizenrt}/os/",
         "tools": "%{tizenrt}/os/tools/",
@@ -36,6 +36,10 @@
         "linker-map": "%{tizenrt}/build/output/bin/tinyara.map"
       },
       "config": [
+        {
+          "src": "%{tizenrt}/os/include/uio.h",
+          "dst": "%{tizenrt}/os/include/sys/uio.h"
+        },
         {
           "src": "%{testsuite}",
           "dst": "%{tizenrt}/tools/fs/contents/"
@@ -89,7 +93,7 @@
     "nuttx": {
       "url": "https://bitbucket.org/nuttx/nuttx.git",
       "src": "%{js-remote-test}/deps/nuttx",
-      "version": "nuttx-7.25",
+      "version": "nuttx-7.27",
       "paths": {
         "tools": "%{nuttx}/tools/",
         "image": "%{nuttx}/nuttx.bin",
@@ -107,12 +111,37 @@
           "src": "%{config}/nuttx-jerryscript-%{communication}.config",
           "dst": "%{nuttx}/configs/stm32f4discovery/usbnsh/defconfig"
         }
-      ]
+      ],
+      "patches": {
+        "profiles/minimal-profile-build": [
+          {
+            "condition": "'%{appname}' == 'iotjs'",
+            "file": "%{patches}/nuttx-iotjs-buildfix.diff"
+          }
+        ],
+        "profiles/target-es5.1-profile-build": [
+          {
+            "condition": "'%{appname}' == 'iotjs'",
+            "file": "%{patches}/nuttx-iotjs-buildfix.diff"
+          }
+        ],
+        "profiles/target-es2015subset-profile-build": [
+          {
+            "condition": "'%{appname}' == 'iotjs'",
+            "file": "%{patches}/nuttx-iotjs-buildfix.diff"
+          }
+        ],
+        "test-build": [
+          {
+            "file": "%{patches}/nuttx-iotjs-buildfix.diff"
+          }
+        ]
+      }
     },
     "nuttx-apps": {
       "url": "https://bitbucket.org/nuttx/apps.git",
       "src": "%{js-remote-test}/deps/apps",
-      "version": "nuttx-7.25",
+      "version": "nuttx-7.27",
       "paths": {
         "romfs": "%{nuttx-apps}/nshlib/nsh_romfsimg.h"
       },
@@ -139,7 +168,7 @@
         "artik053": ["--mem-stats=ON"]
       },
       "paths": {
-        "tests": "%{jerryscript}/tests/jerry/",
+        "tests": "%{jerryscript}/tests/jerry",
         "minimal-profile": "%{jerryscript}/jerry-core/profiles/minimal.profile",
         "es2015-subset-profile": "%{jerryscript}/jerry-core/profiles/es2015-subset.profile",
         "linker-map": "%{jerryscript}/build/jerry-main/jerry.map",
@@ -199,6 +228,27 @@
         }
       ],
       "patches": {
+        "profiles/minimal-profile-build": [
+          {
+            "condition": "'%{device}' == 'stm32f4dis' and '%{appname}' == 'iotjs'",
+            "file": "%{patches}/libtuv-iotjs-buildfix.diff",
+            "submodule": "%{iotjs}/deps/libtuv/"
+          }
+        ],
+        "profiles/target-es5.1-profile-build": [
+          {
+            "condition": "'%{device}' == 'stm32f4dis' and '%{appname}' == 'iotjs'",
+            "file": "%{patches}/libtuv-iotjs-buildfix.diff",
+            "submodule": "%{iotjs}/deps/libtuv/"
+          }
+        ],
+        "profiles/target-es2015subset-profile-build": [
+          {
+            "condition": "'%{device}' == 'stm32f4dis' and '%{appname}' == 'iotjs'",
+            "file": "%{patches}/libtuv-iotjs-buildfix.diff",
+            "submodule": "%{iotjs}/deps/libtuv/"
+          }
+        ],
         "test-build": [
           {
             "condition": "'%{device}' == 'stm32f4dis' and %{memstat}",
@@ -211,6 +261,11 @@
           {
             "condition": "'%{device}' in ['stm32f4dis', 'artik053'] and %{memstat}",
             "file": "%{patches}/iotjs-system-heap.diff"
+          },
+          {
+            "condition": "'%{device}' == 'stm32f4dis' and '%{appname}' == 'iotjs'",
+            "file": "%{patches}/libtuv-iotjs-buildfix.diff",
+            "submodule": "%{iotjs}/deps/libtuv/"
           },
           {
             "condition": "'%{device}' in ['stm32f4dis', 'artik053'] and %{memstat}",

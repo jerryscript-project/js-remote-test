@@ -1,0 +1,14 @@
+diff --git a/include/uv-nuttx.h b/include/uv-nuttx.h
+index 7dac257..2511a3f 100644
+--- a/include/uv-nuttx.h
++++ b/include/uv-nuttx.h
+@@ -98,7 +98,9 @@ ssize_t writev(int __fd, const struct iovec* __iovec, int __count);
+ int getpeername(int sockfd, struct sockaddr* addr, socklen_t* addrlen);
+ 
+ // Maximum queue length specifiable by listen
++#if !defined(SOMAXCONN)
+ #define SOMAXCONN 8
++#endif
+ 
+ //-----------------------------------------------------------------------------
+ // structure extension for nuttx                                                          
