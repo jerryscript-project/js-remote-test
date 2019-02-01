@@ -84,10 +84,12 @@ def exec_command(cmd, args):
     if not args:
         args = []
 
+    print_command('.', cmd, args)
+
     exitcode = subprocess.call([cmd] + args)
 
     if exitcode != 0:
-        print('[Failed - %s] %s %s', exitcode, cmd, ' '.join(args))
+        print('[Failed - %s] %s %s' % (exitcode, cmd, ' '.join(args)))
         exit(1)
 
 
@@ -97,6 +99,28 @@ def exec_docker(cmd):
     '''
     exec_cmd = ' '.join(cmd)
     exec_command('docker', ['exec', '-it', DOCKER_NAME, '/bin/bash', '-c', exec_cmd])
+
+
+def print_command(cwd, cmd, args):
+    '''
+    Helper function to print commands.
+    '''
+    terminal_empty = '\033[0m'
+    terminal_green = '\033[1;32m'
+    terminal_yellow = '\033[1;33m'
+
+    rpath = os.path.relpath(cwd, DOCKER_JSREMOTE_PATH)
+    # Resolve the current folder character to the appropriate folder name.
+    if rpath == os.curdir:
+        rpath = os.path.basename(os.path.abspath(os.curdir))
+
+    cmd_info = [
+        '%s[%s]' % (terminal_yellow, rpath),
+        '%s%s' % (terminal_green, cmd),
+        '%s%s' % (terminal_empty, ' '.join(args))
+    ]
+
+    print(' '.join(cmd_info))
 
 
 def main():
