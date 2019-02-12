@@ -239,3 +239,53 @@ $ python -m jstest --device artik053 --app iotjs --device-id /dev/ARTIK053 --bau
 ```
 
 **Note**: If coverage is enabled then the memory measurement data will not be processed. However, it is shown as an information.
+
+### Run js-remote-test from Docker
+
+`js-remote-test` runs best on Ubuntu systems (especially Ubuntu 16.04). If you have a different distribution and/or you can't install required dependencies, you can use the `iotjs/js_remote_test` docker image.
+
+#### Downloading the Docker image
+```sh
+$ docker pull iotjs/js_remote_test:0.6
+```
+
+#### Starting a Docker container
+```sh
+$ docker run -dit --user jsuser -w /home/jsuser --name jsremote iotjs/js_remote_test:0.6
+```
+
+Possible additional arguments of the `docker run` command:
+* `-v`
+This argument can be used to mount your js-remote-test folder in the docker container. For example:
+```sh
+$ docker run -dit --user jsuser -w /home/jsuser --name jsremote -v /home/user/js-remote-test:/home/jsuser/js-remote-test iotjs/js_remote_test:0.6
+```
+Now you will be able to access your js-remote-test directory in docker at `/home/jsuser/js-remote-test`.
+
+This can also be used to attach serial devices to your container. For example:
+```sh
+$ docker run -dit --user jsuser -w /home/jsuser --name jsremote -v /dev/ARTIK053:/dev/ARTIK053 iotjs/js_remote_test:0.6
+```
+This will make `/dev/ARTIK053` visible in the container with the same name. Note: if you unplug the device while the container
+is running, it will not work after plugging back in, even though `/dev/ARTIK053` still exists in the container.
+
+* `--env`
+This argument can be used to set environment variables in the container. It can be especially useful to set the `PYTHONPATH` variable:
+```sh
+# Assuming the path to js-remote-test in the container is /home/jsuser/js-remote-test
+$ docker run -dit --user jsuser -w /home/jsuser --name jsremote --env PYTHONPATH=/home/jsuser/js-remote-test:$PYTHONPATH iotjs/js_remote_test:0.6
+```
+
+#### Executing js-remote-test
+You can get a bash prompt ("login" to the container), and then run js-remote-test as usual:
+```sh
+$ docker exec -it jsremote /bin/bash
+# Assuming you are already "logged in" to the container:
+$ cd path_to_js_remote_test
+$ python -um jstest ...
+```
+
+Alternatively, you can also execute `js-remote-test` without logging in (NOTE: for this you need to set the `PYTHONPATH` variable as instructed above.)
+```sh
+$ docker exec -it jsremote /bin/bash -c python -um jstest ...
+```
