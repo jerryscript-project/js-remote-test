@@ -25,10 +25,11 @@ TRAVIS_BUILD_PATH = os.environ['TRAVIS_BUILD_DIR']
 
 DOCKER_IMAGE_NAME = 'iotjs/js_remote_test:0.6'
 DOCKER_NAME = 'jsremote_docker'
-DOCKER_ROOT_PATH = '/root'
+DOCKER_USERNAME = 'travis'
+DOCKER_WORKDIR = '/home/%s' % DOCKER_USERNAME
 
 # The path to js-remote-test in Docker.
-DOCKER_JSREMOTE_PATH = DOCKER_ROOT_PATH + '/js-remote-test/'
+DOCKER_JSREMOTE_PATH = DOCKER_WORKDIR + '/js-remote-test/'
 
 # Commonly used commands and arguments.
 BASE_COMMAND = ['python', '-m', 'jstest']
@@ -71,9 +72,13 @@ def run_docker():
     '''
     Create the Docker container where we will run the builds.
     '''
-    exec_command('docker', ['run', '-dit', '--privileged', '--name', DOCKER_NAME,
+    exec_command('docker', ['run', '-dit', '--privileged',
+                            '--name', DOCKER_NAME,
+                            '--user', DOCKER_USERNAME,
+                            '-w', DOCKER_WORKDIR,
                             '-v', '%s:%s' % (TRAVIS_BUILD_PATH, DOCKER_JSREMOTE_PATH),
                             '--env', 'PYTHONPATH=%s:$PYTHONPATH' % DOCKER_JSREMOTE_PATH,
+                            '--env', 'HOME=%s' % DOCKER_WORKDIR,
                             DOCKER_IMAGE_NAME])
 
 
