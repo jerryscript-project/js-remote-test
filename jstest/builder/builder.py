@@ -46,7 +46,7 @@ def save_artifacts(modules):
             if 'dst' not in artifact:
                 continue
 
-            if not eval(artifact.get('condition', 'False')):
+            if not eval(artifact.get('condition', 'True')):
                 continue
 
             src = artifact.get('src')
