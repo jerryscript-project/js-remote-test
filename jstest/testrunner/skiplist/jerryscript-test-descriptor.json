@@ -24,7 +24,10 @@
         { "name": "regression-test-issue-2451.js", "reason": "There's not enough memory to run." },
         { "name": "regression-test-issue-2452.js", "reason": "There's not enough memory to run." },
         { "name": "regression-test-issue-2453.js", "reason": "There's not enough memory to run." },
-        { "name": "regression-test-issue-2486.js", "reason": "There's not enough memory to run." }
+        { "name": "regression-test-issue-2486.js", "reason": "There's not enough memory to run." },
+        { "name": "vm-recursion-limit.js", "reason": "There's not enough stack to run." },
+        { "name": "regression-test-issue-2733.js", "reason": "There's not enough stack to run." }
+
       ]
     },
     "enable": []
