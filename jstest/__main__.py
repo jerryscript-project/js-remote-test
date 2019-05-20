@@ -67,7 +67,7 @@ def parse_options():
                         help='Enable jerry debugger (Set ADDRESS to run debugger at startup')
 
     parser.add_argument('--device',
-                        choices=['stm32f4dis', 'rpi2', 'artik053', 'artik530'],
+                        choices=['stm32f4dis', 'rpi2', 'artik053', 'rpi3'],
                         default='stm32f4dis',
                         help='specify the target device (default: %(default)s)')
 
@@ -150,7 +150,7 @@ def adjust_options(options):
     '''
     Adjust some of the command line arguments.
     '''
-    if options.device == 'artik530' and options.app == 'jerryscript':
+    if options.device == 'rpi3' and options.app == 'jerryscript':
         jstest.console.warning('JerryScript is not supported for Tizen.')
         sys.exit(1)
 
@@ -168,7 +168,7 @@ def adjust_options(options):
     if options.emulate:
         options.no_flash = True
 
-        if options.device in ['rpi2', 'artik530']:
+        if options.device in ['rpi2', 'rpi3']:
             options.username = 'js-remote-test'
             options.password = 'jerry'
             options.ip = '127.0.0.1'

@@ -12,14 +12,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from jstest.testrunner.devices import artik053, artik530, rpi2, stm32f4dis
+from jstest.testrunner.devices import artik053, rpi3, rpi2, stm32f4dis
 
 
 DEVICES = {
     "stm32f4dis": stm32f4dis.STM32F4Device,
     "rpi2": rpi2.RPi2Device,
     "artik053": artik053.ARTIK053Device,
-    "artik530": artik530.ARTIK530Device
+    "rpi3": rpi3.RPi3Device
 }
 
 

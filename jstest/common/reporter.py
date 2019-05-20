@@ -47,7 +47,7 @@ def report_configuration(env):
     console.log('  device:             %s' % env.options.device)
     console.log('  timeout:            %s sec' % env.options.timeout)
 
-    if env.options.device in ['rpi2', 'artik530']:
+    if env.options.device in ['rpi2', 'rpi3']:
         console.log('  ip:                 %s' % env.options.ip)
         console.log('  port:               %s' % env.options.port)
         console.log('  username:           %s' % env.options.username)

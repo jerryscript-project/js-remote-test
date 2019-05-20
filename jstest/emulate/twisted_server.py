@@ -93,7 +93,7 @@ def run(device):
     '''
     prompts = {
         'rpi2': ':~$',
-        'artik530': ':~>'
+        'rpi3': ':~>'
     }
     this_dir = os.path.dirname(__file__)
     with open(os.path.join(this_dir, 'private.key')) as private_blob_file:

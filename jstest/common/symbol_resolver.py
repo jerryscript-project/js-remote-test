@@ -22,7 +22,7 @@ _TARGETS = {
     'stm32f4dis': 'arm-nuttx',
     'artik053': 'arm-tizenrt',
     'rpi2': 'arm-linux',
-    'artik530': 'noarch-tizen'
+    'rpi3': 'noarch-tizen'
 }
 
 

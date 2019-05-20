@@ -37,7 +37,7 @@ RELEASE_ARG = ['--buildtype', 'release']
 DEBUG_ARG = ['--buildtype', 'debug']
 COMMON_ARGS = ['--emulate', '--no-memstat', '--quiet']
 
-DEVICES = ['rpi2', 'artik530', 'artik053', 'stm32f4dis']
+DEVICES = ['rpi2', 'rpi3', 'artik053', 'stm32f4dis']
 
 
 def parse_option():

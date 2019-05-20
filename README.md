@@ -10,7 +10,7 @@ The following table shows the supported devices and applications:
 | STM32F4-Discovery                      | &#128504; |  &#128504;  |
 | Raspberry Pi 2                         | &#128504; |  &#128504;  |
 | ARTIK 053                              | &#128504; |  &#128504;  |
-| ARTIK 530                              | &#128504; |  |
+| Raspberry Pi 3                         | &#128504; |  |
 <br />
 
 In the first step, all the dependencies should be installed:  
@@ -79,15 +79,15 @@ Source:
   * https://github.com/Samsung/TizenRT/blob/master/build/configs/artik053/README.md#add-usb-device-rules
 
 
-### Set up ARTIK 530
+### Set up Raspberry Pi 3
 
-In case of the ARTIK 530 devices, the communication happens over `SSH`, like in case of RP2. You need to check a few things before starting remote-test.
+In case of the RP3 devices, the communication happens over `SSH`, like in case of RP2. You need to check a few things before starting remote-test.
 
 First, you must install rpm packages which are `openssh`, `python`, `rsync` on the remote target.
 To install them, you need sdb tool which is contained within tizen-studio. For more details, please refer to [this link](https://developer.tizen.org/development/tizen-studio/). After you have the sdb tool, install the packages with the commands below.
 
 ```sh
-# The ARTIK530 board doesn't need to execute 'sdb connect` command.
+# The RPi3 board doesn't need to execute 'sdb connect` command.
 user@desktop $ ~/tizen-studio/tools/sdb connect <your-device-ip>
 user@desktop $ ./tools/install_tizen_packages.sh
 ```
@@ -128,7 +128,7 @@ $ export PYTHONPATH=/path/to/js-remote-test:$PYTHONPATH
   Defines the buildtype for the projects {release, debug}. Just for debugging.
 
 --device
-  Defines the target device {stm32f4dis, rpi2, artik053, artik530}.
+  Defines the target device {stm32f4dis, rpi2, artik053, rpi3}.
 
 --public
   Publish the test results to the public database.
@@ -211,7 +211,7 @@ $ python -m jstest --device rpi2 --app iotjs --ip a.b.c.d --username pi --remote
 $ python -m jstest --device rpi2 --app jerryscript --ip a.b.c.d --username pi --remote-workdir /home/pi/testrunner
 $ python -m jstest --device artik053 --app iotjs --device-id /dev/ARTIK053 --baud 115200
 $ python -m jstest --device artik053 --app jerryscript --device-id /dev/ARTIK053 --baud 115200
-$ python -m jstest --device artik530 --app iotjs --ip a.b.c.d --username root --remote-workdir /root/testrunner
+$ python -m jstest --device rpi3 --app iotjs --ip a.b.c.d --username root --remote-workdir /root/testrunner
 ```
 
 All the results are written into JSON files that are found in a `results` folder. Name of the output files are datetime with the following format:

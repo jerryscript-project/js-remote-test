@@ -20,7 +20,7 @@
     },
     "enable": []
   },
-  "artik530": {
+  "rpi3": {
     "skip": {
       "testsets": [],
       "testfiles": []

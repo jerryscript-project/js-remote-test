@@ -14,9 +14,9 @@
 
 from jstest.testrunner.devices.ssh_device import SSHDevice
 
-class ARTIK530Device(SSHDevice):
+class RPi3Device(SSHDevice):
     '''
-    Device of the ARTIK530 target.
+    Device of the Raspberry Pi 3 target.
     '''
     def __init__(self, env):
         # Note: the PS1 prompt on the device has to have this ending.

@@ -39,7 +39,7 @@ class RemoteDevice(object):
         if self.env.options.emulate:
             return
 
-        if self.device not in ['rpi2', 'artik530', 'artik053', 'stm32f4dis']:
+        if self.device not in ['rpi2', 'rpi3', 'artik053', 'stm32f4dis']:
             console.fail('The selected device is not supported')
 
     def login(self):
@@ -65,7 +65,7 @@ class RemoteDevice(object):
         if not utils.exist_files(self.env.modules.app.paths.tests, ['testsets.json']):
             return set(), set(), 'stable'
 
-        if self.device in ['rpi2', 'artik530']:
+        if self.device in ['rpi2', 'rpi3']:
             tester_py = 'python %s/tester.py ' % self.workdir
             iotjs = '%s/iotjs' % self.workdir
             buildinfo = '%s/tests/tools/iotjs_build_info.js' % self.workdir
