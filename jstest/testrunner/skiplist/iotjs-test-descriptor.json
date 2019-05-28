@@ -2,28 +2,36 @@
   "rpi2": {
     "skip": {
       "testsets": [],
-      "testfiles": []
+      "testfiles": [
+        { "name": "test_mqtt.js", "reason": "Flaky test." }
+      ]
     },
     "enable": []
   },
   "stm32f4dis": {
     "skip": {
       "testsets": [],
-      "testfiles": []
+      "testfiles": [
+        { "name": "test_mqtt.js", "reason": "Flaky test." }
+      ]
     },
     "enable": []
   },
   "artik053": {
     "skip": {
       "testsets": [],
-      "testfiles": []
+      "testfiles": [
+        { "name": "test_mqtt.js", "reason": "Flaky test." }
+      ]
     },
     "enable": []
   },
   "rpi3": {
     "skip": {
       "testsets": [],
-      "testfiles": []
+      "testfiles": [
+        { "name": "test_mqtt.js", "reason": "Flaky test." }
+      ]
     },
     "enable": []
   }
